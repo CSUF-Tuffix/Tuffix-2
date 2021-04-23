@@ -1,0 +1,10 @@
+language: python
+addons:
+    apt:
+        sources:
+        - ubuntu-toolchain-r-test
+        packages:
+        - python3
+install: true
+script: python test.py
+
