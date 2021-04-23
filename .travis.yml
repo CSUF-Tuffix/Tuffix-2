@@ -3,8 +3,9 @@ addons:
     apt:
         sources:
         - ubuntu-toolchain-r-test
+        - ppa:deadsnakes/ppa
         packages:
-        - python3
+        - python3.9
 install: true
-script: python test.py
+script: python3.9 test.py
 
