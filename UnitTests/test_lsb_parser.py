@@ -9,30 +9,24 @@ AUTHOR: Jared Dyreson
 from Tuffix.LSBParser import lsb_parser
 import unittest
 
-class LSBTest(unittest.TestCase):
-    def test_constructor(self):
-        try:
-            # I don't want to keep instaiting it each time
-            # we know it works because it is the first test
-            # I KNOW THIS IS BAD PRACTICE
 
-            global _lsb_parser
-            _lsb_parser = lsb_parser()
-        # cannot find the file or syntax error
+class LSBTest(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        # NOTE: test constructor
+        try:
+            cls._lsb_parser = lsb_parser()
         except EnvironmentError as error:
             raise AssertionError(f'{error}')
 
     def test_load(self):
-        global _lsb_content
-        _lsb_content = _lsb_parser.file_map
-
         self.assertTrue(
-            isinstance(_lsb_content, dict)
+            isinstance(self._lsb_parser.file_map, dict)
         )
 
     def test_lsb_version(self):
         try:
-            _version = _lsb_parser.lsb_version()
+            _version = self._lsb_parser.lsb_version()
         except ValueError as error:
             # parsing error
             self.assertTrue(False)
@@ -44,25 +38,26 @@ class LSBTest(unittest.TestCase):
         )
 
     def test_lsb_id(self):
-        _id = _lsb_parser.lsb_id()
+        _id = self._lsb_parser.lsb_id()
 
         self.assertTrue(
             isinstance(_id, str)
         )
 
     def test_lsb_type(self):
-        _type = _lsb_parser.lsb_release_type()
+        _type = self._lsb_parser.lsb_release_type()
 
         self.assertTrue(
             isinstance(_type, str)
         )
 
     def test_lsb_description(self):
-        _description = _lsb_parser.lsb_distrib_description()
+        _description = self._lsb_parser.lsb_distrib_description()
 
         self.assertTrue(
             isinstance(_description, str)
         )
+
 
 if __name__ == '__main__':
     unittest.main()
