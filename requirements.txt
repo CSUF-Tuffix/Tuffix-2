@@ -2,7 +2,6 @@ Crypto
 packaging
 pycryptodome
 pyfakefs
-python-apt
 python-gnupg
 requests
 termcolor

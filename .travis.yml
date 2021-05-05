@@ -5,6 +5,7 @@ addons:
         - ubuntu-toolchain-r-test
         packages:
         - python3-distutils-extra
+        - python-apt
 install:
   - pip install -r requirements.txt
 
