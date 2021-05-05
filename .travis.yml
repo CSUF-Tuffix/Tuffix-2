@@ -1,6 +1,11 @@
 language: python
+addons:
+    apt:
+        sources:
+        - ubuntu-toolchain-r-test
+        packages:
+        - python3-distutils-extra
 install:
-  - apt-get install python3-distutils-extra
   - pip install -r requirements.txt
 
 script: python3 test.py
