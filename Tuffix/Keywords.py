@@ -10,6 +10,7 @@ from Tuffix.Status import *
 from zipfile import ZipFile
 import requests
 import json
+from apt import debfile
 
 
 class AbstractKeyword:
@@ -156,6 +157,7 @@ class BaseKeyword(AbstractKeyword):
     def configure_git(self, username=None, mail=None):
         """
         GOAL: Configure git
+        NOTE : move to Tuffix/Commands.py -> InitCommand ?
         """
 
         keeper = SudoRun()
@@ -192,7 +194,7 @@ class BaseKeyword(AbstractKeyword):
             fp.write(requests.get(atom_url).content)
         print("[INFO] Finished downloading...")
         print("[INFO] Installing atom....")
-        apt.debfile.DebPackage(filename=atom_dest).install()
+        debfile.DebPackage(filename=atom_dest).install()
         for plugin in atom_plugins:
             print(f'[INFO] Installing {plugin}...')
             executor.run(f'/usr/bin/apm install {plugin}', normal_user)

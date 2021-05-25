@@ -13,7 +13,7 @@ from apt import apt_pkg
 
 from Tuffix.Exceptions import *
 from Tuffix.LSBParser import lsb_parser
-
+from gi.repository import Gio
 
 def distrib_codename():
     """
@@ -122,7 +122,7 @@ def set_background(path: str):
         raise ValueError
 
     lsb_parser_ = lsb_parser()
-    _id = lsb_parser.id
+    _id = lsb_parser_.id
     _session = str(os.environ.get('DESKTOP_SESSION'))
 
     if not(
@@ -175,7 +175,7 @@ def get_user_submitted_wallpaper(manifest={}):
     destination = f'{wallpaper_dir}/{name}.{extension}'
     """
 
-    url = "https://speckyboy.com/wp-content/uploads/2020/11/high-resolution-4k-desktop-wallpaper-03.jpg"
+    url = "https://www.setaswall.com/wp-content/uploads/2017/03/Outer-Space-Stars-Galaxies-Frozen-Wallpaper-1920x1200.jpg"
     name = "SpacialRend"
     person = "Jared Dyreson"
     output = f'{pictures_directory}/{name}.jpg'
@@ -184,11 +184,11 @@ def get_user_submitted_wallpaper(manifest={}):
         os.makedirs(pictures_directory)
 
     req = requests.get(url)
-    if("image" in req.headers['content-type']):
-        with open(output, 'wb') as fp:
-            fp.write(req.content)
-    else:
-        raise EnvironmentError(
-            f'{url} contains file that is not an image; indexing error?')
+    # if("image" in req.headers['content-type']):
+    # else:
+        # raise EnvironmentError(
+            # f'{url} contains file that is not an image; indexing error?')
 
+    with open(output, 'wb') as fp:
+        fp.write(req.content)
     # set_background(output)
