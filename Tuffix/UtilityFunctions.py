@@ -134,10 +134,42 @@ def set_background(path: str):
     gsettings.set_string(KEY, f'file://{path}')
 
 
-def get_user_submitted_wallpaper():
-    # making a rest API for this
-
+def get_user_submitted_wallpaper(manifest={}):
     pictures_directory = f'{Path.home()}/Pictures/Wallpapers'
+
+    """
+    # Python 3.10 Example
+
+    import pathlib
+    import re
+    import os
+
+    wallpaper_dir = f'{pathlib.Path.home()}/Pictures/Wallpapers'
+    _re = re.compile('(?P<path>.*)\.(?P<extension>[A-Za-z]+)')
+
+    payload = {
+        "url": "https://speckyboy.com/wp-content/uploads/2020/11/high-resolution-4k-desktop-wallpaper-03.jpg",
+        "name": "SpacialRend",
+        "pointperson": "Jared Dyreson"
+    }
+
+    match payload:
+        case {"url": url, "name": name, "pointperson": author}:
+            pass
+        case _:
+            raise Exception('example exception')
+
+    _re_match = _re.match(os.path.basename(url)).groups()
+
+    match _re_match:
+        case[filename, extension]:
+            pass
+        case _:
+            raise Exception('parsing error')
+
+    destination = f'{wallpaper_dir}/{name}.{extension}'
+    """
+
     url = "https://speckyboy.com/wp-content/uploads/2020/11/high-resolution-4k-desktop-wallpaper-03.jpg"
     name = "SpacialRend"
     person = "Jared Dyreson"
@@ -154,4 +186,4 @@ def get_user_submitted_wallpaper():
         raise EnvironmentError(
             f'{url} contains file that is not an image; indexing error?')
 
-    set_background(output)
+    # set_background(output)

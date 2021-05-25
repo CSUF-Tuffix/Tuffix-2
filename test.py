@@ -10,7 +10,7 @@ runner = unittest.TextTestRunner()
 
 
 for test, _class in UnitTests.__unit_test_hierarchy__.items():
-    print(f'   - [TEST] Conducting {test}')
+    print(f'\t- [TEST] Conducting {test}')
 
     try:
         _test = getattr(UnitTests, test, None)

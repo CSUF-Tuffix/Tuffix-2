@@ -44,8 +44,8 @@ def main(argv, build_config=DEFAULT_BUILD_CONFIG):
     testing purposes.
     build_config: a BuildConfig object
     argv: a list of commandline argument strings, such as sys.argv
-
     """
+
     if not (isinstance(build_config, BuildConfig) and
             isinstance(argv, list) and
             all([isinstance(arg, str) for arg in argv])):
