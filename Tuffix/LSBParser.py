@@ -17,7 +17,8 @@ class lsb_parser():
         self.placeholder = "n/a"
         try:
             self.file_map = self.load()
-            self.version = self.lsb_version()
+            #print(self.file_map)
+            #self.version = self.lsb_version()
             self.id = self.lsb_id()
             self.release_type = self.lsb_release_type()
         except KeyError:
@@ -38,8 +39,8 @@ class lsb_parser():
                     "content") if (_value_match) else value
         return content
 
-    def lsb_version(self) -> float:
-        return float(self.file_map["LSB_VERSION"])
+    #def lsb_version(self) -> float:
+     #   return float(self.file_map["LSB_VERSION"])
 
     def lsb_id(self) -> str:
         return self.file_map["DISTRIB_ID"]

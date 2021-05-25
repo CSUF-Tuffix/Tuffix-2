@@ -7,7 +7,7 @@ from Tuffix.Configuration import *
 from Tuffix.SudoRun import SudoRun
 from Tuffix.KeywordHelperFunctions import *
 from Tuffix.Status import *
-from zipfile import Zipfile
+from zipfile import ZipFile
 import requests
 import json
 

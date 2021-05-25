@@ -14,9 +14,10 @@ class StatusTest(unittest.TestCase):
         """
         Assuming we are running in a VM for testing
         """
+
         _out = in_VM()
         self.assertTrue(isinstance(_out, bool))  # change to true
-        self.assertFalse(_out)
+        self.assertTrue(_out)
 
     def test_cpu_information(self):
         _out = cpu_information()

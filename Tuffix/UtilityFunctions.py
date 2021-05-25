@@ -31,7 +31,7 @@ def distrib_codename():
 def is_deb_package_installed(package_name):
     try:
         apt_pkg.init()
-        cache = apt_pkg.Cache()
+        cache = apt_pkg.Cache(None) # silence this output for testing
         package = cache[package_name]
         return (package.current_state == apt_pkg.CURSTATE_INSTALLED)
     except KeyError:
@@ -56,7 +56,7 @@ def parse_distrib_codename(stream):
 
     if not(_match):
         raise EnvironmentError("[ERROR] Could not find a distrib name")
-    if(len(_match.split(' ') > 1)):
+    if(len(_match.split(' ')) > 1):
         raise EnvironmentError("[ERROR] /etc/lsb-release syntax error")
     return _match
 
@@ -76,7 +76,11 @@ def ensure_root_access():
 
 
 def ensure_ubuntu():
-    if not(os.path.exists("/etc/debian_release")):
+    """
+    /etc/debian_release -> /etc/debian_version
+    """
+
+    if not(os.path.exists("/etc/debian_version")):
         raise UsageError('this is not an Debian derivative, please try again')
 
 
@@ -90,7 +94,8 @@ def ensure_shell_command_exists(name):
     if not (isinstance(name, str)):
         raise ValueError
     try:
-        result = subprocess.run(['which', name])
+        # note, I have disabled output for this function for testing
+        result = subprocess.run(['which', name], stdout=subprocess.DEVNULL)
         if result.returncode != 0:
             raise EnvironmentError(
                 f'command "{name}" not found; this does not seem to be Ubuntu')
