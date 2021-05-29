@@ -750,12 +750,13 @@ class CustomKeyword(AbstractKeyword):
         edit_deb_packages(self.packages, is_installing=False)
 
 
-def all_keywords(build_config):
-    if not isinstance(build_config, BuildConfig):
-        raise ValueError
-    # alphabetical order, but put digits after letters
-    # TODO: all keywords commented out have not been fully developed
-    return [AllKeyword(build_config),
+class KeywordContainer():
+    def __init__(self, build_configuration: BuildConfig):
+        if(not isinstance(build_configuration, BuildConfig)):
+            raise ValueError(
+                f'expected BuildConfig for first argument, received: {type(build_configuration)}')
+        self.container: list[AbstractKeyword] = [
+            AllKeyword(build_config),
             BaseKeyword(build_config),
             # CustomKeyword(build_config),
             # ChromeKeyword(build_config),
@@ -775,17 +776,54 @@ def all_keywords(build_config):
             # C481Keyword(build_config),
             C484Keyword(build_config),
             TestKeyword(build_config)
-            ]
+
+        ]
+
+    def __contains__(self, value: str):
+        if(not isinstance(value, str)):
+            raise ValueError(f'incorrect type: {type(value)}')
+
+        for keyword in self.container:
+            if(keyword.name == value):
+                return True
+        return False
+
+# def all_keywords(build_config):
+    # if not isinstance(build_config, BuildConfig):
+        # raise ValueError
+    # # alphabetical order, but put digits after letters
+    # # TODO: all keywords commented out have not been fully developed
+    # return [AllKeyword(build_config),
+        # BaseKeyword(build_config),
+        # # CustomKeyword(build_config),
+        # # ChromeKeyword(build_config),
+        # # GeneralKeyword(build_config),
+        # LatexKeyword(build_config),
+        # ZoomKeyword(build_config),
+        # # MediaKeyword(build_config),
+        # # VirtualBoxKeyword(build_config),
+        # # C223JKeyword(build_config),
+        # # C223NKeyword(build_config),
+        # # C223PKeyword(build_config),
+        # # C223WKeyword(build_config),
+        # # C240Keyword(build_config),
+        # C121Keyword(build_config),
+        # C439Keyword(build_config),
+        # C474Keyword(build_config),
+        # # C481Keyword(build_config),
+        # C484Keyword(build_config),
+        # TestKeyword(build_config)
+        # ]
 
 
-def find_keyword(build_config, name):
-    if not (isinstance(build_config, BuildConfig) and
-            isinstance(name, str)):
-        raise ValueError
-    for keyword in all_keywords(build_config):
-        if keyword.name == name:
-            return keyword
-    raise UsageError(
-        'unknown keyword "' +
-        name +
-        '", see valid keyword names with $ tuffix list')
+# def find_keyword(build_config, name):
+    # if not (isinstance(build_config, BuildConfig) and
+        # isinstance(name, str)):
+        # raise ValueError
+    # for keyword in all_keywords(build_config):
+        # if keyword.name == name:
+        # return keyword
+    # raise UsageError(
+        # 'unknown keyword "' +
+        # name +
+        # '", see valid keyword names with $ tuffix list')
