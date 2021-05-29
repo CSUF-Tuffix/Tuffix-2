@@ -2,6 +2,7 @@
 
 from Tuffix.UtilityFunctions import *
 from Tuffix.Exceptions import *
+from Tuffix.SudoRun import *
 from Tuffix.Configuration import DEFAULT_BUILD_CONFIG
 
 import os
@@ -70,7 +71,6 @@ class UtilityFunctionTest(unittest.TestCase):
             self.assertTrue(False)
 
 
-    # def test_set_background(self):
     def test_get_user_submitted_wallpaper(self):
         # NOTE: currently not taking input for this function
         # please update when it takes in a dictinoary.
@@ -79,8 +79,20 @@ class UtilityFunctionTest(unittest.TestCase):
         except EnvironmentError:
             self.assertFalse(True)
 
-        wallpaper_dir = f'{pathlib.Path.home()}/Pictures/Wallpapers'
+        sudo = SudoRun()
+
+        wallpaper_dir = f'/home/jared/Pictures/Wallpapers'
         destination = f'{wallpaper_dir}/SpacialRend.jpg'
 
         if not(os.path.exists(destination)):
             self.assertTrue(False)
+
+        # does not entirely work because we are still root
+        # set_background(destination)
+        # sudo.run(f"gsettings set org.gnome.desktop.background picture-uri file://{destination}", "jared")
+
+    # def test_set_background(self):
+        # try:
+        # except EnvironmentError:
+            # self.assertTrue(False)
+
