@@ -73,9 +73,8 @@ class MarkCommand(AbstractCommand):
         # either select the add or remove from the Keywords
         self.command = command
 
-    def execute(self, arguments: list):
+    def execute(self, arguments):
         if not (isinstance(arguments, list) and
-                isinstance(is_install, bool) and
                 all([isinstance(argument, str) for argument in arguments])):
             raise ValueError
 
@@ -83,13 +82,15 @@ class MarkCommand(AbstractCommand):
             raise UsageError("you must supply at least one keyword to mark")
 
         # ./tuffix add base media latex
-        k_container = KeywordContainer()
+        collection = [
+            find_keyword(
+                self.build_config,
+                arguments[x]) for x,
+            _ in enumerate(arguments)]
 
-        collection = [k_container.obtain(x) for x in arguments]
-
-        current_state = read_state(self.build_config)
+        state = read_state(self.build_config)
         first_arg = arguments[0]
-        install = True if (self.command == "add") else False
+        install = True if self.command == "add" else False
 
         # for console messages
         verb, past = (
@@ -102,14 +103,18 @@ class MarkCommand(AbstractCommand):
         if(first_arg == "all"):
             try:
                 input(
-                    "[INFO] Are you sure you want to install/remove all packages? Press enter to continue or CTRL-D to exit: ")
+                    "are you sure you want to install/remove all packages? Press enter to continue or CTRL-D to exit: ")
             except EOFError:
                 quit()
-
             if(install):
-                collection = k_container.container  # all possible instances we can install
+                collection = [
+                    word for word in all_keywords(
+                        self.build_config) if word.name != first_arg]
             else:
-                collection = [k_container.obtain(x) for x in state.installed]
+                collection = [
+                    find_keyword(
+                        self.build_config,
+                        element) for element in state.installed]
 
         ensure_root_access()
 
@@ -117,10 +122,10 @@ class MarkCommand(AbstractCommand):
             if((element.name in state.installed)):
                 if(install):
                     raise UsageError(
-                        f'[ERROR] Tuffix: cannot add {element.name}, it is already installed')
+                        f'tuffix: cannot add {element.name}, it is already installed')
             elif((element.name not in state.installed) and (not install)):
                 raise UsageError(
-                    f'[ERROR] Tuffix: cannot remove candidate {element.name}; not installed')
+                    f'cannot remove candidate {element.name}; not installed')
 
             print(f'[INFO] Tuffix: {verb} {element.name}')
 
@@ -157,9 +162,14 @@ class AddCommand(AbstractCommand):
 
 
 class CustomCommand(AbstractCommand):
+    """
+    TODO: get the file to this function
+    """
+
     def __init__(self, build_config):
         super().__init__(build_config, 'custom', 'user-defined json payload')
         self.bc = build_config
+        # so we can pass this to the new class instance we're dynamically creating
 
     def execute(self, path: str):
         if(not isinstance(path, str)):

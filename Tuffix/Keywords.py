@@ -283,7 +283,6 @@ class C121Keyword(AbstractKeyword):
         super().__init__(build_config, 'C121', 'CPSC 121 (Object-Oriented Programming)')
 
     def add(self):
-        # edit_deb_packages(self.packages, is_installing=True)
         edit_deb_packages(self.packages, is_installing=True)
 
     def remove(self):
@@ -295,6 +294,7 @@ class C223JKeyword(AbstractKeyword):
     """
     NOTE: do you want to use a newer version of Java?
     Or are the IDE's dependent on a certain version?
+
     Point Person: Floyd Holliday
     SRC: sub-tuffix/cpsc223j.yml
     """
@@ -320,6 +320,7 @@ class C223NKeyword(AbstractKeyword):
     Point person: Floyd Holliday
     SRC: sub-tuffix/cpsc223n.yml
     """
+
     packages = ['mono-complete',
                 'netbeans']
 
