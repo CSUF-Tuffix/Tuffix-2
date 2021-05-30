@@ -10,6 +10,14 @@ class DriverTest(unittest.TestCase):
         command = "tuffix init"
         main(command.split())
 
-    def test_remove(self):
+    def test_add(self):
         command = "tuffix add base"
+        main(command.split())
+
+    def test_remove(self):
+        command = "tuffix remove base"
+        main(command.split())
+
+    def test_list(self):
+        command = "tuffix list"
         main(command.split())

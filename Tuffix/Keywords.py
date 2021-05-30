@@ -10,10 +10,16 @@ from Tuffix.Status import *
 from zipfile import ZipFile
 import requests
 import json
-from apt import debfile
+from apt import debfile, cache
 
 
 class AbstractKeyword:
+    """
+    Keyword names may begin with a course code (digits), but Python
+    identifiers may not. If a keyword name starts with a digit, prepend
+    the class name with C (for Course).
+    """
+
     def __init__(self, build_config, name, description):
         if not (isinstance(build_config, BuildConfig) and
                 isinstance(name, str) and
@@ -22,6 +28,7 @@ class AbstractKeyword:
             raise ValueError
         self.name = name
         self.description = description
+        self.packges: list[str] = []
 
     def add(self):
         raise NotImplementedError
@@ -29,13 +36,30 @@ class AbstractKeyword:
     def remove(self):
         raise NotImplementedError
 
-# Keyword names may begin with a course code (digits), but Python
-# identifiers may not. If a keyword name starts with a digit, prepend
-# the class name with C (for Course).
+    def check_candiates(self):
+        """
+        Check all package candiates to see if they can be installed
+        For unit testing
+
+        Not using "raise NotImplementedError"
+
+        """
+        current_cache = cache.Cache()
+        current_cache.update()
+
+        for package in self.packages:
+            # will raise KeyError if not found
+            try:
+                _ = current_cache[package]
+            except KeyError:
+                current_cache.close()
+                raise KeyError(f'could not find {package}')
+
+        current_cache.close()
 
 
 class AllKeyword(AbstractKeyword):
-    packages = []
+    self.packages = []
 
     def __init__(self, build_config):
         super().__init__(
@@ -57,29 +81,29 @@ class GeneralKeyword(AbstractKeyword):
     SRC: sub-tuffix/min-tuffix.yml (Kitchen sink)
     """
 
-    packages = ['autoconf',
-                'automake',
-                'a2ps',
-                'cscope',
-                'curl',
-                'dkms',
-                'emacs',
-                'enscript',
-                'glibc-doc',
-                'gpg',
-                'graphviz',
-                'gthumb',
-                'libreadline-dev',
-                'manpages-posix',
-                'manpages-posix-dev',
-                'meld',
-                'nfs-common',
-                'openssh-client',
-                'openssh-server',
-                'seahorse',
-                'synaptic',
-                'vim',
-                'vim-gtk3']
+    self.packages = ['autoconf',
+                     'automake',
+                     'a2ps',
+                     'cscope',
+                     'curl',
+                     'dkms',
+                     'emacs',
+                     'enscript',
+                     'glibc-doc',
+                     'gpg',
+                     'graphviz',
+                     'gthumb',
+                     'libreadline-dev',
+                     'manpages-posix',
+                     'manpages-posix-dev',
+                     'meld',
+                     'nfs-common',
+                     'openssh-client',
+                     'openssh-server',
+                     'seahorse',
+                     'synaptic',
+                     'vim',
+                     'vim-gtk3']
 
     def __init__(self, build_config):
         super().__init__(
@@ -100,24 +124,24 @@ class BaseKeyword(AbstractKeyword):
     Point person: undergraduate committee
     """
 
-    packages = ['atom',
-                'build-essential',
-                'clang',
-                'clang-format',
-                'clang-tidy',
-                'cmake',
-                'code',
-                'gdb',
-                'gcc',
-                'git',
-                'g++',
-                'libc++-dev',
-                'libc++abi-dev',
-                'libgconf-2-4',
-                'libgtest-dev',
-                'libgmock-dev',
-                'lldb',
-                'python2']
+    self.packages = ['atom',
+                     'build-essential',
+                     'clang',
+                     'clang-format',
+                     'clang-tidy',
+                     'cmake',
+                     'code',
+                     'gdb',
+                     'gcc',
+                     'git',
+                     'g++',
+                     'libc++-dev',
+                     'libc++abi-dev',
+                     'libgconf-2-4',
+                     'libgtest-dev',
+                     'libgmock-dev',
+                     'lldb',
+                     'python2']
 
     def __init__(self, build_config):
         super().__init__(build_config,
@@ -133,6 +157,15 @@ class BaseKeyword(AbstractKeyword):
 
     def remove(self):
         edit_deb_packages(self.packages, is_installing=False)
+        files_to_remove = [
+            pathlib.Path("/etc/apt/sources.list.d/vscode.list"),
+            pathlib.Path("/etc/apt/sources.list.d/atom.list"),
+            pathlib.Path(
+                "/etc/apt/trusted.gpg.d/packages.microsoft.gpg")
+
+        ]
+        for x in files_to_remove:
+            x.unlink()
 
     def add_vscode_repository(self):
         print("[INFO] Adding Microsoft repository...")
@@ -165,6 +198,11 @@ class BaseKeyword(AbstractKeyword):
         content = requests.get(url).content
         with open(destination, "wb") as fp:
             fp.write(content)
+        atom_ppa = "deb [arch=amd64] https://packagecloud.io/AtomEditor/atom/any/ any main"
+        atom_source = pathlib.Path("/etc/apt/sources.list.d/atom.list")
+
+        with open(atom_source, "a") as fp:
+            fp.write(atom_ppa)
 
         subprocess.check_output(
             f'sudo apt-key add {destination}'.split())
@@ -247,7 +285,7 @@ class ChromeKeyword(AbstractKeyword):
     SRC: sub-tuffix/chrome.yml
     """
 
-    packages = ['google-chrome-stable']
+    self.packages = ['google-chrome-stable']
 
     def __init__(self, build_config):
         super().__init__(build_config, 'chrome', 'Google Chrome')
@@ -276,8 +314,11 @@ class ChromeKeyword(AbstractKeyword):
 
 
 class C121Keyword(AbstractKeyword):
+    """
+    TODO: should this be depreciated? See BaseKeyword
+    """
 
-    packages = ['cimg-dev']
+    self.packages = ['cimg-dev']
 
     def __init__(self, build_config):
         super().__init__(build_config, 'C121', 'CPSC 121 (Object-Oriented Programming)')
@@ -299,11 +340,11 @@ class C223JKeyword(AbstractKeyword):
     SRC: sub-tuffix/cpsc223j.yml
     """
 
-    packages = ['geany',
-                'gthumb',
-                'netbeans',
-                'openjdk-8-jdk',
-                'openjdk-8-jre']
+    self.packages = ['geany',
+                     'gthumb',
+                     'netbeans',
+                     'openjdk-8-jdk',
+                     'openjdk-8-jre']
 
     def __init__(self, build_config):
         super().__init__(build_config, 'C223J', 'CPSC 223J (Java Programming)')
@@ -321,8 +362,8 @@ class C223NKeyword(AbstractKeyword):
     SRC: sub-tuffix/cpsc223n.yml
     """
 
-    packages = ['mono-complete',
-                'netbeans']
+    self.packages = ['mono-complete',
+                     'netbeans']
 
     def __init__(self, build_config):
         super().__init__(build_config, 'C223N', 'CPSC 223N (C# Programming)')
@@ -339,18 +380,21 @@ class C223PKeyword(AbstractKeyword):
     python 2.7 and lower pip no longer exists
     has been superseeded by python3-pip
     also python-virtualenv no longer exists
+
+    Python 3.8.5 is latest build
+
     Point person: Michael Shafae
     SRC: sub-tuffix/cpsc223p.yml
     """
 
-    packages = ['python2',
-                'python2-dev',
-                # 'python-pip',
-                # 'python-virtualenv',
-                'python3',
-                'python3-dev',
-                'python3-pip',
-                'virtualenvwrapper']
+    self.packages = ['python2',
+                     'python2-dev',
+                     # 'python-pip',
+                     # 'python-virtualenv',
+                     'python3',
+                     'python3-dev',
+                     'python3-pip',
+                     'virtualenvwrapper']
 
     def __init__(self, build_config):
         super().__init__(build_config, 'C223P', 'CPSC 223P (Python Programming)')
@@ -368,21 +412,21 @@ class C223WKeyword(AbstractKeyword):
     Point person: Paul Inventado
     """
 
-    packages = ['binutils',
-                'curl',
-                'gnupg2',
-                'libc6-dev',
-                'libcurl4',
-                'libedit2',
-                'libgcc-9-dev',
-                'libpython2.7',
-                'libsqlite3-0',
-                'libstdc++-9-dev',
-                'libxml2',
-                'libz3-dev',
-                'pkg-config',
-                'tzdata',
-                'zlib1g-dev']
+    self.packages = ['binutils',
+                     'curl',
+                     'gnupg2',
+                     'libc6-dev',
+                     'libcurl4',
+                     'libedit2',
+                     'libgcc-9-dev',
+                     'libpython2.7',
+                     'libsqlite3-0',
+                     'libstdc++-9-dev',
+                     'libxml2',
+                     'libz3-dev',
+                     'pkg-config',
+                     'tzdata',
+                     'zlib1g-dev']
 
     def __init__(self, build_config):
         super().__init__(build_config, 'C223W', 'CPSC 223W (Swift Programming)')
@@ -400,8 +444,8 @@ class C240Keyword(AbstractKeyword):
     Point person: Floyd Holliday
     """
 
-    packages = ['intel2gas',
-                'nasm']
+    self.packages = ['intel2gas',
+                     'nasm']
 
     def __init__(self, build_config):
         super().__init__(build_config, 'C240', 'CPSC 240 (Assembler)')
@@ -420,7 +464,7 @@ class C351Keyword(AbstractKeyword):
     """
     # TODO: testing and doing
 
-    packages = [f'linux-headers-{current_kernel_revision()}']
+    self.packages = [f'linux-headers-{current_kernel_revision()}']
 
     def __init__(self, build_config):
         super().__init__(build_config, 'C351', 'CPSC 351 (Operating Systems)')
@@ -447,7 +491,7 @@ class C439Keyword(AbstractKeyword):
     Point person: <++>
     """
 
-    packages = ['minisat2']
+    self.packages = ['minisat2']
 
     def __init__(self, build_config):
         super().__init__(build_config, 'C439', 'CPSC 439 (Theory of Computation)')
@@ -465,11 +509,11 @@ class C474Keyword(AbstractKeyword):
     Point person: <++>
     """
 
-    packages = ['libopenmpi-dev',
-                'mpi-default-dev',
-                'mpich',
-                'openmpi-bin',
-                'openmpi-common']
+    self.packages = ['libopenmpi-dev',
+                     'mpi-default-dev',
+                     'mpich',
+                     'openmpi-bin',
+                     'openmpi-common']
 
     def __init__(self, build_config):
         super().__init__(build_config, 'C474', 'CPSC 474 (Parallel and Distributed Computing)')
@@ -489,11 +533,11 @@ class C481Keyword(AbstractKeyword):
     Point person: Paul Inventado
     """
 
-    packages = ['openjdk-8-jdk',
-                'openjdk-8-jre',
-                'sbcl',
-                'swi-prolog-nox',
-                'swi-prolog-x']
+    self.packages = ['openjdk-8-jdk',
+                     'openjdk-8-jre',
+                     'sbcl',
+                     'swi-prolog-nox',
+                     'swi-prolog-x']
 
     def __init__(self, build_config):
         super().__init__(build_config, 'C481', 'CPSC 481 (Artificial Intelligence)')
@@ -536,19 +580,19 @@ class C484Keyword(AbstractKeyword):
     Point persons: Michael Shafae, Kevin Wortman
     """
 
-    packages = ['freeglut3-dev',
-                'libfreeimage-dev',
-                'libgl1-mesa-dev',
-                'libglew-dev',
-                'libglu1-mesa-dev',
-                'libopenctm-dev',
-                'libx11-dev',
-                'libxi-dev',
-                'libxrandr-dev',
-                'mesa-utils',
-                'mesa-utils-extra',
-                'openctm-doc',
-                'openctm-tools']
+    self.packages = ['freeglut3-dev',
+                     'libfreeimage-dev',
+                     'libgl1-mesa-dev',
+                     'libglew-dev',
+                     'libglu1-mesa-dev',
+                     'libopenctm-dev',
+                     'libx11-dev',
+                     'libxi-dev',
+                     'libxrandr-dev',
+                     'mesa-utils',
+                     'mesa-utils-extra',
+                     'openctm-doc',
+                     'openctm-tools']
     # 'python-openctm']
 
     def __init__(self, build_config):
@@ -563,12 +607,12 @@ class C484Keyword(AbstractKeyword):
 
 class MediaKeyword(AbstractKeyword):
 
-    packages = ['audacity',
-                'blender',
-                'gimp',
-                'imagemagick',
-                'sox',
-                'vlc']
+    self.packages = ['audacity',
+                     'blender',
+                     'gimp',
+                     'imagemagick',
+                     'sox',
+                     'vlc']
 
     def __init__(self, build_config):
         super().__init__(build_config, 'media', 'Media Computation Tools')
@@ -581,7 +625,7 @@ class MediaKeyword(AbstractKeyword):
 
 
 class LatexKeyword(AbstractKeyword):
-    packages = ['texlive-full']
+    self.packages = ['texlive-full']
 
     def __init__(self, build_config):
         super().__init__(build_config,
@@ -596,7 +640,7 @@ class LatexKeyword(AbstractKeyword):
 
 
 class SystemUpgradeKeyword(AbstractKeyword):
-    packages = []
+    self.packages = []
 
     def __init__(self, build_config):
         super().__init__(build_config,
@@ -629,7 +673,7 @@ class SystemUpgradeKeyword(AbstractKeyword):
 
 
 class VirtualBoxKeyword(AbstractKeyword):
-    packages = ['virtualbox-6.1']
+    self.packages = ['virtualbox-6.1']
 
     def __init__(self, build_config):
         super().__init__(
@@ -663,10 +707,10 @@ class VirtualBoxKeyword(AbstractKeyword):
 
 
 class ZoomKeyword(AbstractKeyword):
-    packages = ['libgl1-mesa-glx',
-                'libegl1-mesa',
-                'libxcb-xtest0',
-                'zoom']
+    self.packages = ['libgl1-mesa-glx',
+                     'libegl1-mesa',
+                     'libxcb-xtest0',
+                     'zoom']
 
     def __init__(self, build_config):
         super().__init__(build_config,
@@ -686,7 +730,7 @@ class ZoomKeyword(AbstractKeyword):
 
 
 class TestKeyword(AbstractKeyword):
-    packages = ['cowsay']
+    self.packages = ['cowsay']
 
     def __init__(self, build_config):
         super().__init__(build_config,
@@ -728,7 +772,7 @@ class TestKeyword(AbstractKeyword):
         # raise EnvironmentError(f'[ERROR] Could not find {path}')
         # with open(path, "r") as fp:
         # content = json.load(fp)
-        # name, instructor, self.packages = content["name"].replace(
+        # name, instructor, self.self.packages = content["name"].replace(
         # ' ', ''), content["instructor"], content["packages"]
 
         # print(
