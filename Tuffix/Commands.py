@@ -9,7 +9,10 @@ from Tuffix.Exceptions import *
 from Tuffix.Keywords import *
 from Tuffix.Status import status
 from Tuffix.UtilityFunctions import *
+
 import os
+import json
+import pickle # dump custom class instance to disk
 
 # abstract base class for one of the user-visible tuffix commands, e.g.
 # init, status, etc.
@@ -69,8 +72,9 @@ class MarkCommand(AbstractCommand):
         # either select the add or remove from the Keywords
         self.command = command
 
-    def execute(self, arguments):
+    def execute(self, arguments: list):
         if not (isinstance(arguments, list) and
+                isinstance(is_install, bool) and
                 all([isinstance(argument, str) for argument in arguments])):
             raise ValueError
 
@@ -78,15 +82,13 @@ class MarkCommand(AbstractCommand):
             raise UsageError("you must supply at least one keyword to mark")
 
         # ./tuffix add base media latex
-        collection = [
-            find_keyword(
-                self.build_config,
-                arguments[x]) for x,
-            _ in enumerate(arguments)]
+        k_container = KeywordContainer()
 
-        state = read_state(self.build_config)
+        collection = [k_container.obtain(x) for x in arguments]
+
+        current_state = read_state(self.build_config)
         first_arg = arguments[0]
-        install = True if self.command == "add" else False
+        install = True if (self.command == "add") else False
 
         # for console messages
         verb, past = (
@@ -99,18 +101,14 @@ class MarkCommand(AbstractCommand):
         if(first_arg == "all"):
             try:
                 input(
-                    "are you sure you want to install/remove all packages? Press enter to continue or CTRL-D to exit: ")
+                    "[INFO] Are you sure you want to install/remove all packages? Press enter to continue or CTRL-D to exit: ")
             except EOFError:
                 quit()
+
             if(install):
-                collection = [
-                    word for word in all_keywords(
-                        self.build_config) if word.name != first_arg]
+                collection = k_container.container # all possible instances we can install
             else:
-                collection = [
-                    find_keyword(
-                        self.build_config,
-                        element) for element in state.installed]
+                collection = [k_container.obtain(x) for x in state.installed]
 
         ensure_root_access()
 
@@ -118,10 +116,10 @@ class MarkCommand(AbstractCommand):
             if((element.name in state.installed)):
                 if(install):
                     raise UsageError(
-                        f'tuffix: cannot add {element.name}, it is already installed')
+                        f'[ERROR] Tuffix: cannot add {element.name}, it is already installed')
             elif((element.name not in state.installed) and (not install)):
                 raise UsageError(
-                    f'cannot remove candidate {element.name}; not installed')
+                    f'[ERROR] Tuffix: cannot remove candidate {element.name}; not installed')
 
             print(f'[INFO] Tuffix: {verb} {element.name}')
 
@@ -156,6 +154,32 @@ class AddCommand(AbstractCommand):
     def execute(self, arguments):
         self.mark.execute(arguments)
 
+class CustomCommand(AbstractCommand):
+    def __init__(self, build_config):
+        super().__init__(build_config, 'custom', 'user-defined json payload')
+        self.bc = build_config
+    
+    def execute(self, path: str):
+        if(not isinstance(path, str)):
+            raise ValueError(f'{type(path)}')
+
+        with open(path, encoding="utf-8") as fp:
+            content = json.loads(fp.read())
+
+        name, instructor, packages = content["name"].replace(
+            ' ', ''), content["instructor"], content["packages"]
+        self.mark = MarkCommand(self.bc, name)
+        NewClass = type(
+            name,
+            (),
+            {"counter": 0,
+             "packages": packages,
+             "__init__": AbstractKeyword.__init__,
+             "add": lambda self: edit_deb_packages(self.packages, is_installing=True),
+             "remove": lambda self: edit_deb_packages(self.packages, is_installing=False)}
+        )
+        NewClassInstance = NewClass()
+        self.mark.execute(packages)
 
 class DescribeCommand(AbstractCommand):
 
@@ -347,6 +371,7 @@ def all_commands(build_config):
         raise ValueError
     # alphabetical order
     return [AddCommand(build_config),
+            CustomCommand(build_config),
             DescribeCommand(build_config),
             InitCommand(build_config),
             InstalledCommand(build_config),

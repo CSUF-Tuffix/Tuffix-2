@@ -45,7 +45,7 @@ parser.add_argument("--init", help="initialize Tuffix", action="store_true")
 arguments = parser.parse_args()
 
 
-def valid_arguments(parser: argparse.ArgumentParser) -> list[tuple]:
+def valid_arguments(parser: argparse.ArgumentParser) -> list:
     container = []
     for cmd in vars(parser).items():
         """
@@ -61,7 +61,7 @@ def valid_arguments(parser: argparse.ArgumentParser) -> list[tuple]:
 
 
 def main(parser: argparse.ArgumentParser,
-         arguments: list[str], build_config=DEFAULT_BUILD_CONFIG) -> None:
+         arguments: list, build_config=DEFAULT_BUILD_CONFIG) -> None:
 
     if(not isinstance(build_config, BuildConfig) and
             isinstance(arguments, list)):
@@ -89,27 +89,29 @@ class argParseTests(unittest.TestCase):
 
     def setUp(self):
         self.parser = parser
-        self.keyword_container = KeywordContainer()
+        self.keyword_container = KeywordContainer(DEFAULT_BUILD_CONFIG)
 
     def test_add(self):
-        parsed = self.parser.parse_args(["--add", "121"])
-        self.assertEqual("121", parsed.add)
-        self.assertNotEqual("12", parsed.add)
-        self.assertTrue("121" in self.keyword_container)
-        # TODO: check if 121 is valid
+        parsed = self.parser.parse_args(["--add", "C121"])
+        self.assertEqual("C121", parsed.add)
+        self.assertNotEqual("C12", parsed.add)
+        command, status = self.keyword_container.obtain("C121")
+        self.assertTrue(status)
+        command.add()
 
     def test_remove(self):
-        parsed = self.parser.parse_args(["--remove", "121"])
-        self.assertEqual("121", parsed.remove)
-        self.assertNotEqual("12", parsed.remove)
-        self.assertTrue("121" in self.keyword_container)
-        # TODO: check if 121 is valid
+        parsed = self.parser.parse_args(["--remove", "C121"])
+        self.assertEqual("C121", parsed.remove)
+        self.assertNotEqual("C12", parsed.remove)
+        command, status = self.keyword_container.obtain("C121")
+        self.assertTrue(status)
+        # command.remove()
 
     def test_custom(self):
         parsed = self.parser.parse_args(["--custom", "/tmp/example.json"])
         # check if file exists
         # check if JSON is properly parsed
-        self.assertTrue(os.path.exists(parsed.custom))
+        # self.assertTrue(os.path.exists(parsed.custom))
 
 
 if __name__ == '__main__':

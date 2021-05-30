@@ -712,49 +712,49 @@ class TestKeyword(AbstractKeyword):
         edit_deb_packages(self.packages, is_installing=False)
 
 
-class CustomKeyword(AbstractKeyword):
-    # NOTE: these are not officially supported by the developers of Tuffix
-    # this is merely to allow flexibility
-    # TODO : testing
+# class CustomKeyword(AbstractKeyword):
+    # # NOTE: these are not officially supported by the developers of Tuffix
+    # # this is merely to allow flexibility
+    # # TODO : testing
 
-    """
-    IDEA: if you have multiple instructors wanting to have different configurations for the same class
-    Use a json file that can be loaded
+    # """
+    # IDEA: if you have multiple instructors wanting to have different configurations for the same class
+    # Use a json file that can be loaded
 
-    {
-        "name": "Under Water Basket Weaving",
-        "instructor": "Tony Stark",
-        "packages": ["needles", "wool", "scuba-mask"]
-    }
-    """
+    # {
+        # "name": "Under Water Basket Weaving",
+        # "instructor": "Tony Stark",
+        # "packages": ["needles", "wool", "scuba-mask"]
+    # }
+    # """
 
-    def __init__(self, build_config):
-        super().__init__(
-            build_config,
-            'custom',
-            'run custom keywords given by an instructor or written by a student')
+    # def __init__(self, build_config):
+        # super().__init__(
+            # build_config,
+            # 'custom',
+            # 'run custom keywords given by an instructor or written by a student')
 
-    def add(self):
-        path = "/tmp/example.json"  # some how loaded from CLI
-        if(not os.path.exists(path)):
-            raise EnvironmentError(f'[ERROR] Could not find {path}')
-        with open(path, "r") as fp:
-            content = json.load(fp)
-        name, instructor, self.packages = content["name"].replace(
-            ' ', ''), content["instructor"], content["packages"]
+    # def add(self):
+        # path = "/tmp/example.json"  # some how loaded from CLI
+        # if(not os.path.exists(path)):
+            # raise EnvironmentError(f'[ERROR] Could not find {path}')
+        # with open(path, "r") as fp:
+            # content = json.load(fp)
+        # name, instructor, self.packages = content["name"].replace(
+            # ' ', ''), content["instructor"], content["packages"]
 
-        print(
-            f'[INFO] Installing custom keyword {name} from instructor/student {instructor}')
+        # print(
+            # f'[INFO] Installing custom keyword {name} from instructor/student {instructor}')
 
-        edit_deb_packages(self.packages, is_installing=True)
+        # edit_deb_packages(self.packages, is_installing=True)
 
-    def remove(self):
-        edit_deb_packages(self.packages, is_installing=False)
+    # def remove(self):
+        # edit_deb_packages(self.packages, is_installing=False)
 
 
 class KeywordContainer():
-    def __init__(self, build_configuration: BuildConfig):
-        if(not isinstance(build_configuration, BuildConfig)):
+    def __init__(self, build_config: BuildConfig):
+        if(not isinstance(build_config, BuildConfig)):
             raise ValueError(
                 f'expected BuildConfig for first argument, received: {type(build_configuration)}')
         self.container: list[AbstractKeyword] = [
@@ -781,51 +781,19 @@ class KeywordContainer():
 
         ]
 
-    def __contains__(self, value: str):
+    def obtain(self, value: str) -> tuple:
         if(not isinstance(value, str)):
             raise ValueError(f'incorrect type: {type(value)}')
 
         for keyword in self.container:
             if(keyword.name == value):
-                return True
-        return False
+                return (keyword, True)
+        return (None, False)
 
-# def all_keywords(build_config):
-    # if not isinstance(build_config, BuildConfig):
-        # raise ValueError
-    # # alphabetical order, but put digits after letters
-    # # TODO: all keywords commented out have not been fully developed
-    # return [AllKeyword(build_config),
-        # BaseKeyword(build_config),
-        # # CustomKeyword(build_config),
-        # # ChromeKeyword(build_config),
-        # # GeneralKeyword(build_config),
-        # LatexKeyword(build_config),
-        # ZoomKeyword(build_config),
-        # # MediaKeyword(build_config),
-        # # VirtualBoxKeyword(build_config),
-        # # C223JKeyword(build_config),
-        # # C223NKeyword(build_config),
-        # # C223PKeyword(build_config),
-        # # C223WKeyword(build_config),
-        # # C240Keyword(build_config),
-        # C121Keyword(build_config),
-        # C439Keyword(build_config),
-        # C474Keyword(build_config),
-        # # C481Keyword(build_config),
-        # C484Keyword(build_config),
-        # TestKeyword(build_config)
-        # ]
+    def __contains__(self, value: str):
+        if(not isinstance(value, str)):
+            raise ValueError(f'incorrect type: {type(value)}')
 
-
-# def find_keyword(build_config, name):
-    # if not (isinstance(build_config, BuildConfig) and
-        # isinstance(name, str)):
-        # raise ValueError
-    # for keyword in all_keywords(build_config):
-        # if keyword.name == name:
-        # return keyword
-    # raise UsageError(
-        # 'unknown keyword "' +
-        # name +
-        # '", see valid keyword names with $ tuffix list')
+        _, status = self.obtain(value)
+        return status
+    
