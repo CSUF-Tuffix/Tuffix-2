@@ -154,26 +154,6 @@ class BaseKeyword(AbstractKeyword):
         with open(vscode_source, "a") as fp:
             fp.write(vscode_ppa)
 
-    def configure_git(self, username=None, mail=None):
-        """
-        GOAL: Configure git
-        NOTE : move to Tuffix/Commands.py -> InitCommand ?
-        """
-
-        keeper = SudoRun()
-        whoami = keeper.whoami
-
-        username = input("Git username: ")
-        mail = input("Git email: ")
-        git_conf_file = pathlib.Path(f'/home/{whoami}/.gitconfig')
-        commands = [
-            f'git config --file {git_conf_file} user.name {username}',
-            f'git config --file {git_conf_file} user.email {mail}'
-        ]
-        for command in commands:
-            keeper.run(command, whoami)
-        print(colored("Successfully configured git", 'green'))
-
     def atom(self):
         """
         GOAL: Get and install Atom
@@ -730,21 +710,21 @@ class TestKeyword(AbstractKeyword):
 
     # def __init__(self, build_config):
         # super().__init__(
-            # build_config,
-            # 'custom',
-            # 'run custom keywords given by an instructor or written by a student')
+        # build_config,
+        # 'custom',
+        # 'run custom keywords given by an instructor or written by a student')
 
     # def add(self):
         # path = "/tmp/example.json"  # some how loaded from CLI
         # if(not os.path.exists(path)):
-            # raise EnvironmentError(f'[ERROR] Could not find {path}')
+        # raise EnvironmentError(f'[ERROR] Could not find {path}')
         # with open(path, "r") as fp:
-            # content = json.load(fp)
+        # content = json.load(fp)
         # name, instructor, self.packages = content["name"].replace(
-            # ' ', ''), content["instructor"], content["packages"]
+        # ' ', ''), content["instructor"], content["packages"]
 
         # print(
-            # f'[INFO] Installing custom keyword {name} from instructor/student {instructor}')
+        # f'[INFO] Installing custom keyword {name} from instructor/student {instructor}')
 
         # edit_deb_packages(self.packages, is_installing=True)
 
@@ -796,4 +776,3 @@ class KeywordContainer():
 
         _, status = self.obtain(value)
         return status
-    

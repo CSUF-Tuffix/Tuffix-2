@@ -12,7 +12,8 @@ from Tuffix.UtilityFunctions import *
 
 import os
 import json
-import pickle # dump custom class instance to disk
+import pickle  # dump custom class instance to disk
+from termcolor import colored
 
 # abstract base class for one of the user-visible tuffix commands, e.g.
 # init, status, etc.
@@ -106,7 +107,7 @@ class MarkCommand(AbstractCommand):
                 quit()
 
             if(install):
-                collection = k_container.container # all possible instances we can install
+                collection = k_container.container  # all possible instances we can install
             else:
                 collection = [k_container.obtain(x) for x in state.installed]
 
@@ -154,11 +155,12 @@ class AddCommand(AbstractCommand):
     def execute(self, arguments):
         self.mark.execute(arguments)
 
+
 class CustomCommand(AbstractCommand):
     def __init__(self, build_config):
         super().__init__(build_config, 'custom', 'user-defined json payload')
         self.bc = build_config
-    
+
     def execute(self, path: str):
         if(not isinstance(path, str)):
             raise ValueError(f'{type(path)}')
@@ -180,6 +182,7 @@ class CustomCommand(AbstractCommand):
         )
         NewClassInstance = NewClass()
         self.mark.execute(packages)
+
 
 class DescribeCommand(AbstractCommand):
 
@@ -277,6 +280,26 @@ class RekeyCommand(AbstractCommand):
 class InitCommand(AbstractCommand):
     def __init__(self, build_config):
         super().__init__(build_config, 'init', 'initialize tuffix')
+
+    def configure_git(self, username=None, mail=None):
+        """
+        GOAL: Configure git
+        NOTE : move to Tuffix/Commands.py -> InitCommand ?
+        """
+
+        keeper = SudoRun()
+        whoami = keeper.whoami
+
+        username = input("Git username: ")
+        mail = input("Git email: ")
+        git_conf_file = pathlib.Path(f'/home/{whoami}/.gitconfig')
+        commands = [
+            f'git config --file {git_conf_file} user.name {username}',
+            f'git config --file {git_conf_file} user.email {mail}'
+        ]
+        for command in commands:
+            keeper.run(command, whoami)
+        print(colored("Successfully configured git", 'green'))
 
     def execute(self, arguments):
         if not (isinstance(arguments, list) and
