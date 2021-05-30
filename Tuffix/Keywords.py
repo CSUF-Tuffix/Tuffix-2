@@ -100,7 +100,8 @@ class BaseKeyword(AbstractKeyword):
     Point person: undergraduate committee
     """
 
-    packages = ['build-essential',
+    packages = ['atom',
+                'build-essential',
                 'clang',
                 'clang-format',
                 'clang-tidy',
@@ -125,10 +126,10 @@ class BaseKeyword(AbstractKeyword):
 
     def add(self):
         self.add_vscode_repository()
-        edit_deb_packages(self.packages, is_installing=True)
         self.atom()
         self.google_test_attempt()
-        self.configure_git()
+        edit_deb_packages(self.packages, is_installing=True)
+        self.atom_plugins()
 
     def remove(self):
         edit_deb_packages(self.packages, is_installing=False)
@@ -156,25 +157,31 @@ class BaseKeyword(AbstractKeyword):
 
     def atom(self):
         """
-        GOAL: Get and install Atom
+        GOAL: Install PPA for Atom
         """
 
-        atom_url = "https://atom.io/download/deb"
-        atom_dest = "/tmp/atom.deb"
-        atom_plugins = ['dbg-gdb',
-                        'dbg',
-                        'output-panel']
+        url = "https://packagecloud.io/AtomEditor/atom/gpgkey"
+        destination = "/tmp/gpgkey"
+        content = requests.get(url).content
+        with open(destination, "wb") as fp:
+            fp.write(content)
+
+        subprocess.check_output(
+            f'sudo apt-key add {destination}'.split())
+
+    def atom_plugins(self):
+        """
+        Goal: install Atom plugins
+        """
 
         executor = SudoRun()
         normal_user = executor.whoami
         atom_conf_dir = pathlib.Path(f'/home/{normal_user}/.atom')
 
-        print("[INFO] Downloading Atom Debian installer....")
-        with open(atom_dest, 'wb') as fp:
-            fp.write(requests.get(atom_url).content)
-        print("[INFO] Finished downloading...")
-        print("[INFO] Installing atom....")
-        debfile.DebPackage(filename=atom_dest).install()
+        atom_plugins = ['dbg-gdb',
+                        'dbg',
+                        'output-panel']
+
         for plugin in atom_plugins:
             print(f'[INFO] Installing {plugin}...')
             executor.run(f'/usr/bin/apm install {plugin}', normal_user)
