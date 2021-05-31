@@ -21,3 +21,15 @@ class DriverTest(unittest.TestCase):
     def test_list(self):
         command = "tuffix list"
         main(command.split())
+
+    def test_installed(self):
+        command = "tuffix installed"
+        main(command.split())
+
+    def test_status(self):
+        command = "tuffix status"
+        main(command.split())
+
+    def test_custom(self):
+        command = "tuffix custom /tmp/example.json"
+        main(command.split())

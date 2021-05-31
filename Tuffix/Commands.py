@@ -64,6 +64,7 @@ class MarkCommand(AbstractCommand):
     GOAL: combine both the add and remove keywords
     This prevents us for not writing the same code twice.
     They are essentially the same function but they just call a different method
+    NOT AVAILABLE TO PUBLIC USE
     """
 
     def __init__(self, build_config, command):
@@ -73,7 +74,7 @@ class MarkCommand(AbstractCommand):
         # either select the add or remove from the Keywords
         self.command = command
 
-    def execute(self, arguments):
+    def execute(self, arguments: list, custom=None):
         if not (isinstance(arguments, list) and
                 all([isinstance(argument, str) for argument in arguments])):
             raise ValueError
@@ -82,11 +83,18 @@ class MarkCommand(AbstractCommand):
             raise UsageError("you must supply at least one keyword to mark")
 
         # ./tuffix add base media latex
-        collection = [
-            find_keyword(
-                self.build_config,
-                arguments[x]) for x,
-            _ in enumerate(arguments)]
+        container = KeywordContainer()
+
+        if(custom):
+            # Emplace this into the list of possible keywords
+            container.container.append(custom)
+
+        collection = [container.obtain(x) for x in arguments]
+        # collection = [
+        # find_keyword(
+        # self.build_config,
+        # arguments[x]) for x,
+        # _ in enumerate(arguments)]
 
         state = read_state(self.build_config)
         first_arg = arguments[0]
@@ -107,14 +115,10 @@ class MarkCommand(AbstractCommand):
             except EOFError:
                 quit()
             if(install):
-                collection = [
-                    word for word in all_keywords(
-                        self.build_config) if word.name != first_arg]
+                collection = container.container  # all keywords
             else:
-                collection = [
-                    find_keyword(
-                        self.build_config,
-                        element) for element in state.installed]
+                collection = [container.obtain(
+                    x) for x in state.installed]  # all installed
 
         ensure_root_access()
 
@@ -171,27 +175,34 @@ class CustomCommand(AbstractCommand):
         self.bc = build_config
         # so we can pass this to the new class instance we're dynamically creating
 
-    def execute(self, path: str):
-        if(not isinstance(path, str)):
-            raise ValueError(f'{type(path)}')
+    def execute(self, arguments: list):
+        for path in arguments:
+            if(not os.path.exists(path)):
+                raise FileNotFoundError(f'[ERROR] Could not load {path}')
 
-        with open(path, encoding="utf-8") as fp:
-            content = json.loads(fp.read())
+            with open(path, encoding="utf-8") as fp:
+                content = json.loads(fp.read())
 
-        name, instructor, packages = content["name"].replace(
-            ' ', ''), content["instructor"], content["packages"]
-        self.mark = MarkCommand(self.bc, name)
-        NewClass = type(
-            name,
-            (),
-            {"counter": 0,
-             "packages": packages,
-             "__init__": AbstractKeyword.__init__,
-             "add": lambda self: edit_deb_packages(self.packages, is_installing=True),
-             "remove": lambda self: edit_deb_packages(self.packages, is_installing=False)}
-        )
-        NewClassInstance = NewClass()
-        self.mark.execute(packages)
+            name, instructor, packages = content["name"].replace(
+                ' ', ''), content["instructor"], content["packages"]
+            body = {
+                "counter": 0,
+                "packages": packages,
+                "__init__": AbstractKeyword.__init__,
+                "dump": lambda self, position=None: pickle.dump(self.__dict__, open(f'{position}{name}_class_dump.pickle', "wb"))
+            }
+
+            NewClass = type(
+                name,
+                (),
+                body
+            )
+
+            NewClassInstance = NewClass(["add"])
+            NewClassInstance.dump('/tmp/')
+
+            self.mark = MarkCommand(build_config, self.name)
+            self.mark.execute(["add", name])
 
 
 class DescribeCommand(AbstractCommand):
@@ -211,6 +222,9 @@ class DescribeCommand(AbstractCommand):
 
 
 class RekeyCommand(AbstractCommand):
+    """
+    What is this?
+    """
 
     whoami = os.getlogin()
     # name, email, passphrase = input("Name: "), input("Email: "), getpass.getpass("Passphrase: ")
@@ -294,7 +308,6 @@ class InitCommand(AbstractCommand):
     def configure_git(self, username=None, mail=None):
         """
         GOAL: Configure git
-        NOTE : move to Tuffix/Commands.py -> InitCommand ?
         """
 
         keeper = SudoRun()
@@ -344,9 +357,9 @@ class InstalledCommand(AbstractCommand):
         state = read_state(self.build_config)
 
         if len(state.installed) == 0:
-            print('no keywords are installed')
+            print('[INFO] No keywords are installed')
         else:
-            print('tuffix installed keywords:')
+            print('[INFO] Tuffix installed keywords:')
             for name in state.installed:
                 print(name)
 
@@ -364,10 +377,9 @@ class ListCommand(AbstractCommand):
             raise UsageError("list command does not accept arguments")
 
         print('tuffix list of keywords:')
+        # NOTE :  changed to support f-string
         for keyword in all_keywords(self.build_config):
-            print(keyword.name.ljust(KEYWORD_MAX_LENGTH) +
-                  '  ' +
-                  keyword.description)
+            print(f'{keyword.name.ljust(KEYWORD_MAX_LENGTH)}   {keyword.description}')
 
 
 class StatusCommand(AbstractCommand):
@@ -410,5 +422,5 @@ def all_commands(build_config):
             InstalledCommand(build_config),
             ListCommand(build_config),
             StatusCommand(build_config),
-            RemoveCommand(build_config),
-            RekeyCommand(build_config)]
+            RemoveCommand(build_config)]
+    # RekeyCommand(build_config)]
