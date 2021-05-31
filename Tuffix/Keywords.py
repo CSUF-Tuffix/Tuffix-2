@@ -315,23 +315,6 @@ class ChromeKeyword(AbstractKeyword):
         edit_deb_packages(packages, is_installing=False)
 
 
-class C121Keyword(AbstractKeyword):
-    """
-    TODO: should this be depreciated? See BaseKeyword
-    """
-
-    packages = ['']
-
-    def __init__(self, build_config):
-        super().__init__(build_config, 'C121', 'CPSC 121 (Object-Oriented Programming)')
-
-    def add(self):
-        edit_deb_packages(packages, is_installing=True)
-
-    def remove(self):
-        edit_deb_packages(packages, is_installing=False)
-
-
 class C223JKeyword(AbstractKeyword):
 
     """
