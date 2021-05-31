@@ -20,11 +20,14 @@ from termcolor import colored
 
 
 class AbstractCommand:
-    # build_config: a BuildConfig object
-    # name: the string used for the command one the commandline, e.g 'init'.
-    #   Must be a non-empty string of lower-case letters.
-    # description: description of the command printed in usage help. Must be
-    #   a nonempty string.
+    """
+    build_config: a BuildConfig object
+    name: the string used for the command one the commandline, e.g 'init'.
+    Must be a non-empty string of lower-case letters.
+    description: description of the command printed in usage help. Must be
+    a nonempty string.
+    """
+
     def __init__(self, build_config, name, description):
         if not (isinstance(build_config, BuildConfig) and
                 isinstance(name, str) and
@@ -44,16 +47,19 @@ class AbstractCommand:
         Description: {self.description}
         """
 
-    # Execute the command.
-    # arguments: list of commandline arguments after the command name.
-    # A concrete implementation should:
-    # Execute the command, then return and int for the exit code that tuffix
-    # should return to the OS.
-    # Raise UsageError if arguments are invalid commandline arguments.
-    # Raise another kind of MessageException in any other error case.
-    # execute may only throw MessageException subtypes (including UsageError);
-    # other exceptions should be caught and rethrown as a MessageException.
     def execute(self, arguments):
+        """
+        Execute the command.
+        arguments: list of commandline arguments after the command name.
+        A concrete implementation should:
+        Execute the command, then return and int for the exit code that tuffix
+        should return to the OS.
+        Raise UsageError if arguments are invalid commandline arguments.
+        Raise another kind of MessageException in any other error case.
+        execute may only throw MessageException subtypes (including UsageError);
+        other exceptions should be caught and rethrown as a MessageException.
+        """
+
         raise NotImplementedError
 
 # not meant to be added to list of commands
@@ -64,6 +70,7 @@ class MarkCommand(AbstractCommand):
     GOAL: combine both the add and remove keywords
     This prevents us for not writing the same code twice.
     They are essentially the same function but they just call a different method
+
     NOT AVAILABLE TO PUBLIC USE
     """
 
@@ -85,17 +92,11 @@ class MarkCommand(AbstractCommand):
 
         # ./tuffix add base media latex
 
-
         if(custom):
             # Emplace this into the list of possible keywords
             self.container.container.append(custom)
 
         collection = [self.container.obtain(x) for x in arguments]
-        # collection = [
-        # find_keyword(
-        # self.build_config,
-        # arguments[x]) for x,
-        # _ in enumerate(arguments)]
 
         state = read_state(self.build_config)
         first_arg = arguments[0]
@@ -380,7 +381,6 @@ class ListCommand(AbstractCommand):
             raise UsageError("list command does not accept arguments")
 
         print('tuffix list of keywords:')
-        # NOTE :  changed to support f-string
         container = KeywordContainer(self.build_config)
         for keyword in container.container:
             print(f'{keyword.name.ljust(KEYWORD_MAX_LENGTH)}   {keyword.description}')
@@ -410,12 +410,14 @@ class RemoveCommand(AbstractCommand):
     def execute(self, arguments):
         self.mark.execute(arguments)
 
-# CURRENT COMMANDS SUPPORTED
 
-
-# Create and return a list containing one instance of every known
-# AbstractCommand, using build_config and state for each.
 def all_commands(build_config):
+    """
+    CURRENT COMMANDS SUPPORTED
+    Create and return a list containing one instance of every known
+    AbstractCommand, using build_config and state for each.
+    """
+
     if not isinstance(build_config, BuildConfig):
         raise ValueError
     # alphabetical order
