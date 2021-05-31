@@ -3,7 +3,7 @@
 # AUTHORS: Kevin Wortman, Jared Dyreson
 ##########################################################################
 
-from Tuffix.Configuration import BuildConfig, State
+from Tuffix.Configuration import BuildConfig, State, DEFAULT_BUILD_CONFIG
 from Tuffix.Constants import *
 from Tuffix.Exceptions import *
 from Tuffix.Keywords import *
@@ -73,6 +73,7 @@ class MarkCommand(AbstractCommand):
             raise ValueError
         # either select the add or remove from the Keywords
         self.command = command
+        self.container = KeywordContainer(build_config)
 
     def execute(self, arguments: list, custom=None):
         if not (isinstance(arguments, list) and
@@ -83,13 +84,13 @@ class MarkCommand(AbstractCommand):
             raise UsageError("you must supply at least one keyword to mark")
 
         # ./tuffix add base media latex
-        container = KeywordContainer()
+
 
         if(custom):
             # Emplace this into the list of possible keywords
-            container.container.append(custom)
+            self.container.container.append(custom)
 
-        collection = [container.obtain(x) for x in arguments]
+        collection = [self.container.obtain(x) for x in arguments]
         # collection = [
         # find_keyword(
         # self.build_config,
@@ -115,36 +116,37 @@ class MarkCommand(AbstractCommand):
             except EOFError:
                 quit()
             if(install):
-                collection = container.container  # all keywords
+                collection = self.container.container  # all keywords
             else:
-                collection = [container.obtain(
+                collection = [self.container.obtain(
                     x) for x in state.installed]  # all installed
 
         ensure_root_access()
 
         for element in collection:
-            if((element.name in state.installed)):
+            command, status = element
+            if((command.name in state.installed)):
                 if(install):
                     raise UsageError(
-                        f'tuffix: cannot add {element.name}, it is already installed')
-            elif((element.name not in state.installed) and (not install)):
+                        f'tuffix: cannot add {command.name}, it is already installed')
+            elif((command.name not in state.installed) and (not install)):
                 raise UsageError(
-                    f'cannot remove candidate {element.name}; not installed')
+                    f'cannot remove candidate {command.name}; not installed')
 
-            print(f'[INFO] Tuffix: {verb} {element.name}')
+            print(f'[INFO] Tuffix: {verb} {command.name}')
 
             try:
-                getattr(element, self.command)()
+                getattr(command, self.command)()
             except AttributeError:
                 raise UsageError(
-                    f'{element.__name__} does not have the function {self.command}')
+                    f'{command.__name__} does not have the function {self.command}')
 
             new_action = state.installed
 
             if(not install):
-                new_action.remove(element.name)
+                new_action.remove(command.name)
             else:
-                new_action.append(element.name)
+                new_action.append(command.name)
 
             new_state = State(self.build_config,
                               self.build_config.version,
@@ -153,7 +155,7 @@ class MarkCommand(AbstractCommand):
 
             os.system("apt autoremove")
 
-            print(f'[INFO] Tuffix: successfully {past} {element.name}')
+            print(f'[INFO] Tuffix: successfully {past} {command.name}')
 
 
 class AddCommand(AbstractCommand):
@@ -216,8 +218,9 @@ class DescribeCommand(AbstractCommand):
             raise ValueError
         if(len(arguments) != 1):
             raise UsageError("Please supply at only one keyword to describe")
+        k_container = KeywordContainer(DEFAULT_BUILD_CONFIG)
+        keyword, status = k_container.obtain(arguments[0])
 
-        keyword = find_keyword(self.build_config, arguments[0])
         print(f'{keyword.name}: {keyword.description}')
 
 
@@ -378,7 +381,8 @@ class ListCommand(AbstractCommand):
 
         print('tuffix list of keywords:')
         # NOTE :  changed to support f-string
-        for keyword in all_keywords(self.build_config):
+        container = KeywordContainer(self.build_config)
+        for keyword in container.container:
             print(f'{keyword.name.ljust(KEYWORD_MAX_LENGTH)}   {keyword.description}')
 
 

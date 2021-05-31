@@ -44,22 +44,23 @@ class AbstractKeyword:
         Not using "raise NotImplementedError"
 
         """
-        current_cache = cache.Cache()
-        current_cache.update()
+        raise NotImplementedError
+        # current_cache = cache.Cache()
+        # current_cache.update()
 
-        for package in self.packages:
-            # will raise KeyError if not found
-            try:
-                _ = current_cache[package]
-            except KeyError:
-                current_cache.close()
-                raise KeyError(f'could not find {package}')
+        # for package in packages:
+            # # will raise KeyError if not found
+            # try:
+                # _ = current_cache[package]
+            # except KeyError:
+                # current_cache.close()
+                # raise KeyError(f'could not find {package}')
 
-        current_cache.close()
+        # current_cache.close()
 
 
 class AllKeyword(AbstractKeyword):
-    self.packages = []
+    packages = []
 
     def __init__(self, build_config):
         super().__init__(
@@ -68,10 +69,10 @@ class AllKeyword(AbstractKeyword):
             'all keywords available (glob pattern); to be used in conjunction with remove or add respectively')
 
     def add(self):
-        edit_deb_packages(self.packages, is_installing=True)
+        edit_deb_packages(packages, is_installing=True)
 
     def remove(self):
-        edit_deb_packages(self.packages, is_installing=False)
+        edit_deb_packages(packages, is_installing=False)
 
 
 class GeneralKeyword(AbstractKeyword):
@@ -81,7 +82,7 @@ class GeneralKeyword(AbstractKeyword):
     SRC: sub-tuffix/min-tuffix.yml (Kitchen sink)
     """
 
-    self.packages = ['autoconf',
+    packages = ['autoconf',
                      'automake',
                      'a2ps',
                      'cscope',
@@ -112,10 +113,10 @@ class GeneralKeyword(AbstractKeyword):
             'General configuration, not tied to any specific course')
 
     def add(self):
-        edit_deb_packages(self.packages, is_installing=True)
+        edit_deb_packages(packages, is_installing=True)
 
     def remove(self):
-        edit_deb_packages(self.packages, is_installing=False)
+        edit_deb_packages(packages, is_installing=False)
 
 
 class BaseKeyword(AbstractKeyword):
@@ -124,8 +125,9 @@ class BaseKeyword(AbstractKeyword):
     Point person: undergraduate committee
     """
 
-    self.packages = ['atom',
+    packages = ['atom',
                      'build-essential',
+                     'cimg-dev',
                      'clang',
                      'clang-format',
                      'clang-tidy',
@@ -152,11 +154,11 @@ class BaseKeyword(AbstractKeyword):
         self.add_vscode_repository()
         self.atom()
         self.google_test_attempt()
-        edit_deb_packages(self.packages, is_installing=True)
+        edit_deb_packages(packages, is_installing=True)
         self.atom_plugins()
 
     def remove(self):
-        edit_deb_packages(self.packages, is_installing=False)
+        edit_deb_packages(packages, is_installing=False)
         files_to_remove = [
             pathlib.Path("/etc/apt/sources.list.d/vscode.list"),
             pathlib.Path("/etc/apt/sources.list.d/atom.list"),
@@ -285,7 +287,7 @@ class ChromeKeyword(AbstractKeyword):
     SRC: sub-tuffix/chrome.yml
     """
 
-    self.packages = ['google-chrome-stable']
+    packages = ['google-chrome-stable']
 
     def __init__(self, build_config):
         super().__init__(build_config, 'chrome', 'Google Chrome')
@@ -310,7 +312,7 @@ class ChromeKeyword(AbstractKeyword):
             f'sudo apt-key add {google_sources_path}'.split())
 
     def remove(self):
-        edit_deb_packages(self.packages, is_installing=False)
+        edit_deb_packages(packages, is_installing=False)
 
 
 class C121Keyword(AbstractKeyword):
@@ -318,16 +320,16 @@ class C121Keyword(AbstractKeyword):
     TODO: should this be depreciated? See BaseKeyword
     """
 
-    self.packages = ['cimg-dev']
+    packages = ['']
 
     def __init__(self, build_config):
         super().__init__(build_config, 'C121', 'CPSC 121 (Object-Oriented Programming)')
 
     def add(self):
-        edit_deb_packages(self.packages, is_installing=True)
+        edit_deb_packages(packages, is_installing=True)
 
     def remove(self):
-        edit_deb_packages(self.packages, is_installing=False)
+        edit_deb_packages(packages, is_installing=False)
 
 
 class C223JKeyword(AbstractKeyword):
@@ -340,7 +342,7 @@ class C223JKeyword(AbstractKeyword):
     SRC: sub-tuffix/cpsc223j.yml
     """
 
-    self.packages = ['geany',
+    packages = ['geany',
                      'gthumb',
                      'netbeans',
                      'openjdk-8-jdk',
@@ -350,10 +352,10 @@ class C223JKeyword(AbstractKeyword):
         super().__init__(build_config, 'C223J', 'CPSC 223J (Java Programming)')
 
     def add(self):
-        edit_deb_packages(self.packages, is_installing=True)
+        edit_deb_packages(packages, is_installing=True)
 
     def remove(self):
-        edit_deb_packages(self.packages, is_installing=False)
+        edit_deb_packages(packages, is_installing=False)
 
 
 class C223NKeyword(AbstractKeyword):
@@ -362,17 +364,17 @@ class C223NKeyword(AbstractKeyword):
     SRC: sub-tuffix/cpsc223n.yml
     """
 
-    self.packages = ['mono-complete',
+    packages = ['mono-complete',
                      'netbeans']
 
     def __init__(self, build_config):
         super().__init__(build_config, 'C223N', 'CPSC 223N (C# Programming)')
 
     def add(self):
-        edit_deb_packages(self.packages, is_installing=True)
+        edit_deb_packages(packages, is_installing=True)
 
     def remove(self):
-        edit_deb_packages(self.packages, is_installing=False)
+        edit_deb_packages(packages, is_installing=False)
 
 
 class C223PKeyword(AbstractKeyword):
@@ -387,7 +389,7 @@ class C223PKeyword(AbstractKeyword):
     SRC: sub-tuffix/cpsc223p.yml
     """
 
-    self.packages = ['python2',
+    packages = ['python2',
                      'python2-dev',
                      # 'python-pip',
                      # 'python-virtualenv',
@@ -400,10 +402,10 @@ class C223PKeyword(AbstractKeyword):
         super().__init__(build_config, 'C223P', 'CPSC 223P (Python Programming)')
 
     def add(self):
-        edit_deb_packages(self.packages, is_installing=True)
+        edit_deb_packages(packages, is_installing=True)
 
     def remove(self):
-        edit_deb_packages(self.packages, is_installing=False)
+        edit_deb_packages(packages, is_installing=False)
 
 
 class C223WKeyword(AbstractKeyword):
@@ -412,7 +414,7 @@ class C223WKeyword(AbstractKeyword):
     Point person: Paul Inventado
     """
 
-    self.packages = ['binutils',
+    packages = ['binutils',
                      'curl',
                      'gnupg2',
                      'libc6-dev',
@@ -432,10 +434,10 @@ class C223WKeyword(AbstractKeyword):
         super().__init__(build_config, 'C223W', 'CPSC 223W (Swift Programming)')
 
     def add(self):
-        edit_deb_packages(self.packages, is_installing=True)
+        edit_deb_packages(packages, is_installing=True)
 
     def remove(self):
-        edit_deb_packages(self.packages, is_installing=False)
+        edit_deb_packages(packages, is_installing=False)
 
 
 class C240Keyword(AbstractKeyword):
@@ -444,17 +446,17 @@ class C240Keyword(AbstractKeyword):
     Point person: Floyd Holliday
     """
 
-    self.packages = ['intel2gas',
+    packages = ['intel2gas',
                      'nasm']
 
     def __init__(self, build_config):
         super().__init__(build_config, 'C240', 'CPSC 240 (Assembler)')
 
     def add(self):
-        edit_deb_packages(self.packages, is_installing=True)
+        edit_deb_packages(packages, is_installing=True)
 
     def remove(self):
-        edit_deb_packages(self.packages, is_installing=False)
+        edit_deb_packages(packages, is_installing=False)
 
 
 class C351Keyword(AbstractKeyword):
@@ -464,14 +466,14 @@ class C351Keyword(AbstractKeyword):
     """
     # TODO: testing and doing
 
-    self.packages = [f'linux-headers-{current_kernel_revision()}']
+    packages = [f'linux-headers-{current_kernel_revision()}']
 
     def __init__(self, build_config):
         super().__init__(build_config, 'C351', 'CPSC 351 (Operating Systems)')
 
     def add(self):
         print('important that you make a save state in your VM of tuffix or just install the tuffix installers scripts in another VM if you have a native install. You can mess up your main OS')
-        edit_deb_packages(self.packages, is_installing=True)
+        edit_deb_packages(packages, is_installing=True)
         silberschatz_url = "http://cs.westminstercollege.edu/~greg/osc10e/final-src-osc10e.zip"
         r = requests.get(silberschatz_url)
         stored = "/tmp/kernel-exercises.zip"
@@ -482,7 +484,7 @@ class C351Keyword(AbstractKeyword):
             zipObj.extractAll()
 
     def remove(self):
-        edit_deb_packages(self.packages, is_installing=False)
+        edit_deb_packages(packages, is_installing=False)
 
 
 class C439Keyword(AbstractKeyword):
@@ -491,16 +493,16 @@ class C439Keyword(AbstractKeyword):
     Point person: <++>
     """
 
-    self.packages = ['minisat2']
+    packages = ['minisat2']
 
     def __init__(self, build_config):
         super().__init__(build_config, 'C439', 'CPSC 439 (Theory of Computation)')
 
     def add(self):
-        edit_deb_packages(self.packages, is_installing=True)
+        edit_deb_packages(packages, is_installing=True)
 
     def remove(self):
-        edit_deb_packages(self.packages, is_installing=False)
+        edit_deb_packages(packages, is_installing=False)
 
 
 class C474Keyword(AbstractKeyword):
@@ -509,7 +511,7 @@ class C474Keyword(AbstractKeyword):
     Point person: <++>
     """
 
-    self.packages = ['libopenmpi-dev',
+    packages = ['libopenmpi-dev',
                      'mpi-default-dev',
                      'mpich',
                      'openmpi-bin',
@@ -519,10 +521,10 @@ class C474Keyword(AbstractKeyword):
         super().__init__(build_config, 'C474', 'CPSC 474 (Parallel and Distributed Computing)')
 
     def add(self):
-        edit_deb_packages(self.packages, is_installing=True)
+        edit_deb_packages(packages, is_installing=True)
 
     def remove(self):
-        edit_deb_packages(self.packages, is_installing=False)
+        edit_deb_packages(packages, is_installing=False)
 
 
 class C481Keyword(AbstractKeyword):
@@ -533,7 +535,7 @@ class C481Keyword(AbstractKeyword):
     Point person: Paul Inventado
     """
 
-    self.packages = ['openjdk-8-jdk',
+    packages = ['openjdk-8-jdk',
                      'openjdk-8-jre',
                      'sbcl',
                      'swi-prolog-nox',
@@ -543,7 +545,7 @@ class C481Keyword(AbstractKeyword):
         super().__init__(build_config, 'C481', 'CPSC 481 (Artificial Intelligence)')
 
     def add(self):
-        edit_deb_packages(self.packages, is_installing=True)
+        edit_deb_packages(packages, is_installing=True)
         """
         You are going to need to get the most up to date
         link because the original one broke and this one currently works.
@@ -571,7 +573,7 @@ class C481Keyword(AbstractKeyword):
         """
 
     def remove(self):
-        edit_deb_packages(self.packages, is_installing=False)
+        edit_deb_packages(packages, is_installing=False)
 
 
 class C484Keyword(AbstractKeyword):
@@ -580,7 +582,7 @@ class C484Keyword(AbstractKeyword):
     Point persons: Michael Shafae, Kevin Wortman
     """
 
-    self.packages = ['freeglut3-dev',
+    packages = ['freeglut3-dev',
                      'libfreeimage-dev',
                      'libgl1-mesa-dev',
                      'libglew-dev',
@@ -599,15 +601,15 @@ class C484Keyword(AbstractKeyword):
         super().__init__(build_config, 'C484', 'CPSC 484 (Principles of Computer Graphics)')
 
     def add(self):
-        edit_deb_packages(self.packages, is_installing=True)
+        edit_deb_packages(packages, is_installing=True)
 
     def remove(self):
-        edit_deb_packages(self.packages, is_installing=False)
+        edit_deb_packages(packages, is_installing=False)
 
 
 class MediaKeyword(AbstractKeyword):
 
-    self.packages = ['audacity',
+    packages = ['audacity',
                      'blender',
                      'gimp',
                      'imagemagick',
@@ -618,14 +620,14 @@ class MediaKeyword(AbstractKeyword):
         super().__init__(build_config, 'media', 'Media Computation Tools')
 
     def add(self):
-        edit_deb_packages(self.packages, is_installing=True)
+        edit_deb_packages(packages, is_installing=True)
 
     def remove(self):
-        edit_deb_packages(self.packages, is_installing=False)
+        edit_deb_packages(packages, is_installing=False)
 
 
 class LatexKeyword(AbstractKeyword):
-    self.packages = ['texlive-full']
+    packages = ['texlive-full']
 
     def __init__(self, build_config):
         super().__init__(build_config,
@@ -633,14 +635,14 @@ class LatexKeyword(AbstractKeyword):
                          'LaTeX typesetting environment (large)')
 
     def add(self):
-        edit_deb_packages(self.packages, is_installing=True)
+        edit_deb_packages(packages, is_installing=True)
 
     def remove(self):
-        edit_deb_packages(self.packages, is_installing=False)
+        edit_deb_packages(packages, is_installing=False)
 
 
 class SystemUpgradeKeyword(AbstractKeyword):
-    self.packages = []
+    packages = []
 
     def __init__(self, build_config):
         super().__init__(build_config,
@@ -648,7 +650,7 @@ class SystemUpgradeKeyword(AbstractKeyword):
                          'Upgrade the entire system')
 
     def add(self):
-        # edit_deb_packages(self.packages, is_installing=True)
+        # edit_deb_packages(packages, is_installing=True)
         # TODO
         # source :
         # https://stackoverflow.com/questions/3092613/python-apt-get-list-upgrades
@@ -669,11 +671,11 @@ class SystemUpgradeKeyword(AbstractKeyword):
     def remove(self):
         print(f'[INFO] Nothing to remove for system upgrade, ignoring request')
         pass
-        # edit_deb_packages(self.packages, is_installing=False)
+        # edit_deb_packages(packages, is_installing=False)
 
 
 class VirtualBoxKeyword(AbstractKeyword):
-    self.packages = ['virtualbox-6.1']
+    packages = ['virtualbox-6.1']
 
     def __init__(self, build_config):
         super().__init__(
@@ -700,14 +702,14 @@ class VirtualBoxKeyword(AbstractKeyword):
         apt_key = subprocess.check_output(
             ('sudo', 'apt-key', 'add', '-'), stdin=wget_request.stdout)
 
-        edit_deb_packages(self.packages, is_installing=True)
+        edit_deb_packages(packages, is_installing=True)
 
     def remove(self):
-        edit_deb_packages(self.packages, is_installing=False)
+        edit_deb_packages(packages, is_installing=False)
 
 
 class ZoomKeyword(AbstractKeyword):
-    self.packages = ['libgl1-mesa-glx',
+    packages = ['libgl1-mesa-glx',
                      'libegl1-mesa',
                      'libxcb-xtest0',
                      'zoom']
@@ -718,7 +720,7 @@ class ZoomKeyword(AbstractKeyword):
                          'Video conferencing software')
 
     def add(self):
-        edit_deb_packages(self.packages[:3], is_installing=True)
+        edit_deb_packages(packages[:3], is_installing=True)
         url = "https://zoom.us/client/latest/zoom_amd64.deb"
         file_path = "/tmp/zoom"
         with open(file_path, 'wb') as fp:
@@ -726,17 +728,17 @@ class ZoomKeyword(AbstractKeyword):
         apt.debfile.DebPackage(filename=file_path).install()
 
     def remove(self):
-        edit_deb_packages(self.packages, is_installing=False)
+        edit_deb_packages(packages, is_installing=False)
 
 
 class TestKeyword(AbstractKeyword):
-    self.packages = ['cowsay']
 
     def __init__(self, build_config):
         super().__init__(build_config,
                          'test',
                          'for testing purposes')
 
+        self.packages = ['cowsay']
     def add(self):
         edit_deb_packages(self.packages, is_installing=True)
 
@@ -772,16 +774,16 @@ class TestKeyword(AbstractKeyword):
         # raise EnvironmentError(f'[ERROR] Could not find {path}')
         # with open(path, "r") as fp:
         # content = json.load(fp)
-        # name, instructor, self.self.packages = content["name"].replace(
+        # name, instructor, self.packages = content["name"].replace(
         # ' ', ''), content["instructor"], content["packages"]
 
         # print(
         # f'[INFO] Installing custom keyword {name} from instructor/student {instructor}')
 
-        # edit_deb_packages(self.packages, is_installing=True)
+        # edit_deb_packages(packages, is_installing=True)
 
     # def remove(self):
-        # edit_deb_packages(self.packages, is_installing=False)
+        # edit_deb_packages(packages, is_installing=False)
 
 
 class KeywordContainer():

@@ -14,22 +14,22 @@ class DriverTest(unittest.TestCase):
         command = "tuffix add base"
         main(command.split())
 
-    def test_remove(self):
-        command = "tuffix remove base"
-        main(command.split())
+    # def test_remove(self):
+        # command = "tuffix remove base"
+        # main(command.split())
 
-    def test_list(self):
-        command = "tuffix list"
-        main(command.split())
+    # def test_list(self):
+        # command = "tuffix list"
+        # main(command.split())
 
-    def test_installed(self):
-        command = "tuffix installed"
-        main(command.split())
+    # def test_installed(self):
+        # command = "tuffix installed"
+        # main(command.split())
 
-    def test_status(self):
-        command = "tuffix status"
-        main(command.split())
+    # def test_status(self):
+        # command = "tuffix status"
+        # main(command.split())
 
-    def test_custom(self):
-        command = "tuffix custom /tmp/example.json"
-        main(command.split())
+    # def test_custom(self):
+        # command = "tuffix custom /tmp/example.json"
+        # main(command.split())
