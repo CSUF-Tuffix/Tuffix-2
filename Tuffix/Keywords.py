@@ -789,7 +789,6 @@ class KeywordContainer():
             # C223PKeyword(build_config),
             # C223WKeyword(build_config),
             # C240Keyword(build_config),
-            C121Keyword(build_config),
             C439Keyword(build_config),
             C474Keyword(build_config),
             # C481Keyword(build_config),
