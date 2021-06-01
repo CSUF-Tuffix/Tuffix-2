@@ -34,15 +34,16 @@ class DriverTest(unittest.TestCase):
         # command = "tuffix status"
         # main(command.split())
 
-    # def test_custom(self):
-        # command = "tuffix custom /tmp/example.json"
-        # main(command.split())
+    def test_custom(self):
+        command = "tuffix custom json_payload/OSC.json"
+        main(command.split())
 
-    def test_describe(self):
-        k_container = KeywordContainer(DEFAULT_BUILD_CONFIG)
-        for keyword in k_container.container:
-            command = f'tuffix describe {keyword.name}'
-            main(command.split())
+    # def test_describe(self):
+        # k_container = KeywordContainer(DEFAULT_BUILD_CONFIG)
+        # for keyword in k_container.container:
+            # command = f'tuffix describe {keyword.name}'
+            # main(command.split())
 
 if __name__ == '__main__':
+    print("hello")
     unittest.main()

@@ -5,6 +5,7 @@
 
 import apt
 import pickle
+import pathlib
 
 
 def edit_deb_packages(package_names, is_installing):
@@ -36,12 +37,12 @@ class PickleFactory():
     def __init__(self):
         pass
 
-    def pickle(self, obj, path: str):
-        if(not isinstance(path, str)):
+    def pickle(self, obj, path: pathlib.Path):
+        if(not isinstance(path, pathlib.Path)):
             raise ValueError
 
-        with open(path, 'wb') as fp:
-            pickle.dump(fp)
+        with open(path.resolve(), 'wb') as fp:
+            pickle.dump(obj.__dict__, fp)
 
     def depickle(self, path: str):
         with open(path, 'rb') as fp:

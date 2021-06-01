@@ -15,6 +15,7 @@ import os
 import json
 import pickle  # dump custom class instance to disk
 from termcolor import colored
+from functools import partial # so we can pass in function pointers with predefined args
 
 # abstract base class for one of the user-visible tuffix commands, e.g.
 # init, status, etc.
@@ -83,7 +84,7 @@ class MarkCommand(AbstractCommand):
         self.command = command
         self.container = KeywordContainer(build_config)
 
-    def execute(self, arguments: list, custom=None):
+    def execute(self, arguments: list, custom=(None, None)):
         if not (isinstance(arguments, list) and
                 all([isinstance(argument, str) for argument in arguments])):
             raise ValueError
@@ -92,12 +93,12 @@ class MarkCommand(AbstractCommand):
             raise UsageError("you must supply at least one keyword to mark")
 
         # ./tuffix add base media latex
-
-        if(custom):
+        custom_status, custom_command = custom
+        if(custom_status):
             # Emplace this into the list of possible keywords
-            self.container.container.append(custom)
-
-        collection = [self.container.obtain(x) for x in arguments]
+            collection = [custom_command]
+        else:
+            collection = [self.container.obtain(x) for x in arguments]
 
         state = read_state(self.build_config)
         first_arg = arguments[0]
@@ -125,8 +126,7 @@ class MarkCommand(AbstractCommand):
 
         ensure_root_access()
 
-        for element in collection:
-            command, status = element
+        for command in collection:
             if((command.name in state.installed)):
                 if(install):
                     raise UsageError(
@@ -178,6 +178,7 @@ class CustomCommand(AbstractCommand):
         super().__init__(build_config, 'custom', 'user-defined json payload')
 
     def execute(self, arguments: list):
+        print("ehre")
         for path in arguments:
             if(not os.path.exists(path)):
                 raise FileNotFoundError(f'[ERROR] Could not load {path}')
@@ -190,8 +191,8 @@ class CustomCommand(AbstractCommand):
             body = {
                 "packages": packages,
                 "__init__": AbstractKeyword.__init__,
-                "add": edit_deb_packages(packages, is_installing=True),
-                "remove": edit_deb_packages(packages, is_installing=False)
+                "add": partial(edit_deb_packages, package_names=packages, is_installing=True),
+                "remove": partial(edit_deb_packages, package_names=packages, is_installing=False)
             }
 
             NewClass = type(
@@ -200,11 +201,12 @@ class CustomCommand(AbstractCommand):
                 body
             )
 
-            NewClassInstance = NewClass(["add"])
-            NewClassInstance.dump('/tmp/')
+            NewClassInstance = NewClass(DEFAULT_BUILD_CONFIG, name.lower(), f'{name.lower()} created by {instructor}')
+            output = pathlib.Path(f'{DEFAULT_BUILD_CONFIG.pickle_state_path.resolve()}/{name.lower()}_class_instance.pickle')
+            DEFAULT_PICKLER.pickle(NewClassInstance, output)
 
-            self.mark = MarkCommand(build_config, self.name)
-            self.mark.execute(["add", name])
+            self.mark = MarkCommand(DEFAULT_BUILD_CONFIG, "add")
+            self.mark.execute([name], (True, NewClassInstance))
 
 
 class DescribeCommand(AbstractCommand):

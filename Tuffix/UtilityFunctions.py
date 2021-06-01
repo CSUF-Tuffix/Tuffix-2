@@ -112,8 +112,8 @@ def create_state_directory(build_config):
 
     ensure_root_access()
     # recursively create entire directory structure
-    dir_path = os.path.dirname(build_config.pickle_state_path)
-    os.makedirs(dir_path, exist_ok=True)
+    # dir_path = os.path.dirname(build_config.pickle_state_path)
+    os.makedirs(build_config.pickle_state_path, exist_ok=True)
 
 
 def set_background(path: str):

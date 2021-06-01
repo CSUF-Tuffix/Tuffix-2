@@ -1,0 +1,5 @@
+{
+    "name": "osc",
+    "instructor": "William McCarthy",
+    "packages": ["cowsay"]
+}
