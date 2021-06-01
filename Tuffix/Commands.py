@@ -94,20 +94,10 @@ class MarkCommand(AbstractCommand):
             for _file in filepath:
                 match = _re.match(_file)
                 if(match):
-                    """
-                    Hey this is repeat code cause yeah know
-                    """
+                    NewClass = DEFAULT_CLASS_GENERATOR.generate(f'{dirpath}/{_file}')
 
-                    with open(f'{dirpath}/{_file}', encoding="utf-8") as fp:
-                        content = json.loads(fp.read())
-
-                    name, instructor, packages = content["name"].replace(
-                        ' ', ''), content["instructor"], content["packages"]
-
-                    NewClass = DEFAULT_CLASS_GENERATOR.generate(name, packages)
-
-                    NewClassInstance = NewClass(DEFAULT_BUILD_CONFIG, name.lower(), f'{name.lower()} created by {instructor}', packages)
-                    return (True, NewClassInstance)
+                    NewClassInstance = NewClass()
+                return (True, NewClassInstance)
         return (False, None)
 
     def execute(self, arguments: list, custom=(None, None)):
@@ -215,20 +205,9 @@ class CustomCommand(AbstractCommand):
             if(not os.path.exists(path)):
                 raise FileNotFoundError(f'[ERROR] Could not load {path}')
 
-            with open(path, encoding="utf-8") as fp:
-                content = json.loads(fp.read())
+            NewClass = DEFAULT_CLASS_GENERATOR.generate(path)
 
-            name, instructor, packages = content["name"].replace(
-                ' ', ''), content["instructor"], content["packages"]
-
-            NewClass = DEFAULT_CLASS_GENERATOR.generate(name, packages)
-
-            NewClassInstance = NewClass(DEFAULT_BUILD_CONFIG, name.lower(), f'{name.lower()} created by {instructor}', packages)
-            # DEFAULT_CLASS_GENERATOR.dump(NewClassInstance)
-            # output = pathlib.Path(f'{DEFAULT_BUILD_CONFIG.pickle_state_path.resolve()}/{name.lower()}_class_instance.pickle')
-
-
-            # DEFAULT_PICKLER.pickle(NewClassInstance, output)
+            NewClassInstance = NewClass()
 
             self.mark = MarkCommand(DEFAULT_BUILD_CONFIG, "add")
             self.mark.execute([name], (True, NewClassInstance))

@@ -822,13 +822,19 @@ class ClassKeywordGenerator():
     def __init__(self):
         pass
 
-    def generate(self, name: str, packages: list):
-        if not(isinstance(name, str) and
-               isinstance(packages, list)):
+    # def generate(self, name: str, packages: list):
+    def generate(self, path: str):
+        if not(isinstance(path, str)):
                raise ValueError
+        with open(path, encoding="utf-8") as fp:
+            content =  json.loads(fp.read())
+
+        name, instructor, packages = content["name"].replace(
+            ' ', '').lower(), content["instructor"], content["packages"]
+        description = f'{name} created by {instructor}'
 
         body = {
-            "__init__": AbstractKeyword.__init__,
+            "__init__": partial(AbstractKeyword.__init__, self, build_config=DEFAULT_BUILD_CONFIG, name=name, description=description, packages=packages), 
             "add": partial(edit_deb_packages, package_names=packages, is_installing=True),
             "remove": partial(edit_deb_packages, package_names=packages, is_installing=False)
         }
