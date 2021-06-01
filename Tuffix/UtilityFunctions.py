@@ -15,6 +15,7 @@ from Tuffix.Exceptions import *
 from Tuffix.LSBParser import lsb_parser
 from gi.repository import Gio
 
+
 def distrib_codename():
     """
     Read and parse the release codename from /etc/lsb-release .
@@ -31,7 +32,7 @@ def distrib_codename():
 def is_deb_package_installed(package_name):
     try:
         apt_pkg.init()
-        cache = apt_pkg.Cache(None) # silence this output for testing
+        cache = apt_pkg.Cache(None)  # silence this output for testing
         package = cache[package_name]
         return (package.current_state == apt_pkg.CURSTATE_INSTALLED)
     except KeyError:
@@ -110,7 +111,8 @@ def create_state_directory(build_config):
     """
 
     ensure_root_access()
-    dir_path = os.path.dirname(build_config.state_path)
+    # recursively create entire directory structure
+    dir_path = os.path.dirname(build_config.pickle_state_path)
     os.makedirs(dir_path, exist_ok=True)
 
 
@@ -186,8 +188,8 @@ def get_user_submitted_wallpaper(manifest={}):
     req = requests.get(url)
     # if("image" in req.headers['content-type']):
     # else:
-        # raise EnvironmentError(
-            # f'{url} contains file that is not an image; indexing error?')
+    # raise EnvironmentError(
+    # f'{url} contains file that is not an image; indexing error?')
 
     with open(output, 'wb') as fp:
         fp.write(req.content)
