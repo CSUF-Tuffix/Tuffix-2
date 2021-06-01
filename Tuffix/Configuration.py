@@ -29,18 +29,21 @@ class BuildConfig:
     # state_path: pathlib.Path holding the path to state.json
     def __init__(self,
                  version,
-                 state_path):
+                 state_path,
+                 pickle_path):
         if not (isinstance(version, packaging.version.Version) and
                 isinstance(state_path, pathlib.Path) and
-                state_path.suffix == '.json'):
+                state_path.suffix == '.json' and
+                isinstance(pickle_path, pathlib.Path)):
             raise ValueError
         self.version = version
         self.state_path = state_path
+        self.pickle_state_path = pickle_path
 
 
 # Singleton BuildConfig object using the constants declared at the top of
 # this file.
-DEFAULT_BUILD_CONFIG = BuildConfig(VERSION, STATE_PATH)
+DEFAULT_BUILD_CONFIG = BuildConfig(VERSION, STATE_PATH, PICKLE_PATH)
 
 
 class State:

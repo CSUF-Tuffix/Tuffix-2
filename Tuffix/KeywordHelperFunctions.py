@@ -4,6 +4,8 @@
 ##########################################################################
 
 import apt
+import pickle
+
 
 def edit_deb_packages(package_names, is_installing):
     if not (isinstance(package_names, list) and
@@ -28,3 +30,23 @@ def edit_deb_packages(package_names, is_installing):
         cache.commit()
     except Exception as e:
         raise EnvironmentError(f'[ERROR] Could not install {name}: {e}.')
+
+
+class PickleFactory():
+    def __init__(self):
+        pass
+
+    def pickle(self, obj, path: str):
+        if(not isinstance(path, str)):
+            raise ValueError
+
+        with open(path, 'wb') as fp:
+            pickle.dump(fp)
+
+    def depickle(self, path: str):
+        with open(path, 'rb') as fp:
+            __class = pickle.load(fp)
+        return __class
+
+
+DEFAULT_PICKLER = PickleFactory()

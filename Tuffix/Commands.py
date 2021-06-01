@@ -4,6 +4,7 @@
 ##########################################################################
 
 from Tuffix.Configuration import BuildConfig, State, DEFAULT_BUILD_CONFIG
+from Tuffix.KeywordHelperFunctions import DEFAULT_PICKLER
 from Tuffix.Constants import *
 from Tuffix.Exceptions import *
 from Tuffix.Keywords import *
@@ -175,8 +176,6 @@ class CustomCommand(AbstractCommand):
 
     def __init__(self, build_config):
         super().__init__(build_config, 'custom', 'user-defined json payload')
-        self.bc = build_config
-        # so we can pass this to the new class instance we're dynamically creating
 
     def execute(self, arguments: list):
         for path in arguments:
@@ -189,10 +188,10 @@ class CustomCommand(AbstractCommand):
             name, instructor, packages = content["name"].replace(
                 ' ', ''), content["instructor"], content["packages"]
             body = {
-                "counter": 0,
                 "packages": packages,
                 "__init__": AbstractKeyword.__init__,
-                "dump": lambda self, position=None: pickle.dump(self.__dict__, open(f'{position}{name}_class_dump.pickle', "wb"))
+                "add": edit_deb_packages(packages, is_installing=True),
+                "remove": edit_deb_packages(packages, is_installing=False)
             }
 
             NewClass = type(
