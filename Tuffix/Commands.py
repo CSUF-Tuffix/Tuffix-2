@@ -80,9 +80,35 @@ class MarkCommand(AbstractCommand):
         super().__init__(build_config, 'mark', 'mark (install/remove) one or more keywords')
         if not(isinstance(command, str)):
             raise ValueError
+        
         # either select the add or remove from the Keywords
         self.command = command
         self.container = KeywordContainer(build_config)
+    
+    def search(self, pattern: str) -> tuple:
+        if(not isinstance(pattern, str)):
+            raise ValueError
+
+        _re = re.compile(f'{pattern}.json', flags=re.IGNORECASE)
+        for dirpath, _, filepath in os.walk('json_payload/'):
+            for _file in filepath:
+                match = _re.match(_file)
+                if(match):
+                    """
+                    Hey this is repeat code cause yeah know
+                    """
+
+                    with open(f'{dirpath}/{_file}', encoding="utf-8") as fp:
+                        content = json.loads(fp.read())
+
+                    name, instructor, packages = content["name"].replace(
+                        ' ', ''), content["instructor"], content["packages"]
+
+                    NewClass = DEFAULT_CLASS_GENERATOR.generate(name, packages)
+
+                    NewClassInstance = NewClass(DEFAULT_BUILD_CONFIG, name.lower(), f'{name.lower()} created by {instructor}', packages)
+                    return (True, NewClassInstance)
+        return (False, None)
 
     def execute(self, arguments: list, custom=(None, None)):
         if not (isinstance(arguments, list) and
@@ -96,9 +122,19 @@ class MarkCommand(AbstractCommand):
         custom_status, custom_command = custom
         if(custom_status):
             # Emplace this into the list of possible keywords
-            collection = [custom_command]
+            collection = [(True, custom_command)]
         else:
             collection = [self.container.obtain(x) for x in arguments]
+        
+        for x, element in enumerate(collection):
+            # if the command could not be found and we need to remove it
+            status, command = element
+            if(not status and not command):
+                # search the pickle jar to load the custom class
+                status, obj = self.search(arguments[x])
+                if(not status):
+                    raise ValueError(f'could not find custom class for {arguments[x]}')
+                collection[x] = obj
 
         state = read_state(self.build_config)
         first_arg = arguments[0]
@@ -115,7 +151,7 @@ class MarkCommand(AbstractCommand):
         if(first_arg == "all"):
             try:
                 input(
-                    "are you sure you want to install/remove all packages? Press enter to continue or CTRL-D to exit: ")
+                    "[INFO] Are you sure you want to install/remove all packages? Press enter to continue or CTRL-D to exit: ")
             except EOFError:
                 quit()
             if(install):
@@ -170,15 +206,11 @@ class AddCommand(AbstractCommand):
 
 
 class CustomCommand(AbstractCommand):
-    """
-    TODO: get the file to this function
-    """
 
     def __init__(self, build_config):
         super().__init__(build_config, 'custom', 'user-defined json payload')
 
     def execute(self, arguments: list):
-        print("ehre")
         for path in arguments:
             if(not os.path.exists(path)):
                 raise FileNotFoundError(f'[ERROR] Could not load {path}')
@@ -188,22 +220,15 @@ class CustomCommand(AbstractCommand):
 
             name, instructor, packages = content["name"].replace(
                 ' ', ''), content["instructor"], content["packages"]
-            body = {
-                "packages": packages,
-                "__init__": AbstractKeyword.__init__,
-                "add": partial(edit_deb_packages, package_names=packages, is_installing=True),
-                "remove": partial(edit_deb_packages, package_names=packages, is_installing=False)
-            }
 
-            NewClass = type(
-                name,
-                (),
-                body
-            )
+            NewClass = DEFAULT_CLASS_GENERATOR.generate(name, packages)
 
-            NewClassInstance = NewClass(DEFAULT_BUILD_CONFIG, name.lower(), f'{name.lower()} created by {instructor}')
-            output = pathlib.Path(f'{DEFAULT_BUILD_CONFIG.pickle_state_path.resolve()}/{name.lower()}_class_instance.pickle')
-            DEFAULT_PICKLER.pickle(NewClassInstance, output)
+            NewClassInstance = NewClass(DEFAULT_BUILD_CONFIG, name.lower(), f'{name.lower()} created by {instructor}', packages)
+            # DEFAULT_CLASS_GENERATOR.dump(NewClassInstance)
+            # output = pathlib.Path(f'{DEFAULT_BUILD_CONFIG.pickle_state_path.resolve()}/{name.lower()}_class_instance.pickle')
+
+
+            # DEFAULT_PICKLER.pickle(NewClassInstance, output)
 
             self.mark = MarkCommand(DEFAULT_BUILD_CONFIG, "add")
             self.mark.execute([name], (True, NewClassInstance))

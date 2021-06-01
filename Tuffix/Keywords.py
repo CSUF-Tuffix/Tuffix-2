@@ -20,7 +20,7 @@ class AbstractKeyword:
     the class name with C (for Course).
     """
 
-    def __init__(self, build_config, name, description):
+    def __init__(self, build_config, name, description, packages=None):
         if not (isinstance(build_config, BuildConfig) and
                 isinstance(name, str) and
                 len(name) <= KEYWORD_MAX_LENGTH and
@@ -28,7 +28,7 @@ class AbstractKeyword:
             raise ValueError
         self.name = name
         self.description = description
-        self.packges: list[str] = []
+        self.packges: list[str] = [] if not packages else packages
 
     def add(self):
         raise NotImplementedError
@@ -812,3 +812,31 @@ class KeywordContainer():
 
         _, status = self.obtain(value)
         return status
+
+class ClassKeywordGenerator():
+    """
+    Generate a custom keyword class for usage in add/remove commands
+    BUG: there might be an issue in where the class is instantiated
+    """
+
+    def __init__(self):
+        pass
+
+    def generate(self, name: str, packages: list):
+        if not(isinstance(name, str) and
+               isinstance(packages, list)):
+               raise ValueError
+
+        body = {
+            "__init__": AbstractKeyword.__init__,
+            "add": partial(edit_deb_packages, package_names=packages, is_installing=True),
+            "remove": partial(edit_deb_packages, package_names=packages, is_installing=False)
+        }
+
+        return type(
+            name,
+            (),
+            body
+        )
+
+DEFAULT_CLASS_GENERATOR = ClassKeywordGenerator()

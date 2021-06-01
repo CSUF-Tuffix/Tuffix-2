@@ -6,6 +6,7 @@
 import apt
 import pickle
 import pathlib
+from functools import partial
 
 
 def edit_deb_packages(package_names, is_installing):
@@ -26,12 +27,14 @@ def edit_deb_packages(package_names, is_installing):
                 is_installing) else cache[name].mark_delete()
         except KeyError:
             raise EnvironmentError(
-                f'[ERROR] Deb package "{name}" not found, is this Ubuntu?')
+                f'[ERROR] Debian package "{name}" not found, is this Ubuntu?')
     try:
         cache.commit()
     except Exception as e:
+        cache.close()
         raise EnvironmentError(f'[ERROR] Could not install {name}: {e}.')
 
+    cache.close()
 
 class PickleFactory():
     def __init__(self):
@@ -42,7 +45,7 @@ class PickleFactory():
             raise ValueError
 
         with open(path.resolve(), 'wb') as fp:
-            pickle.dump(obj.__dict__, fp)
+            pickle.dump(obj, fp)
 
     def depickle(self, path: str):
         with open(path, 'rb') as fp:
@@ -51,3 +54,4 @@ class PickleFactory():
 
 
 DEFAULT_PICKLER = PickleFactory()
+
