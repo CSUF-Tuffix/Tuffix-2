@@ -114,6 +114,7 @@ def create_state_directory(build_config):
     # recursively create entire directory structure
     # dir_path = os.path.dirname(build_config.pickle_state_path)
     os.makedirs(build_config.pickle_state_path, exist_ok=True)
+    os.makedirs(build_config.json_state_path, exist_ok=True) # NOTE
 
 
 def set_background(path: str):

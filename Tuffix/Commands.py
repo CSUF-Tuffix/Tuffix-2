@@ -90,30 +90,96 @@ class MarkCommand(AbstractCommand):
             raise ValueError
 
         _re = re.compile(f'{pattern}.json', flags=re.IGNORECASE)
+        # TODO : change this path to something in DEFAULT_BUILD_CONFIG
         for dirpath, _, filepath in os.walk('json_payload/'):
             for _file in filepath:
                 match = _re.match(_file)
                 if(match):
+                    # If the JSON file is found, we need to now dynamically create a class
                     NewClass = DEFAULT_CLASS_GENERATOR.generate(f'{dirpath}/{_file}')
-
                     NewClassInstance = NewClass()
                 return (True, NewClassInstance)
         return (False, None)
 
+    def rewrite_state(self, current_state, keyword, install):
+        """
+        Goal: update the state file
+        """
+        # TODO : check what type keyword is
+
+        # if not(isinstance(current_state, Keyword.State) and
+               # isinstance(keyword, Keyword) and
+               # isinstance(install, bool)):
+               # raise ValueError
+
+        new_action = current_state.installed
+
+        if(not install):
+            new_action.remove(keyword.name)
+        else:
+            new_action.append(keyword.name)
+
+        new_state = State(self.build_config,
+                          self.build_config.version,
+                          new_action)
+        new_state.write()
+
+    def run_commands(self, container: list, install: bool):
+        """
+        Goal: execute a series of keywords given in a list container
+        """
+
+        if not(isinstance(container, list) and
+               isinstance(install, bool)):
+               raise ValueError
+
+        verb, past = (
+            "installing", "installed") if install else (
+            "removing", "removed")
+
+        current_state = read_state(self.build_config)
+
+        for status, command in container:
+            if((command.name in current_state.installed)):
+                if(install):
+                    raise UsageError(
+                        f'[WARNING] Tuffix: cannot add {command.name}, it is already installed')
+            elif((command.name not in current_state.installed) and (not install)):
+                raise UsageError(
+                    f'[ERROR]: Tuffix: Cannot remove candidate {command.name}; not installed')
+
+            print(f'[INFO] Tuffix: {verb} {command.name}')
+
+            try:
+                getattr(command, self.command)()
+            except AttributeError:
+                raise UsageError(
+                    f'[INTERNAL ERROR] {command.__name__} does not have the function {self.command}')
+
+            self.rewrite_state(current_state, command, install)
+
+            print(f'[INFO] Tuffix: successfully {past} {command.name}')
+
     def execute(self, arguments: list, custom=(None, None)):
+        """
+        Goal: install or remove keywords
+        """
+
         if not (isinstance(arguments, list) and
                 all([isinstance(argument, str) for argument in arguments])):
             raise ValueError
 
         if not(arguments):
-            raise UsageError("you must supply at least one keyword to mark")
-
-        # ./tuffix add base media latex
+            raise UsageError("[ERROR] You must supply at least one keyword to mark")
+        
+        # This pertains to custom keywords we have defined in a JSON file
         custom_status, custom_command = custom
+
         if(custom_status):
             # Emplace this into the list of possible keywords
             collection = [(True, custom_command)]
         else:
+            # ./tuffix add base media latex
             collection = [self.container.obtain(x) for x in arguments]
         
         for x, element in enumerate(collection):
@@ -123,25 +189,19 @@ class MarkCommand(AbstractCommand):
                 # search the pickle jar to load the custom class
                 status, obj = self.search(arguments[x])
                 if(not status):
-                    raise ValueError(f'could not find custom class for {arguments[x]}')
+                    raise ValueError(f'[INTERNAL ERROR] Tuffix: Could not find custom class for {arguments[x]}')
                 collection[x] = obj
 
-        state = read_state(self.build_config)
-        first_arg = arguments[0]
-        install = True if self.command == "add" else False
 
-        # for console messages
-        verb, past = (
-            "installing", "installed") if install else (
-            "removing", "removed")
+        install = True if self.command == "add" else False
 
         # ./tuffix add all
         # ./tuffix remove all
 
-        if(first_arg == "all"):
+        if(arguments[0] == "all"):
             try:
                 input(
-                    "[INFO] Are you sure you want to install/remove all packages? Press enter to continue or CTRL-D to exit: ")
+                    "[INFO] Tuffix: Are you sure you want to install/remove all packages? Press enter to continue or CTRL-D to exit: ")
             except EOFError:
                 quit()
             if(install):
@@ -151,40 +211,9 @@ class MarkCommand(AbstractCommand):
                     x) for x in state.installed]  # all installed
 
         ensure_root_access()
+        self.run_commands(collection, install)
 
-        for status, command in collection:
-            if((command.name in state.installed)):
-                if(install):
-                    raise UsageError(
-                        f'tuffix: cannot add {command.name}, it is already installed')
-            elif((command.name not in state.installed) and (not install)):
-                raise UsageError(
-                    f'cannot remove candidate {command.name}; not installed')
-
-            print(f'[INFO] Tuffix: {verb} {command.name}')
-
-            try:
-                getattr(command, self.command)()
-            except AttributeError:
-                raise UsageError(
-                    f'{command.__name__} does not have the function {self.command}')
-
-            new_action = state.installed
-
-            if(not install):
-                new_action.remove(command.name)
-            else:
-                new_action.append(command.name)
-
-            new_state = State(self.build_config,
-                              self.build_config.version,
-                              new_action)
-            new_state.write()
-
-            os.system("apt autoremove")
-
-            print(f'[INFO] Tuffix: successfully {past} {command.name}')
-
+        os.system("apt autoremove") # purge system of unneeded dependencies
 
 class AddCommand(AbstractCommand):
     def __init__(self, build_config):

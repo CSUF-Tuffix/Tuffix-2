@@ -806,8 +806,8 @@ class KeywordContainer():
 
         for keyword in self.container:
             if(keyword.name == value):
-                return (keyword, True)
-        return (None, False)
+                return (True, keyword)
+        return (False, None)
 
     def __contains__(self, value: str):
         if(not isinstance(value, str)):

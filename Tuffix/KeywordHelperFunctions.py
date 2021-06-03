@@ -55,6 +55,7 @@ def edit_deb_packages(package_names, is_installing):
     cache = apt.cache.Cache()
     cache.update()
     cache.open()
+
     for name in package_names:
         print(
             f'[INFO] {"Installing" if is_installing else "Removing"} package: {name}')
@@ -72,8 +73,10 @@ def edit_deb_packages(package_names, is_installing):
     except Exception as e:
         cache.close()
         raise EnvironmentError(f'[ERROR] Could not install {name}: {e}.')
-
-    cache.close()
+    finally:
+        # unittest complains there is an open file but I have tried closing it in every avenue
+        # NOTE : possible memory leak
+        cache.close()
 
 class PickleFactory():
     def __init__(self):
