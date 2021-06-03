@@ -11,23 +11,54 @@ Supported:
 - vi(m)
 - vscode
 """
-
+from Tuffix.SudoRun import SudoRun
+from Tuffix.Exceptions import *
 
 class Editors():
     def __init__(self):
-        self.supported = [
-            'atom',
-            'emacs',
-            'vim',
-            'vscode'
-        ]
+        # self.supported = [
+            # 'atom',
+            # 'emacs',
+            # 'vim',
+            # 'vscode'
+        # ]
+
+        self.supported = {
+            "atom": self.atom,
+            "emacs": self.emacs,
+            "vim": self.vim,
+            "vscode": self.vscode
+        }
 
         self.executor = SudoRun()
         self.normal_user = self.executor.whoami
 
+    def prompt(self, require_input=(None, None)):
+        """
+        require_input: tuple
+        Goal: select correct editor to install and return proper function pointer
+        """
+
+        status, response = require_input
+
+        if not(status):
+            string = '\n'.join(f'  {[x]} {editor}' for x, editor, _ in enumerate(self.supported.items()))
+            response = len(self.supported) + 1
+
+            while(response > len(self.supported)):
+                response = int(input(f'[INFO] Select editor:\n{string}\n: '))
+        try:
+            word = list(self.supported.keys())[response]
+        except IndexError:
+            raise UsageError(f'[ERROR] Unsupported index of {response}')
+        print(f'[INFO] You have selected: {response} -> {word}')
+        assert(callable(self.supported[word])) # ensure the function pointer is valid
+        return self.supported[word] # return function pointer to installer
+
+
     def atom(self):
         """
-        GOAL: Get and install Atom
+        GOAL: Get and install Atom with predefined plugins
         """
 
         packages = ['atom']
@@ -38,18 +69,10 @@ class Editors():
 
         self.executor.run(
             'sudo add-apt-repository -y ppa:webupd8team/atom',
-            normal_user)
+            self.normal_user)
         atom_conf_dir = pathlib.Path(f'/home/{self.normal_user}/.atom')
         edit_deb_packages(packages, is_installing=True)
 
-        # print("[INFO] Downloading Atom Debian installer....")
-        # content = request.get(atom_url).content
-
-        # with open(atom_dest, 'wb') as fp:
-        # fp.write(content)
-
-        # print("[INFO] Finished downloading and proceeding to install...")
-        # apt.debfile.DebPackage(filename=atom_dest).install()
         for plugin in atom_plugins:
             print(f'[INFO] Installing {plugin}...')
             executor.run(f'/usr/bin/apm install {plugin}', self.normal_user)
@@ -63,6 +86,7 @@ class Editors():
         self.executor.run(
             'sudo add-apt-repository -y ppa:kelleyk/emacs',
             normal_user)
+
         edit_deb_packages(packages, is_installing=True)
 
     def vim(self):
@@ -70,26 +94,24 @@ class Editors():
         edit_deb_packages(packages, is_installing=True)
 
     def vscode(self):
-        packages = ['vscode']  # please check the name of VSCode
+        packages = ['code']  # please check the name of VSCode
 
-        print("[INFO] Adding Microsoft repository...")
-        sudo_install_command = "sudo install -o root -g root -m 644 /tmp/packages.microsoft.gpg /etc/apt/trusted.gpg.d/"
-
-        url = "https://packages.microsoft.com/keys/microsoft.asc"
+        asc_link = "https://packages.microsoft.com/keys/microsoft.asc"
 
         asc_path = pathlib.Path("/tmp/microsoft.asc")
-        gpg_path = pathlib.Path("/tmp/packages.microsoft.gpg")
 
-        content = request.get(url).content.decode("utf-8")
+        content = request.get(asc_link).content.decode("utf-8")
 
         with open(asc_path, "w") as f:
             f.write(content)
 
         subprocess.check_output(
             ('gpg', '--output', f'{gpg_path}', '--dearmor', f'{asc_path}'))
-        subprocess.run(sudo_install_command.split())
 
-        vscode_source = pathlib.Path("/etc/apt/sources.list.d/vscode.list")
-        vscode_ppa = "deb [arch=amd64 signed-by=/etc/apt/trusted.gpg.d/packages.microsoft.gpg] https://packages.microsoft.com/repos/vscode stable main"
-        with open(vscode_source, "a") as fp:
-            fp.write(vscode_ppa)
+        vscode_ppa = "deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main"
+
+        self.executor.run(
+            f'sudo add-apt-repository -y {vscode_ppa}',
+            self.normal_user)
+
+        edit_deb_packages(packages, is_installing=True)

@@ -4,9 +4,23 @@ from Tuffix.Driver import *
 from Tuffix.Configuration import DEFAULT_BUILD_CONFIG
 from Tuffix.Keywords import KeywordContainer
 import unittest
+from Tuffix.Editors import Editors
+from Tuffix.Exceptions import *
+
+class EditorTest(unittest.TestCase):
+    def test_prompt(self):
+        editor_ = Editors()
+        # editor_.prompt() # requires manual entry
+        editor_.prompt((True, 0)) # proceed without user input
+        try:
+            editor_.prompt((True, 85)) # proceed without user input (incorrect selection)
+        except UsageError:
+            self.assertTrue(True)
+        else:
+            self.assertTrue(False)
 
 
-class DriverTest(unittest.TestCase):
+# class DriverTest(unittest.TestCase):
 
    # All commented out ones do work (except for Custom)
 
@@ -22,9 +36,9 @@ class DriverTest(unittest.TestCase):
         # command = "tuffix add test"
         # main(command.split())
 
-    def test_remove(self):
-        command = "tuffix remove test"
-        main(command.split())
+    # def test_remove(self):
+        # command = "tuffix remove test"
+        # main(command.split())
 
     # def test_installed(self):
         # command = "tuffix installed"
