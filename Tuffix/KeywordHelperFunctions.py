@@ -7,7 +7,43 @@ import apt
 import pickle
 import pathlib
 from functools import partial
+import psutil
 
+class ProcessHandler():
+    """
+    Get a list of PIDs running on the system
+    If we run into a EnvironmentError while installing a package, we need to remove the process holding `apt`
+    And then re-run the command
+    https://stackoverflow.com/a/64906644
+
+    NOTE: THIS IS UNTESTED
+    """
+
+    def __init__(self):
+        self.processes = self.gather_processes()
+
+    def gather_processes(self) -> dict:
+
+        container = {}
+
+        for proc in psutil.process_iter():
+            if(proc.name() not in container):
+                container[proc.name()] = [proc.pid]
+            else:
+                container[proc.name()].append(proc.pid)
+
+        return container
+
+    def remove_process(self, name: str) -> None:
+        if(not isinstance(name, str)):
+            raise ValueError(
+                f'expecting `str`, received {type(name).__name__}')
+        proc_id_container = self.container[name]  # list of PIDs
+        # ^ Above will raise KeyError if the dictionary does not contain the proper name of the process you are interested in
+        for __id in proc_id_container:
+            psutil.Process(__id).terminate()  # kill the process
+
+DEFAULT_PROCESS_HANDLER = ProcessHandler()
 
 def edit_deb_packages(package_names, is_installing):
     if not (isinstance(package_names, list) and
@@ -30,6 +66,9 @@ def edit_deb_packages(package_names, is_installing):
                 f'[ERROR] Debian package "{name}" not found, is this Ubuntu?')
     try:
         cache.commit()
+    except OSError:
+        DEFAULT_PROCESS_HANDLER.remove_process("apt")
+        raise EnvironmentError('[FATAL] Could not continue, apt was holding resources. Processes were killed, please try again.')
     except Exception as e:
         cache.close()
         raise EnvironmentError(f'[ERROR] Could not install {name}: {e}.')
@@ -53,5 +92,7 @@ class PickleFactory():
         return __class
 
 
-DEFAULT_PICKLER = PickleFactory()
 
+
+
+DEFAULT_PICKLER = PickleFactory()

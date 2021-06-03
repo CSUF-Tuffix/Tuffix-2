@@ -22,9 +22,9 @@ class DriverTest(unittest.TestCase):
         # command = "tuffix add test"
         # main(command.split())
 
-    def test_remove(self):
-        command = "tuffix remove osc"
-        main(command.split())
+    # def test_remove(self):
+        # command = "tuffix remove osc"
+        # main(command.split())
 
     # def test_installed(self):
         # command = "tuffix installed"
@@ -34,9 +34,9 @@ class DriverTest(unittest.TestCase):
         # command = "tuffix status"
         # main(command.split())
 
-    # def test_custom(self):
-        # command = "tuffix custom json_payload/OSC.json"
-        # main(command.split())
+    def test_custom(self):
+        command = "tuffix custom json_payload/OSC.json"
+        main(command.split())
 
     # def test_describe(self):
         # k_container = KeywordContainer(DEFAULT_BUILD_CONFIG)

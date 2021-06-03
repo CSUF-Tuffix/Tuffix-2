@@ -152,7 +152,7 @@ class MarkCommand(AbstractCommand):
 
         ensure_root_access()
 
-        for command in collection:
+        for status, command in collection:
             if((command.name in state.installed)):
                 if(install):
                     raise UsageError(
@@ -210,7 +210,7 @@ class CustomCommand(AbstractCommand):
             NewClassInstance = NewClass()
 
             self.mark = MarkCommand(DEFAULT_BUILD_CONFIG, "add")
-            self.mark.execute([name], (True, NewClassInstance))
+            self.mark.execute([NewClassInstance.name], (True, NewClassInstance))
 
 
 class DescribeCommand(AbstractCommand):

@@ -5,3 +5,4 @@ pyfakefs
 python-gnupg
 requests
 termcolor
+psutil

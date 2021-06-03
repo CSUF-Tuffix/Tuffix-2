@@ -12,6 +12,9 @@ import requests
 import json
 from apt import debfile, cache
 
+import sys
+import functools
+
 
 class AbstractKeyword:
     """
@@ -813,6 +816,43 @@ class KeywordContainer():
         _, status = self.obtain(value)
         return status
 
+def partial_class(information : tuple, cls):
+    """
+    Generate a valid function pointer to a class __init__ function
+    This class is also pickle-able
+    https://stackoverflow.com/a/58039373
+    """
+
+    if(not isinstance(information, tuple)):
+        raise ValueError(f'exepecting tuple, received {type(name).__name__}')
+
+    """
+    Python 3.10 implementation for sanity checks
+    match information:
+        case [name, description, packages]:
+            pass
+        case _:
+            raise FormattingError('expecting (name, description, packages)')
+    """
+    
+    name, description, packages = information
+
+
+    body = {
+        "__init__": functools.partialmethod(cls.__init__, build_config=DEFAULT_BUILD_CONFIG, name=name, description=description, packages=packages), 
+        "add": partial(edit_deb_packages, package_names=packages, is_installing=True),
+        "remove": partial(edit_deb_packages, package_names=packages, is_installing=False)
+    }
+
+    __class = type(name, (cls, ), body)
+
+    try:
+        __class.__module__ = sys._getframe(1).f_globals.get('__name__', '__main__')
+    except (AttributeError, ValueError):
+        pass
+
+    return __class
+
 class ClassKeywordGenerator():
     """
     Generate a custom keyword class for usage in add/remove commands
@@ -822,10 +862,13 @@ class ClassKeywordGenerator():
     def __init__(self):
         pass
 
-    # def generate(self, name: str, packages: list):
     def generate(self, path: str):
         if not(isinstance(path, str)):
-               raise ValueError
+           raise ValueError
+
+        if(not os.path.exists(path)):
+            raise FileNotFoundError(f'could not load {path}')
+
         with open(path, encoding="utf-8") as fp:
             content =  json.loads(fp.read())
 
@@ -833,16 +876,7 @@ class ClassKeywordGenerator():
             ' ', '').lower(), content["instructor"], content["packages"]
         description = f'{name} created by {instructor}'
 
-        body = {
-            "__init__": partial(AbstractKeyword.__init__, self, build_config=DEFAULT_BUILD_CONFIG, name=name, description=description, packages=packages), 
-            "add": partial(edit_deb_packages, package_names=packages, is_installing=True),
-            "remove": partial(edit_deb_packages, package_names=packages, is_installing=False)
-        }
+        return partial_class((name, instructor, packages), AbstractKeyword)
 
-        return type(
-            name,
-            (),
-            body
-        )
 
 DEFAULT_CLASS_GENERATOR = ClassKeywordGenerator()
