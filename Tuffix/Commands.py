@@ -16,13 +16,13 @@ import json
 import pickle  # dump custom class instance to disk
 from termcolor import colored
 from functools import partial # so we can pass in function pointers with predefined args
-
-# abstract base class for one of the user-visible tuffix commands, e.g.
-# init, status, etc.
-
+import shutil
 
 class AbstractCommand:
     """
+    abstract base class for one of the user-visible tuffix commands, e.g.
+    init, status, etc
+
     build_config: a BuildConfig object
     name: the string used for the command one the commandline, e.g 'init'.
     Must be a non-empty string of lower-case letters.
@@ -64,16 +64,13 @@ class AbstractCommand:
 
         raise NotImplementedError
 
-# not meant to be added to list of commands
-
-
 class MarkCommand(AbstractCommand):
     """
     GOAL: combine both the add and remove keywords
     This prevents us for not writing the same code twice.
     They are essentially the same function but they just call a different method
 
-    NOT AVAILABLE TO PUBLIC USE
+    NOT AVAILABLE TO PUBLIC USE (therefore not meant to be added to list of viable commands)
     """
 
     def __init__(self, build_config, command):
@@ -158,13 +155,13 @@ class MarkCommand(AbstractCommand):
 
             self.rewrite_state(current_state, command, install)
 
+
             print(f'[INFO] Tuffix: successfully {past} {command.name}')
 
     def execute(self, arguments: list, custom=(None, None)):
         """
         Goal: install or remove keywords
         """
-
         if not (isinstance(arguments, list) and
                 all([isinstance(argument, str) for argument in arguments])):
             raise ValueError
@@ -212,7 +209,6 @@ class MarkCommand(AbstractCommand):
 
         ensure_root_access()
         self.run_commands(collection, install)
-
         os.system("apt autoremove") # purge system of unneeded dependencies
 
 class AddCommand(AbstractCommand):
@@ -240,6 +236,7 @@ class CustomCommand(AbstractCommand):
 
             self.mark = MarkCommand(DEFAULT_BUILD_CONFIG, "add")
             self.mark.execute([NewClassInstance.name], (True, NewClassInstance))
+            shutil.copyfile(path, DEFAULT_BUILD_CONFIG.json_state_path)
 
 
 class DescribeCommand(AbstractCommand):

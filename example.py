@@ -7,20 +7,20 @@ import unittest
 from Tuffix.Editors import Editors
 from Tuffix.Exceptions import *
 
-class EditorTest(unittest.TestCase):
-    def test_prompt(self):
-        editor_ = Editors()
-        # editor_.prompt() # requires manual entry
-        editor_.prompt((True, 0)) # proceed without user input
-        try:
-            editor_.prompt((True, 85)) # proceed without user input (incorrect selection)
-        except UsageError:
-            self.assertTrue(True)
-        else:
-            self.assertTrue(False)
+# class EditorTest(unittest.TestCase):
+    # def test_prompt(self):
+        # editor_ = Editors()
+        # # editor_.prompt() # requires manual entry
+        # editor_.prompt((True, 0)) # proceed without user input
+        # try:
+            # editor_.prompt((True, 85)) # proceed without user input (incorrect selection)
+        # except UsageError:
+            # self.assertTrue(True)
+        # else:
+            # self.assertTrue(False)
 
 
-# class DriverTest(unittest.TestCase):
+class DriverTest(unittest.TestCase):
 
    # All commented out ones do work (except for Custom)
 
@@ -58,5 +58,8 @@ class EditorTest(unittest.TestCase):
             # command = f'tuffix describe {keyword.name}'
             # main(command.split())
 
+    def test_sysupgrade(self):
+        command = "tuffix add supgrade"
+        main(command.split())
 if __name__ == '__main__':
     unittest.main()

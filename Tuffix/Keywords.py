@@ -632,7 +632,7 @@ class SystemUpgradeKeyword(AbstractKeyword):
 
     def __init__(self, build_config):
         super().__init__(build_config,
-                         'sysupgrade',
+                         'supgrade',
                          'Upgrade the entire system')
 
     def add(self):
@@ -646,47 +646,38 @@ class SystemUpgradeKeyword(AbstractKeyword):
         cache.upgrade()
         for pkg in cache.get_changes():  # changed from getChanges
             try:
-                if(pkg.isUpgradeable):
-                    print(f'[INFO] Upgrading {pkg.sourcePackageName}....')
-                    pkg.mark_install()
-                    cache.commit()
+                if(pkg.is_upgradable):
+                    print(f'[INFO] Upgrading {pkg.name}....')
+                    # pkg.mark_install()
+                    # cache.commit()
             except Exception as error:
                 raise EnvironmentError(
-                    f'[ERROR] Could not install {pkg.sourcePackageName}. Got error of {error}')
+                    f'[ERROR] Could not install {pkg.shortname}. Got error of {error}')
 
     def remove(self):
         print(f'[INFO] Nothing to remove for system upgrade, ignoring request')
         pass
-        # edit_deb_packages(packages, is_installing=False)
 
 
 class VirtualBoxKeyword(AbstractKeyword):
-    packages = ['virtualbox-6.1']
+    packages = ['virtualbox', 'virtualbox-ext-pack']
 
     def __init__(self, build_config):
         super().__init__(
             build_config,
             'vbox',
             'A powerful x86 and AMD64/Intel64 virtualization product')
+    def in_virtualbox(self):
+        """
+        Goal: check if program is in virtual environment
+        SOURCE: https://www.kite.com/python/answers/how-to-determine-if-code-is-being-run-inside-a-virtual-machine-in-python
+        """
+        return hasattr(sys, 'real_prefix')
 
     def add(self):
-        if(subprocess.run("grep hypervisor /proc/cpuinfo".split(), stdout=subprocess.DEVNULL).returncode == 0):
+        if(self.in_virtualbox()):
             raise EnvironmentError(
                 "This is a virtual enviornment, not proceeding")
-
-        sources_path = pathlib.Path("/etc/apt/sources.list")
-        source_link = f'deb [arch=amd64] https://download.virtualbox.org/virtualbox/debian {distrib_codename()} contrib'
-        with open(sources_path, "a") as fp:
-            fp.write(source_link)
-
-        wget_request = subprocess.Popen(
-            ("wget",
-             "-q",
-             "https://www.virtualbox.org/download/oracle_vbox_2016.asc",
-             "-O-"),
-            stdout=subprocess.PIPE)
-        apt_key = subprocess.check_output(
-            ('sudo', 'apt-key', 'add', '-'), stdin=wget_request.stdout)
 
         edit_deb_packages(packages, is_installing=True)
 
@@ -706,7 +697,9 @@ class ZoomKeyword(AbstractKeyword):
                          'Video conferencing software')
 
     def add(self):
+        print("[WARNING] Zoom is not an open source piece of software")
         edit_deb_packages(packages[:3], is_installing=True)
+
         url = "https://zoom.us/client/latest/zoom_amd64.deb"
         file_path = "/tmp/zoom"
         with open(file_path, 'wb') as fp:
@@ -722,7 +715,7 @@ class TestKeyword(AbstractKeyword):
     def __init__(self, build_config):
         super().__init__(build_config,
                          'test',
-                         'for testing purposes')
+                         'for testing purposes [please remove when not needed]')
 
         self.packages = ['cowsay']
     def add(self):
@@ -730,46 +723,6 @@ class TestKeyword(AbstractKeyword):
 
     def remove(self):
         edit_deb_packages(self.packages, is_installing=False)
-
-
-# class CustomKeyword(AbstractKeyword):
-    # # NOTE: these are not officially supported by the developers of Tuffix
-    # # this is merely to allow flexibility
-    # # TODO : testing
-
-    # """
-    # IDEA: if you have multiple instructors wanting to have different configurations for the same class
-    # Use a json file that can be loaded
-
-    # {
-        # "name": "Under Water Basket Weaving",
-        # "instructor": "Tony Stark",
-        # "packages": ["needles", "wool", "scuba-mask"]
-    # }
-    # """
-
-    # def __init__(self, build_config):
-        # super().__init__(
-        # build_config,
-        # 'custom',
-        # 'run custom keywords given by an instructor or written by a student')
-
-    # def add(self):
-        # path = "/tmp/example.json"  # some how loaded from CLI
-        # if(not os.path.exists(path)):
-        # raise EnvironmentError(f'[ERROR] Could not find {path}')
-        # with open(path, "r") as fp:
-        # content = json.load(fp)
-        # name, instructor, self.packages = content["name"].replace(
-        # ' ', ''), content["instructor"], content["packages"]
-
-        # print(
-        # f'[INFO] Installing custom keyword {name} from instructor/student {instructor}')
-
-        # edit_deb_packages(packages, is_installing=True)
-
-    # def remove(self):
-        # edit_deb_packages(packages, is_installing=False)
 
 
 class KeywordContainer():
@@ -796,7 +749,8 @@ class KeywordContainer():
             C474Keyword(build_config),
             # C481Keyword(build_config),
             C484Keyword(build_config),
-            TestKeyword(build_config)
+            TestKeyword(build_config),
+            SystemUpgradeKeyword(build_config)
 
         ]
 
