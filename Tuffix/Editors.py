@@ -12,7 +12,13 @@ Supported:
 - vscode
 """
 from Tuffix.SudoRun import SudoRun
+from Tuffix.KeywordHelperFunctions import *
 from Tuffix.Exceptions import *
+
+import os
+import tarfile
+import requests
+import pathlib
 
 class Editors():
     def __init__(self):
@@ -115,3 +121,38 @@ class Editors():
             self.normal_user)
 
         edit_deb_packages(packages, is_installing=True)
+
+    def eclipse(self):
+        """
+        Not using the `apt` module, please be warned
+        """
+        packages = ['openjdk-11-jdk']
+        edit_deb_packages(packages, is_installing=True)
+        
+        url = "http://mirror.umd.edu/eclipse/technology/epp/downloads/release/2020-06/R/eclipse-java-2020-06-R-linux-gtk-x86_64.tar.gz"
+
+        content = requests.get(url).content
+        path = pathlib.Path("/tmp/installer.tar.gz")
+
+        with open(path, "wb") as fp:
+            fp.write(content)
+
+        tarfile.open(path).extractall('/usr')
+        os.system("sudo ln -s /usr/eclipse/eclipse /usr/bin/eclipse")
+
+        launcher = """
+        [Desktop Entry]
+        Encoding=UTF-8
+        Name=Eclipse IDE
+        Comment=Eclipse IDE
+        Exec=/usr/bin/eclipse
+        Icon=/usr/eclipse/icon.xpm
+        Terminal=false
+        Type=Application
+        StartupNotify=false
+        """
+        launcher_path = pathlib.Path('/usr/share/applications/eclipse.desktop')
+        with open(launcher_path, "w") as fp:
+            fp.write(launcher)
+
+

@@ -251,7 +251,7 @@ class DescribeCommand(AbstractCommand):
         if(len(arguments) != 1):
             raise UsageError("Please supply at only one keyword to describe")
         k_container = KeywordContainer(DEFAULT_BUILD_CONFIG)
-        keyword, status = k_container.obtain(arguments[0])
+        status, keyword = k_container.obtain(arguments[0])
 
         print(f'{keyword.name}: {keyword.description}')
 
@@ -432,6 +432,30 @@ class StatusCommand(AbstractCommand):
         for line in status():
             print(line)
 
+class SystemUpgradeCommand(AbstractCommand):
+    packages = []
+
+    def __init__(self, build_config):
+        super().__init__(build_config,
+                         'supgrade',
+                         'Upgrade the entire system')
+
+    def execute(self, arguments):
+        # source :
+        # https://stackoverflow.com/questions/3092613/python-apt-get-list-upgrades
+        cache = apt.Cache()
+        cache.update()
+        cache.open(None)
+        cache.upgrade()
+        for pkg in cache.get_changes():  # changed from getChanges
+            try:
+                if(pkg.is_upgradable):
+                    print(f'[INFO] Upgrading {pkg.name}....')
+                    pkg.mark_install()
+                    cache.commit()
+            except Exception as error:
+                raise EnvironmentError(
+                    f'[ERROR] Could not install {pkg.shortname}. Got error of {error}')
 
 class RemoveCommand(AbstractCommand):
     def __init__(self, build_config):
@@ -459,5 +483,7 @@ def all_commands(build_config):
             InstalledCommand(build_config),
             ListCommand(build_config),
             StatusCommand(build_config),
-            RemoveCommand(build_config)]
+            RemoveCommand(build_config),
+            SystemUpgradeCommand(build_config)
+            ]
     # RekeyCommand(build_config)]

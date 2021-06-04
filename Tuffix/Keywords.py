@@ -627,37 +627,6 @@ class LatexKeyword(AbstractKeyword):
         edit_deb_packages(packages, is_installing=False)
 
 
-class SystemUpgradeKeyword(AbstractKeyword):
-    packages = []
-
-    def __init__(self, build_config):
-        super().__init__(build_config,
-                         'supgrade',
-                         'Upgrade the entire system')
-
-    def add(self):
-        # edit_deb_packages(packages, is_installing=True)
-        # TODO
-        # source :
-        # https://stackoverflow.com/questions/3092613/python-apt-get-list-upgrades
-        cache = apt.Cache()
-        cache.update()
-        cache.open(None)
-        cache.upgrade()
-        for pkg in cache.get_changes():  # changed from getChanges
-            try:
-                if(pkg.is_upgradable):
-                    print(f'[INFO] Upgrading {pkg.name}....')
-                    # pkg.mark_install()
-                    # cache.commit()
-            except Exception as error:
-                raise EnvironmentError(
-                    f'[ERROR] Could not install {pkg.shortname}. Got error of {error}')
-
-    def remove(self):
-        print(f'[INFO] Nothing to remove for system upgrade, ignoring request')
-        pass
-
 
 class VirtualBoxKeyword(AbstractKeyword):
     packages = ['virtualbox', 'virtualbox-ext-pack']
@@ -739,7 +708,7 @@ class KeywordContainer():
             LatexKeyword(build_config),
             ZoomKeyword(build_config),
             # MediaKeyword(build_config),
-            # VirtualBoxKeyword(build_config),
+            VirtualBoxKeyword(build_config),
             # C223JKeyword(build_config),
             # C223NKeyword(build_config),
             # C223PKeyword(build_config),
@@ -749,9 +718,7 @@ class KeywordContainer():
             C474Keyword(build_config),
             # C481Keyword(build_config),
             C484Keyword(build_config),
-            TestKeyword(build_config),
-            SystemUpgradeKeyword(build_config)
-
+            TestKeyword(build_config)
         ]
 
     def obtain(self, value: str) -> tuple:
