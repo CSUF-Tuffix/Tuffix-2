@@ -112,8 +112,8 @@ class Editors():
 
         if(vimrc_path):
             vrc = pathlib.Path(f'/home/{self.normal_user}/.vimrc')
-            content = requests.get(path).content
-            with open(vrc, "w") as fp:
+            content = requests.get(vimrc_path).content
+            with open(vrc, "wb") as fp:
                 fp.write(content)
         packages = ['vim']
         edit_deb_packages(packages, is_installing=True)

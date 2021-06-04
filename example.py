@@ -18,7 +18,8 @@ class EditorTest(unittest.TestCase):
             self.assertTrue(True)
         else:
             self.assertTrue(False)
-        editor_.emacs()
+        # editor_.emacs()
+        editor_.vim("https://raw.githubusercontent.com/JaredDyreson/dotfiles/master/shell/vimrc")
 
 if __name__ == '__main__':
     unittest.main()
