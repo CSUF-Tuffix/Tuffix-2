@@ -18,7 +18,7 @@ class EditorTest(unittest.TestCase):
             self.assertTrue(True)
         else:
             self.assertTrue(False)
-        editor_.eclipse()
+        editor_.emacs()
 
 if __name__ == '__main__':
     unittest.main()

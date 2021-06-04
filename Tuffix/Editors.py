@@ -15,22 +15,19 @@ from Tuffix.SudoRun import SudoRun
 from Tuffix.KeywordHelperFunctions import *
 from Tuffix.Exceptions import *
 
+import apt
 import os
-import tarfile
-import requests
 import pathlib
+import requests
+import subprocess
+import tarfile
 
 class Editors():
     def __init__(self):
-        # self.supported = [
-            # 'atom',
-            # 'emacs',
-            # 'vim',
-            # 'vscode'
-        # ]
 
         self.supported = {
             "atom": self.atom,
+            "eclipse": self.eclipse,
             "emacs": self.emacs,
             "vim": self.vim,
             "vscode": self.vscode
@@ -62,28 +59,41 @@ class Editors():
         return self.supported[word] # return function pointer to installer
 
 
-    def atom(self):
+    def atom(self, plugins = ['dbg-gdb', 'dbg', 'output-panel']):
         """
         GOAL: Get and install Atom with predefined plugins
+        API usage: supply custom plugins list
         """
 
         packages = ['atom']
 
-        atom_plugins = ['dbg-gdb',
-                        'dbg',
-                        'output-panel']
+        atom_conf_dir = pathlib.Path(f'/home/{self.normal_user}/.atom')
+
+        gpg_url = "https://packagecloud.io/AtomEditor/atom/gpgkey"
+        atom_list = pathlib.Path("/etc/apt/sources.list.d/atom.list")
+
+        gpg_dest = pathlib.Path("/tmp/gpgkey")
+        content = requests.get(gpg_url).content
+
+        
+        with open(atom_list, "w") as fp:
+            fp.write("deb [arch=amd64] https://packagecloud.io/AtomEditor/atom/any/ any main")
+
+        with open(gpg_dest, "wb") as fp:
+            fp.write(content)
 
         self.executor.run(
-            'sudo add-apt-repository -y ppa:webupd8team/atom',
+            f'sudo apt-key add {gpg_dest.resolve()}',
             self.normal_user)
-        atom_conf_dir = pathlib.Path(f'/home/{self.normal_user}/.atom')
+
         edit_deb_packages(packages, is_installing=True)
 
-        for plugin in atom_plugins:
+
+        for plugin in plugins:
             print(f'[INFO] Installing {plugin}...')
-            executor.run(f'/usr/bin/apm install {plugin}', self.normal_user)
-            executor.run(
-                f'chown {normal_user} -R {atom_conf_dir}',
+            self.executor.run(f'/usr/bin/apm install {plugin}', self.normal_user)
+            self.executor.run(
+                f'chown {self.normal_user} -R {atom_conf_dir}',
                 self.normal_user)
         print("[INFO] Finished installing Atom")
 
@@ -91,41 +101,42 @@ class Editors():
         packages = ['emacs']
         self.executor.run(
             'sudo add-apt-repository -y ppa:kelleyk/emacs',
-            normal_user)
-
-        edit_deb_packages(packages, is_installing=True)
-
-    def vim(self):
-        packages = ['vim']
-        edit_deb_packages(packages, is_installing=True)
-
-    def vscode(self):
-        packages = ['code']  # please check the name of VSCode
-
-        asc_link = "https://packages.microsoft.com/keys/microsoft.asc"
-
-        asc_path = pathlib.Path("/tmp/microsoft.asc")
-
-        content = request.get(asc_link).content.decode("utf-8")
-
-        with open(asc_path, "w") as f:
-            f.write(content)
-
-        subprocess.check_output(
-            ('gpg', '--output', f'{gpg_path}', '--dearmor', f'{asc_path}'))
-
-        vscode_ppa = "deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main"
-
-        self.executor.run(
-            f'sudo add-apt-repository -y {vscode_ppa}',
             self.normal_user)
 
         edit_deb_packages(packages, is_installing=True)
 
+    def vim(self, vimrc_path=""):
+        """
+        Goal: install vim and added feature for vimrc (personal touch)
+        """
+
+        if(vimrc_path):
+            vrc = pathlib.Path(f'/home/{self.normal_user}/.vimrc')
+            content = requests.get(path).content
+            with open(vrc, "w") as fp:
+                fp.write(content)
+        packages = ['vim']
+        edit_deb_packages(packages, is_installing=True)
+
+    def vscode(self):
+        """
+        Not using the `apt` module, please be warned
+        """        
+
+        url = "https://code.visualstudio.com/sha/download?build=stable&os=linux-deb-x64"
+        deb_path = "/tmp/vscode.deb"
+        print("[INFO] Downloading installer...")
+        content = requests.get(url).content
+        with open(deb_path, "wb") as fp:
+            fp.write(content)
+        apt.debfile.DebPackage(filename=deb_path).install()
+
     def eclipse(self):
         """
         Not using the `apt` module, please be warned
+        Source: https://www.itzgeek.com/post/how-to-install-eclipse-ide-on-ubuntu-20-04/
         """
+
         packages = ['openjdk-11-jdk']
         edit_deb_packages(packages, is_installing=True)
         
