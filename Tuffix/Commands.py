@@ -262,6 +262,31 @@ class EditorCommand(AbstractCommand):
         super().__init__(build_config, 'editor', 'install a given editor; ')
         self.editors = Editors()
 
+    def update_state(self, current_state, arguments: list, install=True):
+        """
+        Goal: update the state file
+        """
+        # TODO : check what type keyword is
+
+        # if not(isinstance(current_state, Keyword.State) and
+               # isinstance(keyword, Keyword) and
+               # isinstance(install, bool)):
+               # raise ValueError
+
+        new_action = current_state.editors
+
+        for argument in arguments:
+            if(not install):
+                new_action.remove(argument)
+            else:
+                new_action.append(argument)
+
+        new_state = State(self.build_config,
+                          self.build_config.version,
+                          current_state.installed,
+                          new_action)
+        new_state.write()
+
     def execute(self, arguments):
         if not (isinstance(arguments, list) and
                 all([isinstance(argument, str) for argument in arguments])):
@@ -274,7 +299,8 @@ class EditorCommand(AbstractCommand):
 
             self.editors.supported[editor.lower()]()
 
-
+        current_state = read_state(self.build_config)
+        self.update_state(current_state, arguments)
 
 class RekeyCommand(AbstractCommand):
     """
@@ -391,7 +417,7 @@ class InitCommand(AbstractCommand):
 
         create_state_directory(self.build_config)
 
-        state = State(self.build_config, self.build_config.version, [])
+        state = State(self.build_config, self.build_config.version, [], [])
         state.write()
 
         print('[INFO] Tuffix init succeeded')

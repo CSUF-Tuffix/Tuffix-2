@@ -3,16 +3,6 @@
 # AUTHOR(S): Kevin Wortman
 ##########################################################################
 
-"""
-NOTE:
-
-I attempted to convert these comments to docstrings but this seemed to be
-pointless on my part.
-It was mostly done to get `help` messages to display nicely and I am a sucker for
-nice formatting.
-Let me know if I should continue on this endevor.
-"""
-
 from Tuffix.Exceptions import *
 from Tuffix.Constants import *
 
@@ -23,10 +13,12 @@ import json
 # Configuration defined at build-time. This is a class so that we can
 # unit test with dependency injection.
 
-
 class BuildConfig:
-    # version: packaging.Version for the currently-running tuffix
-    # state_path: pathlib.Path holding the path to state.json
+    """
+    version: packaging.Version for the currently-running Tuffix instance
+    state_path: pathlib.Path holding the path to the state.json
+    """
+
     def __init__(self,
                  version,
                  state_path,
@@ -58,31 +50,36 @@ class State:
     NOTE: Current state of tuffix, saved in a .json file under /var.
     """
 
-    def __init__(self, build_config, version, installed):
+    def __init__(self, build_config, version, installed, editors):
         if not (isinstance(build_config, BuildConfig) and
                 isinstance(version, packaging.version.Version) and
                 isinstance(installed, list) and
-                all([isinstance(codeword, str) for codeword in installed])):
+                all([isinstance(codeword, str) for codeword in installed]) and
+                isinstance(editors, list) and
+                all([isinstance(editor, str) for editor in editors])):
             raise ValueError
         self.build_config = build_config
         self.version = version
         self.installed = installed
+        self.editors = editors
 
     # Write this state to disk.
     def write(self):
         with open(self.build_config.state_path, 'w') as f:
             document = {
                 'version': str(self.version),
-                'installed': self.installed
+                'installed': self.installed,
+                'editors': self.editors
             }
             json.dump(document, f)
 
-# Reads the current state.
-# build_config: A BuildConfig object.
-# raises EnvironmentError if there is a problem.
-
-
 def read_state(build_config):
+    """
+    Reads the current state of Tuffix.
+    build_config: A BuildConfig object.
+    raise EnvironmentError if there is a problem
+    """
+
     if not isinstance(build_config, BuildConfig):
         raise ValueError
     try:
@@ -90,7 +87,8 @@ def read_state(build_config):
             document = json.load(f)
             return State(build_config,
                          packaging.version.Version(document['version']),
-                         document['installed'])
+                         document['installed'],
+                         document['editors'])
     except (OSError, FileNotFoundError):
         raise EnvironmentError(
             'state file not found, you must run $ tuffix init')
