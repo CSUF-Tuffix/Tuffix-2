@@ -10,6 +10,7 @@ from Tuffix.Exceptions import *
 from Tuffix.Keywords import *
 from Tuffix.Status import status
 from Tuffix.UtilityFunctions import *
+from Tuffix.Editors import Editors
 
 import os
 import json
@@ -255,6 +256,25 @@ class DescribeCommand(AbstractCommand):
 
         print(f'{keyword.name}: {keyword.description}')
 
+class EditorCommand(AbstractCommand):
+
+    def __init__(self, build_config):
+        super().__init__(build_config, 'editor', 'install a given editor; ')
+        self.editors = Editors()
+
+    def execute(self, arguments):
+        if not (isinstance(arguments, list) and
+                all([isinstance(argument, str) for argument in arguments])):
+            raise ValueError
+        if not(arguments):
+            raise UsageError("Please supply at least one editor to install")
+        for editor in arguments:
+            # run each editor command, will raise KeyError if command name is not found
+            # make it lowercase for sanity
+
+            self.editors.supported[editor.lower()]()
+
+
 
 class RekeyCommand(AbstractCommand):
     """
@@ -484,6 +504,7 @@ def all_commands(build_config):
             ListCommand(build_config),
             StatusCommand(build_config),
             RemoveCommand(build_config),
-            SystemUpgradeCommand(build_config)
+            SystemUpgradeCommand(build_config),
+            EditorCommand(build_config)
             ]
     # RekeyCommand(build_config)]

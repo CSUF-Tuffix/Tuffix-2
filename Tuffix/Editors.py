@@ -42,6 +42,9 @@ class Editors():
         Goal: select correct editor to install and return proper function pointer
         """
 
+        if not(isinstance(require_input, tuple)):
+            raise ValueError(f'expecting tuple, received {type(require_input)}')
+
         status, response = require_input
 
         if not(status):
@@ -65,6 +68,9 @@ class Editors():
         API usage: supply custom plugins list
         """
 
+        if not(isinstance(plugins, list)):
+            raise ValueError(f'expecting list, received {type(plugins)}')
+
         packages = ['atom']
 
         atom_conf_dir = pathlib.Path(f'/home/{self.normal_user}/.atom')
@@ -75,7 +81,7 @@ class Editors():
         gpg_dest = pathlib.Path("/tmp/gpgkey")
         content = requests.get(gpg_url).content
 
-        
+
         with open(atom_list, "w") as fp:
             fp.write("deb [arch=amd64] https://packagecloud.io/AtomEditor/atom/any/ any main")
 
@@ -121,7 +127,7 @@ class Editors():
     def vscode(self):
         """
         Not using the `apt` module, please be warned
-        """        
+        """
 
         url = "https://code.visualstudio.com/sha/download?build=stable&os=linux-deb-x64"
         deb_path = "/tmp/vscode.deb"
@@ -139,7 +145,7 @@ class Editors():
 
         packages = ['openjdk-11-jdk']
         edit_deb_packages(packages, is_installing=True)
-        
+
         url = "http://mirror.umd.edu/eclipse/technology/epp/downloads/release/2020-06/R/eclipse-java-2020-06-R-linux-gtk-x86_64.tar.gz"
 
         content = requests.get(url).content
