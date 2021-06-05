@@ -11,9 +11,12 @@ Supported:
 - vi(m)
 - vscode
 """
+
 from Tuffix.SudoRun import SudoRun
 from Tuffix.KeywordHelperFunctions import *
 from Tuffix.Exceptions import *
+from Tuffix.Keywords import AbstractKeyword
+from Tuffix.Configuration import BuildConfig, DEFAULT_BUILD_CONFIG
 
 import apt
 import os
@@ -22,47 +25,12 @@ import requests
 import subprocess
 import tarfile
 
-class Editors():
-    def __init__(self):
+class AtomKeyword(AbstractKeyword):
 
-        self.supported = {
-            "atom": self.atom,
-            "eclipse": self.eclipse,
-            "emacs": self.emacs,
-            "vim": self.vim,
-            "vscode": self.vscode
-        }
+    def __init__(self, build_config: BuildConfig):
+        super().__init__(build_config, 'atom', 'Github\'s own editor')
 
-        self.executor = SudoRun()
-        self.normal_user = self.executor.whoami
-
-    def prompt(self, require_input=(None, None)):
-        """
-        require_input: tuple
-        Goal: select correct editor to install and return proper function pointer
-        """
-
-        if not(isinstance(require_input, tuple)):
-            raise ValueError(f'expecting tuple, received {type(require_input)}')
-
-        status, response = require_input
-
-        if not(status):
-            string = '\n'.join(f'  {[x]} {editor}' for x, editor, _ in enumerate(self.supported.items()))
-            response = len(self.supported) + 1
-
-            while(response > len(self.supported)):
-                response = int(input(f'[INFO] Select editor:\n{string}\n: '))
-        try:
-            word = list(self.supported.keys())[response]
-        except IndexError:
-            raise UsageError(f'[ERROR] Unsupported index of {response}')
-        print(f'[INFO] You have selected: {response} -> {word}')
-        assert(callable(self.supported[word])) # ensure the function pointer is valid
-        return self.supported[word] # return function pointer to installer
-
-
-    def atom(self, plugins = ['dbg-gdb', 'dbg', 'output-panel']):
+    def add(self, plugins = ['dbg-gdb', 'dbg', 'output-panel']):
         """
         GOAL: Get and install Atom with predefined plugins
         API usage: supply custom plugins list
@@ -71,7 +39,6 @@ class Editors():
         if not(isinstance(plugins, list)):
             raise ValueError(f'expecting list, received {type(plugins)}')
 
-        packages = ['atom']
 
         atom_conf_dir = pathlib.Path(f'/home/{self.normal_user}/.atom')
 
@@ -92,7 +59,7 @@ class Editors():
             f'sudo apt-key add {gpg_dest.resolve()}',
             self.normal_user)
 
-        edit_deb_packages(packages, is_installing=True)
+        edit_deb_packages([self.name], is_installing=True)
 
 
         for plugin in plugins:
@@ -103,15 +70,29 @@ class Editors():
                 self.normal_user)
         print("[INFO] Finished installing Atom")
 
-    def emacs(self):
-        packages = ['emacs']
-        self.executor.run(
-            'sudo add-apt-repository -y ppa:kelleyk/emacs',
-            self.normal_user)
+    def remove(self):
+        edit_deb_packages([self.name], is_installing=False)
+        pathlib.Path("/etc/apt/sources.list.d/atom.list").unlink()
 
-        edit_deb_packages(packages, is_installing=True)
+class EmacsKeyword(AbstractKeyword):
+    packages = ['emacs']
 
-    def vim(self, vimrc_path=""):
+    def __init__(self, build_config: BuildConfig):
+        super().__init__(build_config, 'emacs', 'an adequite editor')
+
+    def add(self):
+        edit_deb_packages([self.name], is_installing=True)
+
+    def remove(self):
+        edit_deb_packages([self.name], is_installing=False)
+
+class VimKeyword(AbstractKeyword):
+    packages = ['vim']
+
+    def __init__(self, build_config: BuildConfig):
+        super().__init__(build_config, 'vim', 'an exquisite editor')
+
+    def add(self, vimrc_path=""):
         """
         Goal: install vim and added feature for vimrc (personal touch)
         """
@@ -121,14 +102,20 @@ class Editors():
             content = requests.get(vimrc_path).content
             with open(vrc, "wb") as fp:
                 fp.write(content)
-        packages = ['vim']
-        edit_deb_packages(packages, is_installing=True)
+        edit_deb_packages([self.name], is_installing=True)
 
-    def vscode(self):
-        """
-        Not using the `apt` module, please be warned
-        """
+    def remove(self):
+        edit_deb_packages([self.name], is_installing=False)
 
+class VscodeKeyword(AbstractKeyword):
+    """
+    Not using the `apt` module, please be warned
+    """
+
+    def __init__(self, build_config: BuildConfig):
+        super().__init__(build_config, 'vscode', 'Microsoft\'s text editor')
+
+    def add(self):
         url = "https://code.visualstudio.com/sha/download?build=stable&os=linux-deb-x64"
         deb_path = "/tmp/vscode.deb"
         print("[INFO] Downloading installer...")
@@ -137,13 +124,19 @@ class Editors():
             fp.write(content)
         apt.debfile.DebPackage(filename=deb_path).install()
 
-    def eclipse(self):
-        """
-        Not using the `apt` module, please be warned
-        Source: https://www.itzgeek.com/post/how-to-install-eclipse-ide-on-ubuntu-20-04/
-        """
+    def remove(self):
+        edit_deb_packages(['code'], is_installing=False)
 
-        packages = ['openjdk-11-jdk']
+class EclipseKeyword(AbstractKeyword):
+    """
+    Not using the `apt` module, please be warned
+    Source: https://www.itzgeek.com/post/how-to-install-eclipse-ide-on-ubuntu-20-04/
+    """
+
+    def __init__(self, build_config: BuildConfig):
+        super().__init__(build_config, 'eclipse', 'a Java IDE')
+
+    def add(self):
         edit_deb_packages(packages, is_installing=True)
 
         url = "http://mirror.umd.edu/eclipse/technology/epp/downloads/release/2020-06/R/eclipse-java-2020-06-R-linux-gtk-x86_64.tar.gz"
@@ -171,5 +164,28 @@ class Editors():
         launcher_path = pathlib.Path('/usr/share/applications/eclipse.desktop')
         with open(launcher_path, "w") as fp:
             fp.write(launcher)
+    def remove(self):
+        edit_deb_packages(['openjdk-11-jdk'], is_installing=False)
 
 
+class EditorKeywordContainer():
+    def __init__(self, build_config=DEFAULT_BUILD_CONFIG):
+        if not(isinstance(build_config, BuildConfig)):
+            raise ValueError
+
+        self.container: list[AbstractKeyword] = [
+            AtomKeyword(build_config),
+            EclipseKeyword(build_config),
+            EmacsKeyword(build_config),
+            VimKeyword(build_config),
+            VscodeKeyword(build_config)
+        ]
+
+    def obtain(self, value: str) -> tuple:
+        if(not isinstance(value, str)):
+            raise ValueError(f'incorrect type: {type(value)}')
+
+        for keyword in self.container:
+            if(keyword.name == value):
+                return (True, keyword)
+        return (False, None)

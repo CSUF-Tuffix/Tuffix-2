@@ -128,25 +128,25 @@ class BaseKeyword(AbstractKeyword):
     Point person: undergraduate committee
     """
 
-    packages = ['atom',
-                     'build-essential',
-                     'cimg-dev',
-                     'clang',
-                     'clang-format',
-                     'clang-tidy',
-                     'cmake',
-                     'code',
-                     'gdb',
-                     'gcc',
-                     'git',
-                     'g++',
-                     'libc++-dev',
-                     'libc++abi-dev',
-                     'libgconf-2-4',
-                     'libgtest-dev',
-                     'libgmock-dev',
-                     'lldb',
-                     'python2']
+    packages =  ['atom',
+                 'build-essential',
+                 'cimg-dev',
+                 'clang',
+                 'clang-format',
+                 'clang-tidy',
+                 'cmake',
+                 'code',
+                 'gdb',
+                 'gcc',
+                 'git',
+                 'g++',
+                 'libc++-dev',
+                 'libc++abi-dev',
+                 'libgconf-2-4',
+                 'libgtest-dev',
+                 'libgmock-dev',
+                 'lldb',
+                 'python2']
 
     def __init__(self, build_config):
         super().__init__(build_config,
@@ -154,84 +154,11 @@ class BaseKeyword(AbstractKeyword):
                          'CPSC 120-121-131-301 C++ development environment')
 
     def add(self):
-        self.add_vscode_repository()
-        self.atom()
-        self.google_test_attempt()
+        self.google_test_all()
         edit_deb_packages(packages, is_installing=True)
-        self.atom_plugins()
 
     def remove(self):
         edit_deb_packages(packages, is_installing=False)
-        files_to_remove = [
-            pathlib.Path("/etc/apt/sources.list.d/vscode.list"),
-            pathlib.Path("/etc/apt/sources.list.d/atom.list"),
-            pathlib.Path(
-                "/etc/apt/trusted.gpg.d/packages.microsoft.gpg")
-
-        ]
-        for x in files_to_remove:
-            x.unlink()
-
-    def add_vscode_repository(self):
-        print("[INFO] Adding Microsoft repository...")
-        sudo_install_command = "sudo install -o root -g root -m 644 /tmp/packages.microsoft.gpg /etc/apt/trusted.gpg.d/"
-
-        url = "https://packages.microsoft.com/keys/microsoft.asc"
-
-        asc_path = pathlib.Path("/tmp/m.asc")
-        gpg_path = pathlib.Path("/tmp/packages.microsoft.gpg")
-
-        with open(asc_path, "w") as f:
-            f.write(requests.get(url).content.decode("utf-8"))
-
-        subprocess.check_output(
-            ('gpg', '--output', f'{gpg_path}', '--dearmor', f'{asc_path}'))
-        subprocess.run(sudo_install_command.split())
-
-        vscode_source = pathlib.Path("/etc/apt/sources.list.d/vscode.list")
-        vscode_ppa = "deb [arch=amd64 signed-by=/etc/apt/trusted.gpg.d/packages.microsoft.gpg] https://packages.microsoft.com/repos/vscode stable main"
-        with open(vscode_source, "a") as fp:
-            fp.write(vscode_ppa)
-
-    def atom(self):
-        """
-        GOAL: Install PPA for Atom
-        """
-
-        url = "https://packagecloud.io/AtomEditor/atom/gpgkey"
-        destination = "/tmp/gpgkey"
-        content = requests.get(url).content
-        with open(destination, "wb") as fp:
-            fp.write(content)
-        atom_ppa = "deb [arch=amd64] https://packagecloud.io/AtomEditor/atom/any/ any main"
-        atom_source = pathlib.Path("/etc/apt/sources.list.d/atom.list")
-
-        with open(atom_source, "a") as fp:
-            fp.write(atom_ppa)
-
-        subprocess.check_output(
-            f'sudo apt-key add {destination}'.split())
-
-    def atom_plugins(self):
-        """
-        Goal: install Atom plugins
-        """
-
-        executor = SudoRun()
-        normal_user = executor.whoami
-        atom_conf_dir = pathlib.Path(f'/home/{normal_user}/.atom')
-
-        atom_plugins = ['dbg-gdb',
-                        'dbg',
-                        'output-panel']
-
-        for plugin in atom_plugins:
-            print(f'[INFO] Installing {plugin}...')
-            executor.run(f'/usr/bin/apm install {plugin}', normal_user)
-            executor.run(
-                f'chown {normal_user} -R {atom_conf_dir}',
-                normal_user)
-        print("[INFO] Finished installing Atom")
 
     def google_test_build(self):
         """
@@ -755,12 +682,12 @@ def partial_class(information : tuple, cls):
         case _:
             raise FormattingError('expecting (name, description, packages)')
     """
-    
+
     name, description, packages = information
 
 
     body = {
-        "__init__": functools.partialmethod(cls.__init__, build_config=DEFAULT_BUILD_CONFIG, name=name, description=description, packages=packages), 
+        "__init__": functools.partialmethod(cls.__init__, build_config=DEFAULT_BUILD_CONFIG, name=name, description=description, packages=packages),
         "add": partial(edit_deb_packages, package_names=packages, is_installing=True),
         "remove": partial(edit_deb_packages, package_names=packages, is_installing=False)
     }

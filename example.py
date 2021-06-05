@@ -4,12 +4,14 @@ from Tuffix.Driver import *
 from Tuffix.Configuration import DEFAULT_BUILD_CONFIG
 from Tuffix.Keywords import KeywordContainer
 import unittest
-from Tuffix.Editors import Editors
+# from Tuffix.Editors import Editors
 from Tuffix.Exceptions import *
 
 class DriverTest(unittest.TestCase):
     def test_editor(self):
-        command = "tuffix editor vim"
+        command = "tuffix editor add emacs"
+        main(command.split())
+        command = "tuffix editor remove emacs"
         main(command.split())
 
     # def test_init(self):

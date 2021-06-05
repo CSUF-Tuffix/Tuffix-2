@@ -10,7 +10,7 @@ from Tuffix.Exceptions import *
 from Tuffix.Keywords import *
 from Tuffix.Status import status
 from Tuffix.UtilityFunctions import *
-from Tuffix.Editors import Editors
+from Tuffix.Editors import EditorKeywordContainer
 
 import os
 import json
@@ -78,11 +78,11 @@ class MarkCommand(AbstractCommand):
         super().__init__(build_config, 'mark', 'mark (install/remove) one or more keywords')
         if not(isinstance(command, str)):
             raise ValueError
-        
+
         # either select the add or remove from the Keywords
         self.command = command
         self.container = KeywordContainer(build_config)
-    
+
     def search(self, pattern: str) -> tuple:
         if(not isinstance(pattern, str)):
             raise ValueError
@@ -169,7 +169,7 @@ class MarkCommand(AbstractCommand):
 
         if not(arguments):
             raise UsageError("[ERROR] You must supply at least one keyword to mark")
-        
+
         # This pertains to custom keywords we have defined in a JSON file
         custom_status, custom_command = custom
 
@@ -179,7 +179,7 @@ class MarkCommand(AbstractCommand):
         else:
             # ./tuffix add base media latex
             collection = [self.container.obtain(x) for x in arguments]
-        
+
         for x, element in enumerate(collection):
             # if the command could not be found and we need to remove it
             status, command = element
@@ -260,7 +260,7 @@ class EditorCommand(AbstractCommand):
 
     def __init__(self, build_config):
         super().__init__(build_config, 'editor', 'install a given editor; ')
-        self.editors = Editors()
+        self.editors = EditorKeywordContainer()
 
     def update_state(self, current_state, arguments: list, install=True):
         """
@@ -293,14 +293,27 @@ class EditorCommand(AbstractCommand):
             raise ValueError
         if not(arguments):
             raise UsageError("Please supply at least one editor to install")
-        for editor in arguments:
-            # run each editor command, will raise KeyError if command name is not found
-            # make it lowercase for sanity
-
-            self.editors.supported[editor.lower()]()
 
         current_state = read_state(self.build_config)
-        self.update_state(current_state, arguments)
+        install = (arguments[0] == "add")
+
+        for editor in arguments[1:]:
+            # run each editor command, will raise KeyError if command name is not found
+            # make it lowercase for sanity
+            status, command = self.editors.obtain(editor)
+            if not(status):
+                raise UsageError(f'editor: {editor} is not supported')
+
+            if((command.name in current_state.installed)):
+                if(install):
+                    raise UsageError(
+                        f'[WARNING] Tuffix: cannot add {command.name}, it is already installed')
+            if(install):
+                command.add()
+            else:
+                command.remove()
+
+        self.update_state(current_state, arguments[1:], install)
 
 class RekeyCommand(AbstractCommand):
     """
