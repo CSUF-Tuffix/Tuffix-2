@@ -33,7 +33,7 @@ setup(
       'psutil',
       'pycryptodome',
       'pyfakefs',
-      'python-apt',
+      # 'python-apt @ git+https://salsa.debian.org/apt-team/python-apt', # appears to have a bug with DistUtil
       'python-gnupg', # unknown if we still need this
       'requests',
       'requests',
