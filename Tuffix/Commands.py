@@ -110,6 +110,7 @@ class MarkCommand(AbstractCommand):
                # isinstance(install, bool)):
                # raise ValueError
 
+        current_state = read_state(self.build_config)
         new_action = current_state.installed
 
         if(not install):
@@ -119,7 +120,8 @@ class MarkCommand(AbstractCommand):
 
         new_state = State(self.build_config,
                           self.build_config.version,
-                          new_action)
+                          new_action,
+                          current_state.editors)
         new_state.write()
 
     def run_commands(self, container: list, install: bool):
@@ -131,11 +133,11 @@ class MarkCommand(AbstractCommand):
                isinstance(install, bool)):
                raise ValueError
 
+        current_state = read_state(self.build_config)
+
         verb, past = (
             "installing", "installed") if install else (
             "removing", "removed")
-
-        current_state = read_state(self.build_config)
 
         for status, command in container:
             if((command.name in current_state.installed)):
@@ -154,7 +156,7 @@ class MarkCommand(AbstractCommand):
                 raise UsageError(
                     f'[INTERNAL ERROR] {command.__name__} does not have the function {self.command}')
 
-            self.rewrite_state(current_state, command, install)
+            self.rewrite_state(None, command, install)
 
 
             print(f'[INFO] Tuffix: successfully {past} {command.name}')
@@ -262,30 +264,6 @@ class EditorCommand(AbstractCommand):
         super().__init__(build_config, 'editor', 'install a given editor; ')
         self.editors = EditorKeywordContainer()
 
-    def update_state(self, current_state, arguments: list, install=True):
-        """
-        Goal: update the state file
-        """
-        # TODO : check what type keyword is
-
-        # if not(isinstance(current_state, Keyword.State) and
-               # isinstance(keyword, Keyword) and
-               # isinstance(install, bool)):
-               # raise ValueError
-
-        new_action = current_state.editors
-
-        for argument in arguments:
-            if(not install):
-                new_action.remove(argument)
-            else:
-                new_action.append(argument)
-
-        new_state = State(self.build_config,
-                          self.build_config.version,
-                          current_state.installed,
-                          new_action)
-        new_state.write()
 
     def execute(self, arguments):
         if not (isinstance(arguments, list) and
@@ -312,8 +290,8 @@ class EditorCommand(AbstractCommand):
                 command.add()
             else:
                 command.remove()
-
-        self.update_state(current_state, arguments[1:], install)
+        command.update_state(current_state, arguments[1:], install)
+        # self.update_state(current_state, arguments[1:], install)
 
 class RekeyCommand(AbstractCommand):
     """
@@ -547,3 +525,4 @@ def all_commands(build_config):
             EditorCommand(build_config)
             ]
     # RekeyCommand(build_config)]
+

@@ -3,64 +3,22 @@
 # AUTHORS: Kevin Wortman, Jared Dyreson
 ##########################################################################
 
+from Tuffix.AbstractKeyword import AbstractKeyword
+# this is because we want to have access to this base class across two source files that import each other
+
+from Tuffix.Editors import *
+
 from Tuffix.Configuration import *
 from Tuffix.SudoRun import SudoRun
 from Tuffix.KeywordHelperFunctions import *
 from Tuffix.Status import *
-from zipfile import ZipFile
-import requests
-import json
+
 from apt import debfile, cache
-
-import sys
+from zipfile import ZipFile
 import functools
-
-
-class AbstractKeyword:
-    """
-    Keyword names may begin with a course code (digits), but Python
-    identifiers may not. If a keyword name starts with a digit, prepend
-    the class name with C (for Course).
-    """
-
-    def __init__(self, build_config, name, description, packages=None):
-        if not (isinstance(build_config, BuildConfig) and
-                isinstance(name, str) and
-                len(name) <= KEYWORD_MAX_LENGTH and
-                isinstance(description, str)):
-            raise ValueError
-        self.name = name
-        self.description = description
-        self.packges: list[str] = [] if not packages else packages
-
-    def add(self):
-        raise NotImplementedError
-
-    def remove(self):
-        raise NotImplementedError
-
-    def check_candiates(self):
-        """
-        Check all package candiates to see if they can be installed
-        For unit testing
-
-        Not using "raise NotImplementedError"
-
-        """
-        raise NotImplementedError
-        # current_cache = cache.Cache()
-        # current_cache.update()
-
-        # for package in packages:
-            # # will raise KeyError if not found
-            # try:
-                # _ = current_cache[package]
-            # except KeyError:
-                # current_cache.close()
-                # raise KeyError(f'could not find {package}')
-
-        # current_cache.close()
-
+import json
+import requests
+import sys
 
 class AllKeyword(AbstractKeyword):
     packages = []
@@ -91,7 +49,6 @@ class GeneralKeyword(AbstractKeyword):
                      'cscope',
                      'curl',
                      'dkms',
-                     'emacs',
                      'enscript',
                      'glibc-doc',
                      'gpg',
@@ -105,9 +62,8 @@ class GeneralKeyword(AbstractKeyword):
                      'openssh-client',
                      'openssh-server',
                      'seahorse',
-                     'synaptic',
-                     'vim',
-                     'vim-gtk3']
+                     'synaptic']
+
 
     def __init__(self, build_config):
         super().__init__(
@@ -117,19 +73,24 @@ class GeneralKeyword(AbstractKeyword):
 
     def add(self):
         edit_deb_packages(packages, is_installing=True)
+        VimKeyword(self.build_config).add()
+        EmacsKeyword(self.build_config).add()
 
     def remove(self):
         edit_deb_packages(packages, is_installing=False)
+        VimKeyword(self.build_config).remove()
+        EmacsKeyword(self.build_config).remove()
 
 
 class BaseKeyword(AbstractKeyword):
 
     """
     Point person: undergraduate committee
+    TODO: we need to be in agreement to only used python3.5 or greater
+    Python 2.7 is dead
     """
 
-    packages =  ['atom',
-                 'build-essential',
+    packages =  ['build-essential',
                  'cimg-dev',
                  'clang',
                  'clang-format',
@@ -185,7 +146,7 @@ class BaseKeyword(AbstractKeyword):
         """
         Goal: small test to check if Google Test works after install
         """
-
+        # TODO : change link to be under CSUF domain
         TEST_URL = "https://github.com/JaredDyreson/tuffix-google-test.git"
         TEST_DEST = "test"
 
@@ -243,6 +204,7 @@ class ChromeKeyword(AbstractKeyword):
 
     def remove(self):
         edit_deb_packages(packages, is_installing=False)
+        pathlib.Path("/etc/apt/sources.list.d/google-chrome.list").unlink()
 
 
 class C223JKeyword(AbstractKeyword):
@@ -256,10 +218,10 @@ class C223JKeyword(AbstractKeyword):
     """
 
     packages = ['geany',
-                     'gthumb',
-                     'netbeans',
-                     'openjdk-8-jdk',
-                     'openjdk-8-jre']
+                 'gthumb',
+                 'netbeans',
+                 'openjdk-8-jdk',
+                 'openjdk-8-jre']
 
     def __init__(self, build_config):
         super().__init__(build_config, 'C223J', 'CPSC 223J (Java Programming)')
@@ -614,10 +576,15 @@ class TestKeyword(AbstractKeyword):
                          'for testing purposes [please remove when not needed]')
 
         self.packages = ['cowsay']
+        self.bc = build_config
     def add(self):
         edit_deb_packages(self.packages, is_installing=True)
+        VimKeyword(self.bc).add()
+        EmacsKeyword(self.bc).add()
 
     def remove(self):
+        VimKeyword(self.bc).remove()
+        EmacsKeyword(self.bc).remove()
         edit_deb_packages(self.packages, is_installing=False)
 
 
@@ -630,7 +597,7 @@ class KeywordContainer():
             AllKeyword(build_config),
             BaseKeyword(build_config),
             # CustomKeyword(build_config),
-            # ChromeKeyword(build_config),
+            ChromeKeyword(build_config),
             # GeneralKeyword(build_config),
             LatexKeyword(build_config),
             ZoomKeyword(build_config),

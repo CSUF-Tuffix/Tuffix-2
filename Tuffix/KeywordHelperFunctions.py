@@ -43,7 +43,6 @@ class ProcessHandler():
         for __id in proc_id_container:
             psutil.Process(__id).terminate()  # kill the process
 
-DEFAULT_PROCESS_HANDLER = ProcessHandler()
 
 def edit_deb_packages(package_names, is_installing):
     if not (isinstance(package_names, list) and
@@ -79,6 +78,11 @@ def edit_deb_packages(package_names, is_installing):
         cache.close()
 
 class PickleFactory():
+    """
+    Pickle a custom class to disk so it can be ressurected for debugging
+    purposes.
+    """
+
     def __init__(self):
         pass
 
@@ -94,8 +98,5 @@ class PickleFactory():
             __class = pickle.load(fp)
         return __class
 
-
-
-
-
 DEFAULT_PICKLER = PickleFactory()
+DEFAULT_PROCESS_HANDLER = ProcessHandler()
