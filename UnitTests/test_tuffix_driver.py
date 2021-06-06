@@ -27,84 +27,84 @@ class DriverTest(unittest.TestCase):
         command = "tuffix editor remove emacs"
         main(command.split())
 
-    def test_list(self):
-        """
-        List all viable commands
-        """
+    # def test_list(self):
+        # """
+        # List all viable commands
+        # """
 
-        command = "tuffix list"
-        main(command.split())
+        # command = "tuffix list"
+        # main(command.split())
 
-    def test_describe(self):
-        """
-        Print all descriptions of keywords
-        """
+    # def test_describe(self):
+        # """
+        # Print all descriptions of keywords
+        # """
 
-        k_container = KeywordContainer(DEFAULT_BUILD_CONFIG)
-        k_container.container.sort(key=lambda x: x.name)
-        for keyword in k_container.container:
-            command = f'tuffix describe {keyword.name}'
-            main(command.split())
+        # k_container = KeywordContainer(DEFAULT_BUILD_CONFIG)
+        # k_container.container.sort(key=lambda x: x.name)
+        # for keyword in k_container.container:
+            # command = f'tuffix describe {keyword.name}'
+            # main(command.split())
 
-    def test_add(self):
-        """
-        Add keyword `test`
-        """
+    # def test_add(self):
+        # """
+        # Add keyword `test`
+        # """
 
-        command = "tuffix add test"
-        main(command.split())
+        # command = "tuffix add test"
+        # main(command.split())
 
-    def test_remove(self):
-        """
-        Remove keyword `test`
-        """
+    # def test_remove(self):
+        # """
+        # Remove keyword `test`
+        # """
 
-        command = "tuffix remove test"
-        main(command.split())
+        # command = "tuffix remove test"
+        # main(command.split())
 
-    def test_installed(self):
-        """
-        List all installed keywords
-        """
+    # def test_installed(self):
+        # """
+        # List all installed keywords
+        # """
 
-        command = "tuffix installed"
-        main(command.split())
+        # command = "tuffix installed"
+        # main(command.split())
 
-    def test_status(self):
-        """
-        Print status command to the console
-        """
+    # def test_status(self):
+        # """
+        # Print status command to the console
+        # """
 
-        command = "tuffix status"
-        main(command.split())
+        # command = "tuffix status"
+        # main(command.split())
 
-    def test_custom(self):
-        """
-        Install custom keyword via JSON
-        """
+    # def test_custom(self):
+        # """
+        # Install custom keyword via JSON
+        # """
 
-        command = "tuffix custom json_payload/OSC.json"
-        main(command.split())
+        # command = "tuffix custom json_payload/OSC.json"
+        # main(command.split())
 
 
-    def test_sysupgrade(self):
-        """
-        Equivalent of running `sudo apt-get upgrade -y`
-        """
+    # def test_sysupgrade(self):
+        # """
+        # Equivalent of running `sudo apt-get upgrade -y`
+        # """
 
-        command = "tuffix supgrade"
-        main(command.split())
+        # command = "tuffix supgrade"
+        # main(command.split())
 
-    def __dir__(self):
-        return [
-            # "test_init",
-            # "test_editor",
-            "test_list",
-            "test_describe",
-            # "test_add",
-            # "test_remove",
-            # "test_installed",
-            # "test_status",
-            # "test_custom",
-            # "test_sysupgrade"
-        ]
+    # def __dir__(self):
+        # return [
+            # # "test_init",
+            # # "test_editor",
+            # "test_list",
+            # "test_describe",
+            # # "test_add",
+            # # "test_remove",
+            # # "test_installed",
+            # # "test_status",
+            # # "test_custom",
+            # # "test_sysupgrade"
+        # ]
