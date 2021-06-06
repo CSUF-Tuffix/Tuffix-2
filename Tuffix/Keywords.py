@@ -583,8 +583,8 @@ class TestKeyword(AbstractKeyword):
         EmacsKeyword(self.bc).add()
 
     def remove(self):
-        VimKeyword(self.bc).remove()
-        EmacsKeyword(self.bc).remove()
+        # VimKeyword(self.bc).remove()
+        # EmacsKeyword(self.bc).remove()
         edit_deb_packages(self.packages, is_installing=False)
 
 

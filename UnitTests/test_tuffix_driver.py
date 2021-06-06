@@ -1,5 +1,10 @@
 #!/usr/bin/env python3.9
 
+"""
+TODO: have the unit tests run in order
+"""
+
+
 from Tuffix.Driver import *
 import unittest
 
