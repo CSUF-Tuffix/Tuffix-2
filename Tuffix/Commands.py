@@ -290,7 +290,7 @@ class EditorCommand(AbstractCommand):
                 command.add()
             else:
                 command.remove()
-        command.update_state(current_state, arguments[1:], install)
+        command.update_state(arguments[1:], install)
         # self.update_state(current_state, arguments[1:], install)
 
 class RekeyCommand(AbstractCommand):

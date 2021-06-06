@@ -28,6 +28,7 @@ setup(
     license='GNU GPL-3.0',
     packages=[PKG_NAME],
     install_requires = [
+      'wheel',
       'Crypto',
       'packaging',
       'psutil',

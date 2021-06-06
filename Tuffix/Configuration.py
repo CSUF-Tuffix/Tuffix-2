@@ -96,7 +96,7 @@ def read_state(build_config):
         raise EnvironmentError('state file JSON is corrupted')
     except packaging.version.InvalidVersion:
         raise EnvironmentError('version number in state file is invalid')
-    except KeyError:
-        raise EnvironmentError('state file JSON is missing required keys')
+    except KeyError as e:
+        raise EnvironmentError(f'state file JSON is missing required keys: {e}')
     except ValueError:
         raise EnvironmentError('state file JSON has malformed values')
