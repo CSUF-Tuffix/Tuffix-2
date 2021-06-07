@@ -9,17 +9,17 @@ import unittest
 import importlib.util
 
 tests = {
-    "DriverTest": "UnitTests/test_tuffix_driver.py",
-    # "lsb_parser": "UnitTests/test_lsb_parser.py",
-    # "status": "UnitTests/test_status.py",
+    # "DriverTest": "UnitTests/test_tuffix_driver.py",
+    "UtilityFunctionTest": "UnitTests/test_utility_functions.py",
+    "LSBTest": "UnitTests/test_lsb_parser.py",
+    "StatusTest": "UnitTests/test_status.py",
     # NOTE: Unknown how to test -> "sudo_run": "UnitTests/test_sudo_run.py"
-    # "utility": "UnitTests/test_utility_functions.py"
 }
 
 runner = unittest.TextTestRunner()
 
 for name, path in tests.items():
-    print(f'\t-  [TEST] Conducting {name}')
+    print(f'  - [TEST] Conducting {name}')
     spec = importlib.util.spec_from_file_location("test", path)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
