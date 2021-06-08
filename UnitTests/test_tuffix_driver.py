@@ -9,24 +9,24 @@ from Tuffix.Driver import *
 import unittest
 
 class DriverTest(unittest.TestCase):
-    # def test_init(self):
+    def test_init(self):
+        """
+        Initialize Tuffix
+        """
+
+        command = "tuffix init"
+        main(command.split())
+
+    # def test_editor(self):
         # """
-        # Initialize Tuffix
+        # Add and remove an editor: emacs
         # """
 
-        # command = "tuffix init"
+        # command = "tuffix editor add emacs"
         # main(command.split())
-
-    def test_editor(self):
-        """
-        Add and remove an editor: emacs
-        """
-
-        command = "tuffix editor add emacs"
-        main(command.split())
-        command = "tuffix editor remove emacs"
-        print(command)
-        main(command.split())
+        # command = "tuffix editor remove emacs"
+        # print(command)
+        # main(command.split())
 
     # def test_list(self):
         # """

@@ -11,6 +11,7 @@ from Tuffix.Keywords import *
 from Tuffix.Status import status
 from Tuffix.UtilityFunctions import *
 from Tuffix.Editors import EditorKeywordContainer
+from Tuffix.SudoRun import SudoRun
 
 import os
 import json
@@ -405,6 +406,24 @@ class InitCommand(AbstractCommand):
             raise UsageError("init command does not accept arguments")
         if(STATE_PATH.exists()):
             raise UsageError("init has already been done")
+
+        # ensure we have our PPA installed
+
+        gpg_url = "https://www.tuffix.xyz/repo/KEY.gpg"
+        tuffix_list = pathlib.Path("/etc/apt/sources.list.d/tuffix.list")
+
+        gpg_dest = pathlib.Path("/tmp/tuffix.gpg")
+        executor = SudoRun()
+
+        content = requests.get(gpg_url).content
+        with open(gpg_dest, "wb") as fp:
+            fp.write(content)
+        with open(tuffix_list, "w") as fp:
+            fp.write("deb https://www.tuffix.xyz/repo focal main")
+
+        executor.run(
+            f'sudo apt-key add {gpg_dest.resolve()}',
+            executor.whoami)
 
         create_state_directory(self.build_config)
 

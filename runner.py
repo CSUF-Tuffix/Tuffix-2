@@ -9,10 +9,10 @@ import unittest
 import importlib.util
 
 tests = {
-    # "DriverTest": "UnitTests/test_tuffix_driver.py",
-    "UtilityFunctionTest": "UnitTests/test_utility_functions.py",
-    "LSBTest": "UnitTests/test_lsb_parser.py",
-    "StatusTest": "UnitTests/test_status.py",
+    "DriverTest": "UnitTests/test_tuffix_driver.py",
+    # "UtilityFunctionTest": "UnitTests/test_utility_functions.py",
+    # "LSBTest": "UnitTests/test_lsb_parser.py",
+    # "StatusTest": "UnitTests/test_status.py",
     # NOTE: Unknown how to test -> "sudo_run": "UnitTests/test_sudo_run.py"
 }
 
