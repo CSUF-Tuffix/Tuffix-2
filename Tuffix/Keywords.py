@@ -115,6 +115,11 @@ class BaseKeyword(AbstractKeyword):
                          'lldb',
                          'python2']
 
+        self.link_dictionary = {
+            "GOOGLE_TEST_URL": ["https://github.com/google/googletest.git", True],
+            "TEST_URL": ["https://github.com/JaredDyreson/tuffix-google-test.git", True]
+        }
+
     def add(self):
         self.google_test_all()
         edit_deb_packages(self.packages, is_installing=True)
@@ -126,8 +131,8 @@ class BaseKeyword(AbstractKeyword):
         """
         GOAL: Get and install GoogleTest
         """
-
-        GOOGLE_TEST_URL = "https://github.com/google/googletest.git"
+        GOOGLE_TEST_URL = self.link_dictionary["GOOGLE_TEST_URL"]
+        # GOOGLE_TEST_URL = "https://github.com/google/googletest.git"
         GOOGLE_DEST = "google"
 
         os.chdir("/tmp")
@@ -148,7 +153,8 @@ class BaseKeyword(AbstractKeyword):
         Goal: small test to check if Google Test works after install
         """
         # TODO : change link to be under CSUF domain
-        TEST_URL = "https://github.com/JaredDyreson/tuffix-google-test.git"
+        # TEST_URL = "https://github.com/JaredDyreson/tuffix-google-test.git"
+        TEST_URL = self.link_dictionary["TEST_URL"]
         TEST_DEST = "test"
 
         os.chdir("/tmp")
@@ -184,9 +190,14 @@ class ChromeKeyword(AbstractKeyword):
         super().__init__(build_config, 'chrome', 'Google Chrome')
         self.packages = ['google-chrome-stable']
         self.checkable_packages = []
+        self.link_dictionary = {
+            "GOOGLE_CHROME_DEB": ["https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb", False],
+            "GOOGLE_SIGNING_KEY": ["https://dl.google.com/linux/linux_signing_key.pub", False]
+        }
 
     def add(self):
-        google_chrome = "https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb"
+        google_chrome = self.link_dictionary["GOOGLE_CHROME_DEB"]
+        # google_chrome = "https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb"
         dest = "/tmp/chrome.deb"
 
         print("[INFO] Downloading Chrome Debian installer....")
@@ -196,7 +207,8 @@ class ChromeKeyword(AbstractKeyword):
         print("[INFO] Installing Chrome....")
         apt.debfile.DebPackage(filename=dest).install()
 
-        google_sources = "https://dl.google.com/linux/linux_signing_key.pub"
+        # google_sources = "https://dl.google.com/linux/linux_signing_key.pub"
+        google_source = self.link_dictionary["GOOGLE_SIGNING_KEY"]
         google_sources_path = pathlib.Path("/tmp/linux_signing_key.pub")
 
         with open(google_sources_path, 'wb') as fp:

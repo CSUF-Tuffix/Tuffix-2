@@ -8,6 +8,31 @@ import pickle
 import pathlib
 from functools import partial
 import psutil
+import re
+import requests
+
+class LinkChecker:
+    def __init__(self):
+        self._re = re.compile("(?P<content>.*)\.git")
+
+
+    # def link_up(self, link: str) -> tuple[bool, int]:
+    def link_up(self, link: str):
+        request = requests.get(link)
+        status = ((request.status_code >= 200)
+                  and (request.status_code <= 299))
+        return (status, request.status_code)
+
+    def check_links(self, manifest: dict) -> None:
+        for name, container in manifest.items():
+            link, is_git = container
+            if(is_git):
+                link = self._re.match(link).group("content")
+
+            status, code = self.link_up(link)
+            if not(status):
+                raise UsageError(
+                    f'[INTERNAL ERROR] Could not reach link {link}, received code: {code}')
 
 class ProcessHandler():
     """
@@ -100,3 +125,4 @@ class PickleFactory():
 
 DEFAULT_PICKLER = PickleFactory()
 DEFAULT_PROCESS_HANDLER = ProcessHandler()
+DEFAULT_LINK_CHECKER = LinkChecker()
