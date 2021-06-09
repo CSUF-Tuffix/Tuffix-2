@@ -67,6 +67,10 @@ class AtomKeyword(EditorBaseKeyword):
     def __init__(self, build_config: BuildConfig):
         super().__init__(build_config, 'atom', 'Github\'s own editor')
         self.packages: list[str] = ['atom']
+        self.checkable_packages = []
+        self.link_dictionary = {
+            "ATOM_GPG_URL": ["https://packagecloud.io/AtomEditor/atom/gpgkey", False]
+        }
 
     def add(self, plugins = ['dbg-gdb', 'dbg', 'output-panel']):
         """
@@ -80,7 +84,7 @@ class AtomKeyword(EditorBaseKeyword):
 
         atom_conf_dir = pathlib.Path(f'/home/{self.normal_user}/.atom')
 
-        gpg_url = "https://packagecloud.io/AtomEditor/atom/gpgkey"
+        gpg_url = self.link_dictionary["ATOM_GPG_URL"][0]
         atom_list = pathlib.Path("/etc/apt/sources.list.d/atom.list")
 
         gpg_dest = pathlib.Path("/tmp/gpgkey")
@@ -136,11 +140,13 @@ class EclipseKeyword(AbstractKeyword):
     def __init__(self, build_config: BuildConfig):
         super().__init__(build_config, 'eclipse', 'a Java IDE')
         self.packages: list[str] = ['openjdk-11-jdk']
+        self.link_dictionary = {
+            "ECLIPSE_URL": ["http://mirror.umd.edu/eclipse/technology/epp/downloads/release/2020-06/R/eclipse-java-2020-06-R-linux-gtk-x86_64.tar.gz", False]
+        }
 
     def add(self):
         edit_deb_packages(packages, is_installing=True)
-
-        url = "http://mirror.umd.edu/eclipse/technology/epp/downloads/release/2020-06/R/eclipse-java-2020-06-R-linux-gtk-x86_64.tar.gz"
+        url = self.link_dictionary["ECLIPSE_URL"][0]
 
         content = requests.get(url).content
         path = pathlib.Path("/tmp/installer.tar.gz")
@@ -229,9 +235,13 @@ class VscodeKeyword(EditorBaseKeyword):
     def __init__(self, build_config: BuildConfig):
         super().__init__(build_config, 'vscode', 'Microsoft\'s text editor')
         self.packages: list[str] = ['code']
+        self.checkable_packages = []
+        self.link_dictionary = {
+            "VSCODE_DEB": ["https://code.visualstudio.com/sha/download?build=stable&os=linux-deb-x64", False]
+        }
 
     def add(self):
-        url = "https://code.visualstudio.com/sha/download?build=stable&os=linux-deb-x64"
+        url = self.link_dictionary["VSCODE_DEB"][0]
         deb_path = "/tmp/vscode.deb"
         print("[INFO] Downloading installer...")
         content = requests.get(url).content

@@ -131,7 +131,7 @@ class BaseKeyword(AbstractKeyword):
         """
         GOAL: Get and install GoogleTest
         """
-        GOOGLE_TEST_URL = self.link_dictionary["GOOGLE_TEST_URL"]
+        GOOGLE_TEST_URL = self.link_dictionary["GOOGLE_TEST_URL"][0]
         # GOOGLE_TEST_URL = "https://github.com/google/googletest.git"
         GOOGLE_DEST = "google"
 
@@ -154,7 +154,7 @@ class BaseKeyword(AbstractKeyword):
         """
         # TODO : change link to be under CSUF domain
         # TEST_URL = "https://github.com/JaredDyreson/tuffix-google-test.git"
-        TEST_URL = self.link_dictionary["TEST_URL"]
+        TEST_URL = self.link_dictionary["TEST_URL"][0]
         TEST_DEST = "test"
 
         os.chdir("/tmp")
@@ -196,7 +196,7 @@ class ChromeKeyword(AbstractKeyword):
         }
 
     def add(self):
-        google_chrome = self.link_dictionary["GOOGLE_CHROME_DEB"]
+        google_chrome = self.link_dictionary["GOOGLE_CHROME_DEB"][0]
         # google_chrome = "https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb"
         dest = "/tmp/chrome.deb"
 
@@ -208,7 +208,7 @@ class ChromeKeyword(AbstractKeyword):
         apt.debfile.DebPackage(filename=dest).install()
 
         # google_sources = "https://dl.google.com/linux/linux_signing_key.pub"
-        google_source = self.link_dictionary["GOOGLE_SIGNING_KEY"]
+        google_source = self.link_dictionary["GOOGLE_SIGNING_KEY"][0]
         google_sources_path = pathlib.Path("/tmp/linux_signing_key.pub")
 
         with open(google_sources_path, 'wb') as fp:
