@@ -1,7 +1,7 @@
 #!/usr/bin/env python3.9
 
 """
-pure Python equivalent of lsb_release, because I wanted to OKAY?
+pure Python equivalent of lsb_release
 inspiration from this: https://chromium.googlesource.com/chromiumos/docs/+/HEAD/lsb-release.md
 AUTHOR: Jared Dyreson
 """

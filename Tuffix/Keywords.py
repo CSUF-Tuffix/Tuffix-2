@@ -544,19 +544,21 @@ class VirtualBoxKeyword(AbstractKeyword):
 
 
 class ZoomKeyword(AbstractKeyword):
-    packages = ['libgl1-mesa-glx',
-                     'libegl1-mesa',
-                     'libxcb-xtest0',
-                     'zoom']
 
     def __init__(self, build_config):
         super().__init__(build_config,
                          'zoom',
                          'Video conferencing software')
+        self.packages = ['libgl1-mesa-glx',
+                         'libegl1-mesa',
+                         'libxcb-xtest0',
+                         'zoom']
+
+        self.checkable_packages = self.packages[:3]
 
     def add(self):
         print("[WARNING] Zoom is not an open source piece of software")
-        edit_deb_packages(packages[:3], is_installing=True)
+        edit_deb_packages(self.checkable_packages, is_installing=True)
 
         url = "https://zoom.us/client/latest/zoom_amd64.deb"
         file_path = "/tmp/zoom"
@@ -565,7 +567,7 @@ class ZoomKeyword(AbstractKeyword):
         apt.debfile.DebPackage(filename=file_path).install()
 
     def remove(self):
-        edit_deb_packages(packages, is_installing=False)
+        edit_deb_packages(self.packages, is_installing=False)
 
 
 class TestKeyword(AbstractKeyword):

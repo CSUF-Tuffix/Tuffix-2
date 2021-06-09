@@ -547,8 +547,6 @@ class BackgroundCommand(AbstractCommand):
             path = pathlib.Path(path)
             if not(path.exists()):
                 raise FileNotFoundError(f'[ERROR] File {path.resolve()} does not exist')
-            # set_background(path)
-        # path = pathlib.Path("/home/jared/Pictures/Wallpapers/linux.jpg")
         set_background(path)
 
 def all_commands(build_config):

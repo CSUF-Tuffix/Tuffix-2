@@ -141,9 +141,18 @@ def set_background(path: pathlib.Path):
     gsettings = Gio.Settings.new(SCHEMA)
     gsettings.set_string(KEY, f'file://{path}')
 
+def retreieve_user_submitted_wallpaper(positional=None):
+    # return {
+        # "url": "https://www.setaswall.com/wp-content/uploads/2017/03/Outer-Space-Stars-Galaxies-Frozen-Wallpaper-1920x1200.jpg",
+        # "name": "SpacialRend",
+        # "author": "Jared Dyreson"
+    # }
 
-def get_user_submitted_wallpaper(manifest={}):
-    pictures_directory = f'{Path.home()}/Pictures/Wallpapers'
+    return ("https://www.setaswall.com/wp-content/uploads/2017/03/Outer-Space-Stars-Galaxies-Frozen-Wallpaper-1920x1200.jpg", "SpacialRend", "Jared Dyreson")
+
+
+def get_user_submitted_wallpaper(manifest=tuple()) -> pathlib.Path:
+    pictures_directory = pathlib.Path(f'{pathlib.Path.home()}/Pictures/Wallpapers')
 
     """
     # Python 3.10 Example
@@ -177,22 +186,20 @@ def get_user_submitted_wallpaper(manifest={}):
 
     destination = f'{wallpaper_dir}/{name}.{extension}'
     """
-    if(not isinstance(manifest, dict)):
-        raise ValueError(f'expected dict, received: {type(manifest).__name__}')
+    if(not isinstance(manifest, tuple)):
+        raise ValueError(f'expected tuple, received: {type(manifest).__name__}')
+    url, name, person = manifest
 
-    url = "https://www.setaswall.com/wp-content/uploads/2017/03/Outer-Space-Stars-Galaxies-Frozen-Wallpaper-1920x1200.jpg"
-    name = "SpacialRend"
-    person = "Jared Dyreson"
-    output = pathlib.Path(f'{pictures_directory}/{name}.jpg')
+    output = pictures_directory / pathlib.Path(f'{name}.jpg')
 
-    if not(os.path.exists(pictures_directory)):
-        os.makedirs(pictures_directory)
+    if not(pictures_directory.is_dir()):
+        pictures_directory.mkdir(parents=True, exist_ok=True)
+    # here it is assumed the file is not on disk and needs to be retreived from some external source
+    # req = requests.get(url)
+    # if not("image" in req.headers['content-type']):
+        # raise EnvironmentError(
+        # f'{url} contains file that is not an image; indexing error?')
 
-    req = requests.get(url)
-    if not("image" in req.headers['content-type']):
-        raise EnvironmentError(
-        f'{url} contains file that is not an image; indexing error?')
-
-    with open(output, 'wb') as fp:
-        fp.write(req.content)
-    # set_background(output)
+    # with open(output, 'wb') as fp:
+        # fp.write(req.content)
+    return output

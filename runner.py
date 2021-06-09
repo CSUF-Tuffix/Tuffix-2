@@ -5,6 +5,7 @@ from Tuffix.Configuration import DEFAULT_BUILD_CONFIG
 from Tuffix.Keywords import KeywordContainer
 from Tuffix.Exceptions import *
 from Tuffix.Silencer import silence
+from UnitTests.SequentialTest import SequentialTestLoader
 
 import unittest
 import importlib.util
@@ -12,12 +13,14 @@ import importlib.util
 """
 format:
 
-"<CLASS NAME OF TEST>": ["PATH", SILENT/VERBOSE]
+"<CLASS NAME OF TEST>": ["PATH", SILENT(False)/VERBOSE(True)]
 """
 
 tests = {
-    "DriverTest": ["UnitTests/test_tuffix_driver.py", False],
-    # "UtilityFunctionTest": "UnitTests/test_utility_functions.py",
+    "KeywordTest": ["UnitTests/test_keywords.py", True]
+    # "DriverTest": ["UnitTests/test_tuffix_driver.py", False],
+    # "UtilityFunctionTest": ["UnitTests/test_utility_functions.py", False],
+    # "ExampleTest": ["UnitTests/test_example.py", False]
     # "LSBTest": "UnitTests/test_lsb_parser.py",
     # "StatusTest": "UnitTests/test_status.py",
     # NOTE: Unknown how to test -> "sudo_run": "UnitTests/test_sudo_run.py"
@@ -32,7 +35,10 @@ for name, arguments in tests.items():
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     _test = getattr(module, name, None)
-    test_suite = unittest.defaultTestLoader.loadTestsFromTestCase(_test)
+    test_suite = SequentialTestLoader().loadTestsFromTestCase(_test)
+
+    # <class 'test.UtilityFunctionTest'>
+    # test_suite = unittest.defaultTestLoader.loadTestsFromTestCase(_test)
     # you see, this would be clean in C with a preprocessor directive
     if(pedantic):
         runner.run(test_suite)

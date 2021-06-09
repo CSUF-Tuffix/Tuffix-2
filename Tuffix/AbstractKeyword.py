@@ -18,6 +18,7 @@ class AbstractKeyword:
         self.name = name
         self.description = description
         self.packges: list[str] = [] if not packages else packages
+        self.checkable_packages: list[str] = [] # should be set to nothing
 
     def add(self):
         raise NotImplementedError
@@ -34,7 +35,10 @@ class AbstractKeyword:
         current_cache = apt.cache.Cache()
         current_cache.update()
 
-        for package in packages:
+        container = self.packages if not self.checkable_packages else self.checkable_packages
+        print(container)
+
+        for package in container:
             # will raise KeyError if not found
             try:
                 _ = current_cache[package]
