@@ -6,16 +6,53 @@ TODO: have the unit tests run in order
 
 
 from Tuffix.Driver import *
+from Tuffix.Silencer import silence
 import unittest
 
 class DriverTest(unittest.TestCase):
-    def test_init(self):
-        """
-        Initialize Tuffix
-        """
+    # def test_init(self):
+        # """
+        # Initialize Tuffix
+        # """
 
-        command = "tuffix init"
+        # command = "tuffix init"
+        # main(command.split())
+    def test_background(self):
+        # file that exists
+        command = "tuffix background /home/jared/Pictures/Wallpapers/linux.jpg"
+        try:
+            main(command.split())
+            # with silence(): main(command.split())
+        except FileNotFoundError:
+            self.assertTrue(False)
+        else:
+            self.assertTrue(True)
+
+        # file that does not exist
+        command = "tuffix background /tmp/phony_image.png"
+        try:
+            main(command.split())
+            # with silence(): main(command.split())
+            # main(command.split())
+        except FileNotFoundError:
+            self.assertTrue(True)
+        else:
+            self.assertTrue(False)
+
+        command = "tuffix background user-submitted"
+        # with silence(): main(command.split())
         main(command.split())
+
+        command = "tuffix background"
+
+        try:
+            main(command.split())
+            # with silence(): main(command.split())
+        except UsageError:
+            self.assertTrue(False)
+        else:
+            self.assertTrue(True)
+
 
     # def test_editor(self):
         # """

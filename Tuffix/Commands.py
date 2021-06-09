@@ -521,6 +521,35 @@ class RemoveCommand(AbstractCommand):
     def execute(self, arguments):
         self.mark.execute(arguments)
 
+class BackgroundCommand(AbstractCommand):
+    def __init__(self, build_config):
+        super().__init__(build_config, 'background', 'set a background')
+    def execute(self, arguments):
+        try:
+            ensure_root_access()
+        except UsageError:
+            pass
+        else:
+            raise UsageError('[ERROR] This command cannot be run as root, cowardly refusing')
+
+        """
+        There should be some really cool match case stuff here but keep it simple stupid
+        """
+
+        if((_len := len(arguments)) < 1):
+            print(arguments)
+            raise UsageError(f'insufficient arguments, expected 1, received {_len}')
+        path = arguments[0]
+        if(path == "user-submitted"):
+            print("retrieve from some nice function call")
+            return
+        else:
+            path = pathlib.Path(path)
+            if not(path.exists()):
+                raise FileNotFoundError(f'[ERROR] File {path.resolve()} does not exist')
+            # set_background(path)
+        # path = pathlib.Path("/home/jared/Pictures/Wallpapers/linux.jpg")
+        set_background(path)
 
 def all_commands(build_config):
     """
@@ -533,6 +562,7 @@ def all_commands(build_config):
         raise ValueError
     # alphabetical order
     return [AddCommand(build_config),
+            BackgroundCommand(build_config),
             CustomCommand(build_config),
             DescribeCommand(build_config),
             InitCommand(build_config),

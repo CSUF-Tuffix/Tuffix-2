@@ -10,6 +10,7 @@ Source: https://stackoverflow.com/a/2829036
 
 class DummyFile(object):
     def write(self, x): pass
+    def flush(self): pass
 
 @contextlib.contextmanager
 def silence():

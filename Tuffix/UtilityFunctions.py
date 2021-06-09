@@ -7,7 +7,7 @@ import re
 import subprocess
 import os
 import requests
-from pathlib import Path
+import pathlib
 
 from apt import apt_pkg
 
@@ -117,11 +117,11 @@ def create_state_directory(build_config):
     os.makedirs(build_config.json_state_path, exist_ok=True) # NOTE
 
 
-def set_background(path: str):
+def set_background(path: pathlib.Path):
     # source:
     # https://itectec.com/ubuntu/ubuntu-how-to-change-the-wallpaper-using-a-python-script/
 
-    if not(isinstance(path, str)):
+    if not(isinstance(path, pathlib.Path)):
         raise ValueError
 
     lsb_parser_ = lsb_parser()
@@ -177,20 +177,21 @@ def get_user_submitted_wallpaper(manifest={}):
 
     destination = f'{wallpaper_dir}/{name}.{extension}'
     """
+    if(not isinstance(manifest, dict)):
+        raise ValueError(f'expected dict, received: {type(manifest).__name__}')
 
     url = "https://www.setaswall.com/wp-content/uploads/2017/03/Outer-Space-Stars-Galaxies-Frozen-Wallpaper-1920x1200.jpg"
     name = "SpacialRend"
     person = "Jared Dyreson"
-    output = f'{pictures_directory}/{name}.jpg'
+    output = pathlib.Path(f'{pictures_directory}/{name}.jpg')
 
     if not(os.path.exists(pictures_directory)):
         os.makedirs(pictures_directory)
 
     req = requests.get(url)
-    # if("image" in req.headers['content-type']):
-    # else:
-    # raise EnvironmentError(
-    # f'{url} contains file that is not an image; indexing error?')
+    if not("image" in req.headers['content-type']):
+        raise EnvironmentError(
+        f'{url} contains file that is not an image; indexing error?')
 
     with open(output, 'wb') as fp:
         fp.write(req.content)
