@@ -21,19 +21,19 @@ import requests
 import sys
 
 class AllKeyword(AbstractKeyword):
-    packages = []
 
     def __init__(self, build_config):
         super().__init__(
             build_config,
             'all',
             'all keywords available (glob pattern); to be used in conjunction with remove or add respectively')
+        self.packages = []
 
     def add(self):
-        edit_deb_packages(packages, is_installing=True)
+        edit_deb_packages(self.packages, is_installing=True)
 
     def remove(self):
-        edit_deb_packages(packages, is_installing=False)
+        edit_deb_packages(self.packages, is_installing=False)
 
 
 class GeneralKeyword(AbstractKeyword):
@@ -43,26 +43,6 @@ class GeneralKeyword(AbstractKeyword):
     SRC: sub-tuffix/min-tuffix.yml (Kitchen sink)
     """
 
-    packages = ['autoconf',
-                     'automake',
-                     'a2ps',
-                     'cscope',
-                     'curl',
-                     'dkms',
-                     'enscript',
-                     'glibc-doc',
-                     'gpg',
-                     'graphviz',
-                     'gthumb',
-                     'libreadline-dev',
-                     'manpages-posix',
-                     'manpages-posix-dev',
-                     'meld',
-                     'nfs-common',
-                     'openssh-client',
-                     'openssh-server',
-                     'seahorse',
-                     'synaptic']
 
 
     def __init__(self, build_config):
@@ -70,14 +50,34 @@ class GeneralKeyword(AbstractKeyword):
             build_config,
             'general',
             'General configuration, not tied to any specific course')
+        self.packages = ['autoconf',
+                         'automake',
+                         'a2ps',
+                         'cscope',
+                         'curl',
+                         'dkms',
+                         'enscript',
+                         'glibc-doc',
+                         'gpg',
+                         'graphviz',
+                         'gthumb',
+                         'libreadline-dev',
+                         'manpages-posix',
+                         'manpages-posix-dev',
+                         'meld',
+                         'nfs-common',
+                         'openssh-client',
+                         'openssh-server',
+                         'seahorse',
+                         'synaptic']
 
     def add(self):
-        edit_deb_packages(packages, is_installing=True)
+        edit_deb_packages(self.packages, is_installing=True)
         VimKeyword(self.build_config).add()
         EmacsKeyword(self.build_config).add()
 
     def remove(self):
-        edit_deb_packages(packages, is_installing=False)
+        edit_deb_packages(self.packages, is_installing=False)
         VimKeyword(self.build_config).remove()
         EmacsKeyword(self.build_config).remove()
 
@@ -90,36 +90,37 @@ class BaseKeyword(AbstractKeyword):
     Python 2.7 is dead
     """
 
-    packages =  ['build-essential',
-                 'cimg-dev',
-                 'clang',
-                 'clang-format',
-                 'clang-tidy',
-                 'cmake',
-                 'code',
-                 'gdb',
-                 'gcc',
-                 'git',
-                 'g++',
-                 'libc++-dev',
-                 'libc++abi-dev',
-                 'libgconf-2-4',
-                 'libgtest-dev',
-                 'libgmock-dev',
-                 'lldb',
-                 'python2']
 
     def __init__(self, build_config):
         super().__init__(build_config,
                          'base',
                          'CPSC 120-121-131-301 C++ development environment')
 
+        self.packages =  ['build-essential',
+                         'cimg-dev',
+                         'clang',
+                         'clang-format',
+                         'clang-tidy',
+                         'cmake',
+                         'code',
+                         'gdb',
+                         'gcc',
+                         'git',
+                         'g++',
+                         'libc++-dev',
+                         'libc++abi-dev',
+                         'libgconf-2-4',
+                         'libgtest-dev',
+                         'libgmock-dev',
+                         'lldb',
+                         'python2']
+
     def add(self):
         self.google_test_all()
-        edit_deb_packages(packages, is_installing=True)
+        edit_deb_packages(self.packages, is_installing=True)
 
     def remove(self):
-        edit_deb_packages(packages, is_installing=False)
+        edit_deb_packages(self.packages, is_installing=False)
 
     def google_test_build(self):
         """
@@ -178,10 +179,11 @@ class ChromeKeyword(AbstractKeyword):
     SRC: sub-tuffix/chrome.yml
     """
 
-    packages = ['google-chrome-stable']
 
     def __init__(self, build_config):
         super().__init__(build_config, 'chrome', 'Google Chrome')
+        self.packages = ['google-chrome-stable']
+        self.checkable_packages = []
 
     def add(self):
         google_chrome = "https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb"
@@ -203,7 +205,7 @@ class ChromeKeyword(AbstractKeyword):
             f'sudo apt-key add {google_sources_path}'.split())
 
     def remove(self):
-        edit_deb_packages(packages, is_installing=False)
+        edit_deb_packages(self.packages, is_installing=False)
         pathlib.Path("/etc/apt/sources.list.d/google-chrome.list").unlink()
 
 
@@ -217,20 +219,20 @@ class C223JKeyword(AbstractKeyword):
     SRC: sub-tuffix/cpsc223j.yml
     """
 
-    packages = ['geany',
-                 'gthumb',
-                 'netbeans',
-                 'openjdk-8-jdk',
-                 'openjdk-8-jre']
 
     def __init__(self, build_config):
         super().__init__(build_config, 'C223J', 'CPSC 223J (Java Programming)')
+        self.packages = ['geany',
+                         'gthumb',
+                         'netbeans',
+                         'openjdk-8-jdk',
+                         'openjdk-8-jre']
 
     def add(self):
-        edit_deb_packages(packages, is_installing=True)
+        edit_deb_packages(self.packages, is_installing=True)
 
     def remove(self):
-        edit_deb_packages(packages, is_installing=False)
+        edit_deb_packages(self.packages, is_installing=False)
 
 
 class C223NKeyword(AbstractKeyword):
@@ -239,17 +241,17 @@ class C223NKeyword(AbstractKeyword):
     SRC: sub-tuffix/cpsc223n.yml
     """
 
-    packages = ['mono-complete',
-                     'netbeans']
 
     def __init__(self, build_config):
         super().__init__(build_config, 'C223N', 'CPSC 223N (C# Programming)')
+        self.packages = ['mono-complete',
+                         'netbeans']
 
     def add(self):
-        edit_deb_packages(packages, is_installing=True)
+        edit_deb_packages(self.packages, is_installing=True)
 
     def remove(self):
-        edit_deb_packages(packages, is_installing=False)
+        edit_deb_packages(self.packages, is_installing=False)
 
 
 class C223PKeyword(AbstractKeyword):
@@ -264,23 +266,23 @@ class C223PKeyword(AbstractKeyword):
     SRC: sub-tuffix/cpsc223p.yml
     """
 
-    packages = ['python2',
-                     'python2-dev',
-                     # 'python-pip',
-                     # 'python-virtualenv',
-                     'python3',
-                     'python3-dev',
-                     'python3-pip',
-                     'virtualenvwrapper']
 
     def __init__(self, build_config):
         super().__init__(build_config, 'C223P', 'CPSC 223P (Python Programming)')
+        self.packages = ['python2',
+                         'python2-dev',
+                         # 'python-pip',
+                         # 'python-virtualenv',
+                         'python3',
+                         'python3-dev',
+                         'python3-pip',
+                         'virtualenvwrapper']
 
     def add(self):
-        edit_deb_packages(packages, is_installing=True)
+        edit_deb_packages(self.packages, is_installing=True)
 
     def remove(self):
-        edit_deb_packages(packages, is_installing=False)
+        edit_deb_packages(self.packages, is_installing=False)
 
 
 class C223WKeyword(AbstractKeyword):
@@ -289,30 +291,30 @@ class C223WKeyword(AbstractKeyword):
     Point person: Paul Inventado
     """
 
-    packages = ['binutils',
-                     'curl',
-                     'gnupg2',
-                     'libc6-dev',
-                     'libcurl4',
-                     'libedit2',
-                     'libgcc-9-dev',
-                     'libpython2.7',
-                     'libsqlite3-0',
-                     'libstdc++-9-dev',
-                     'libxml2',
-                     'libz3-dev',
-                     'pkg-config',
-                     'tzdata',
-                     'zlib1g-dev']
 
     def __init__(self, build_config):
         super().__init__(build_config, 'C223W', 'CPSC 223W (Swift Programming)')
+        self.packages = ['binutils',
+                         'curl',
+                         'gnupg2',
+                         'libc6-dev',
+                         'libcurl4',
+                         'libedit2',
+                         'libgcc-9-dev',
+                         'libpython2.7',
+                         'libsqlite3-0',
+                         'libstdc++-9-dev',
+                         'libxml2',
+                         'libz3-dev',
+                         'pkg-config',
+                         'tzdata',
+                         'zlib1g-dev']
 
     def add(self):
-        edit_deb_packages(packages, is_installing=True)
+        edit_deb_packages(self.packages, is_installing=True)
 
     def remove(self):
-        edit_deb_packages(packages, is_installing=False)
+        edit_deb_packages(self.packages, is_installing=False)
 
 
 class C240Keyword(AbstractKeyword):
@@ -321,17 +323,17 @@ class C240Keyword(AbstractKeyword):
     Point person: Floyd Holliday
     """
 
-    packages = ['intel2gas',
-                     'nasm']
 
     def __init__(self, build_config):
         super().__init__(build_config, 'C240', 'CPSC 240 (Assembler)')
+        self.packages = ['intel2gas',
+                         'nasm']
 
     def add(self):
-        edit_deb_packages(packages, is_installing=True)
+        edit_deb_packages(self.packages, is_installing=True)
 
     def remove(self):
-        edit_deb_packages(packages, is_installing=False)
+        edit_deb_packages(self.packages, is_installing=False)
 
 
 class C351Keyword(AbstractKeyword):
@@ -341,14 +343,14 @@ class C351Keyword(AbstractKeyword):
     """
     # TODO: testing and doing
 
-    packages = [f'linux-headers-{current_kernel_revision()}']
 
     def __init__(self, build_config):
         super().__init__(build_config, 'C351', 'CPSC 351 (Operating Systems)')
+        self.packages = [f'linux-headers-{current_kernel_revision()}']
 
     def add(self):
         print('important that you make a save state in your VM of tuffix or just install the tuffix installers scripts in another VM if you have a native install. You can mess up your main OS')
-        edit_deb_packages(packages, is_installing=True)
+        edit_deb_packages(self.packages, is_installing=True)
         silberschatz_url = "http://cs.westminstercollege.edu/~greg/osc10e/final-src-osc10e.zip"
         r = requests.get(silberschatz_url)
         stored = "/tmp/kernel-exercises.zip"
@@ -359,7 +361,7 @@ class C351Keyword(AbstractKeyword):
             zipObj.extractAll()
 
     def remove(self):
-        edit_deb_packages(packages, is_installing=False)
+        edit_deb_packages(self.packages, is_installing=False)
 
 
 class C439Keyword(AbstractKeyword):
@@ -368,16 +370,16 @@ class C439Keyword(AbstractKeyword):
     Point person: <++>
     """
 
-    packages = ['minisat2']
 
     def __init__(self, build_config):
         super().__init__(build_config, 'C439', 'CPSC 439 (Theory of Computation)')
+        self.packages = ['minisat2']
 
     def add(self):
-        edit_deb_packages(packages, is_installing=True)
+        edit_deb_packages(self.packages, is_installing=True)
 
     def remove(self):
-        edit_deb_packages(packages, is_installing=False)
+        edit_deb_packages(self.packages, is_installing=False)
 
 
 class C474Keyword(AbstractKeyword):
@@ -386,20 +388,20 @@ class C474Keyword(AbstractKeyword):
     Point person: <++>
     """
 
-    packages = ['libopenmpi-dev',
-                     'mpi-default-dev',
-                     'mpich',
-                     'openmpi-bin',
-                     'openmpi-common']
 
     def __init__(self, build_config):
         super().__init__(build_config, 'C474', 'CPSC 474 (Parallel and Distributed Computing)')
 
+        self.packages = ['libopenmpi-dev',
+                         'mpi-default-dev',
+                         'mpich',
+                         'openmpi-bin',
+                         'openmpi-common']
     def add(self):
-        edit_deb_packages(packages, is_installing=True)
+        edit_deb_packages(self.packages, is_installing=True)
 
     def remove(self):
-        edit_deb_packages(packages, is_installing=False)
+        edit_deb_packages(self.packages, is_installing=False)
 
 
 class C481Keyword(AbstractKeyword):
@@ -407,140 +409,113 @@ class C481Keyword(AbstractKeyword):
     """
     Java dependency is not installed by default
     Adding it so testing will work but needs to be addressed
+    NOTE: usage of Java 8 should be discouraged
+
     Point person: Paul Inventado
     """
 
-    packages = ['openjdk-8-jdk',
-                     'openjdk-8-jre',
-                     'sbcl',
-                     'swi-prolog-nox',
-                     'swi-prolog-x']
 
     def __init__(self, build_config):
         super().__init__(build_config, 'C481', 'CPSC 481 (Artificial Intelligence)')
+        self.packages = ['openjdk-8-jdk',
+                         'openjdk-8-jre',
+                         'sbcl',
+                         'swi-prolog-nox',
+                         'swi-prolog-x']
 
     def add(self):
-        edit_deb_packages(packages, is_installing=True)
-        """
-        You are going to need to get the most up to date
-        link because the original one broke and this one currently works.
-        """
-        eclipse_download = pathlib.Path("/tmp/eclipse.tar.gz")
-
-        """
-        might need to change because development was done in Idaho
-        """
-
-        eclipse_link = "http://mirror.umd.edu/eclipse/oomph/epp/2020-06/R/eclipse-inst-linux64.tar.gz"
-        with open(eclipse_download, 'wb') as fp:
-            r = requests.get(eclipse_link)
-            if(r.status_code == 404):
-                raise EnvironmentError(
-                    "cannot access link to get Eclipse, please tell your instructor immediately")
-            fp.write(r.content)
-        os.mkdir("/tmp/eclipse")
-        subprocess.check_output(
-            f'tar -xzvf {eclipse_download} -C /tmp/eclipse'.split())
-        """
-        Here is where I need help
-        https://linoxide.com/linux-how-to/learn-how-install-latest-eclipse-ubuntu/
-        We might need to provide documentation
-        """
+        edit_deb_packages(self.packages, is_installing=True)
+        EclipseKeyword(self.build_config).add()
 
     def remove(self):
         edit_deb_packages(packages, is_installing=False)
+        EclipseKeyword(self.build_config).remove()
 
 
 class C484Keyword(AbstractKeyword):
 
     """
     Point persons: Michael Shafae, Kevin Wortman
+    Please note that python-openctm seems to not exist
     """
 
-    packages = ['freeglut3-dev',
-                     'libfreeimage-dev',
-                     'libgl1-mesa-dev',
-                     'libglew-dev',
-                     'libglu1-mesa-dev',
-                     'libopenctm-dev',
-                     'libx11-dev',
-                     'libxi-dev',
-                     'libxrandr-dev',
-                     'mesa-utils',
-                     'mesa-utils-extra',
-                     'openctm-doc',
-                     'openctm-tools']
     # 'python-openctm']
 
     def __init__(self, build_config):
         super().__init__(build_config, 'C484', 'CPSC 484 (Principles of Computer Graphics)')
+        self.packages = ['freeglut3-dev',
+                         'libfreeimage-dev',
+                         'libgl1-mesa-dev',
+                         'libglew-dev',
+                         'libglu1-mesa-dev',
+                         'libopenctm-dev',
+                         'libx11-dev',
+                         'libxi-dev',
+                         'libxrandr-dev',
+                         'mesa-utils',
+                         'mesa-utils-extra',
+                         'openctm-doc',
+                         'openctm-tools']
 
     def add(self):
-        edit_deb_packages(packages, is_installing=True)
+        edit_deb_packages(self.packages, is_installing=True)
 
     def remove(self):
-        edit_deb_packages(packages, is_installing=False)
+        edit_deb_packages(self.packages, is_installing=False)
 
 
 class MediaKeyword(AbstractKeyword):
 
-    packages = ['audacity',
-                     'blender',
-                     'gimp',
-                     'imagemagick',
-                     'sox',
-                     'vlc']
 
     def __init__(self, build_config):
         super().__init__(build_config, 'media', 'Media Computation Tools')
+        self.packages = ['audacity',
+                         'blender',
+                         'gimp',
+                         'imagemagick',
+                         'sox',
+                         'vlc']
 
     def add(self):
-        edit_deb_packages(packages, is_installing=True)
+        edit_deb_packages(self.packages, is_installing=True)
 
     def remove(self):
-        edit_deb_packages(packages, is_installing=False)
+        edit_deb_packages(self.packages, is_installing=False)
 
 
 class LatexKeyword(AbstractKeyword):
-    packages = ['texlive-full']
 
     def __init__(self, build_config):
         super().__init__(build_config,
                          'latex',
                          'LaTeX typesetting environment (large)')
+        self.packages = ['texlive-full']
 
     def add(self):
-        edit_deb_packages(packages, is_installing=True)
+        edit_deb_packages(self.packages, is_installing=True)
 
     def remove(self):
-        edit_deb_packages(packages, is_installing=False)
+        edit_deb_packages(self.packages, is_installing=False)
 
 
 
 class VirtualBoxKeyword(AbstractKeyword):
-    packages = ['virtualbox', 'virtualbox-ext-pack']
 
     def __init__(self, build_config):
         super().__init__(
             build_config,
             'vbox',
             'A powerful x86 and AMD64/Intel64 virtualization product')
-    def in_virtualbox(self):
-        """
-        Goal: check if program is in virtual environment
-        SOURCE: https://www.kite.com/python/answers/how-to-determine-if-code-is-being-run-inside-a-virtual-machine-in-python
-        """
-        return hasattr(sys, 'real_prefix')
-
-    def add(self):
-        if(self.in_virtualbox()):
+        self.packages = ['virtualbox',
+                         'virtualbox-ext-pack']
+        if(in_VM()):
             raise EnvironmentError(
                 "This is a virtual enviornment, not proceeding")
-
-        edit_deb_packages(packages, is_installing=True)
+    def add(self):
+        edit_deb_packages(self.packages, is_installing=True)
 
     def remove(self):
-        edit_deb_packages(packages, is_installing=False)
+        edit_deb_packages(self.packages, is_installing=False)
 
 
 class ZoomKeyword(AbstractKeyword):
@@ -557,7 +532,7 @@ class ZoomKeyword(AbstractKeyword):
         self.checkable_packages = self.packages[:3]
 
     def add(self):
-        print("[WARNING] Zoom is not an open source piece of software")
+        # print("[WARNING] Zoom is not an open source piece of software")
         edit_deb_packages(self.checkable_packages, is_installing=True)
 
         url = "https://zoom.us/client/latest/zoom_amd64.deb"
@@ -578,11 +553,10 @@ class TestKeyword(AbstractKeyword):
                          'for testing purposes [please remove when not needed]')
 
         self.packages = ['cowsay']
-        self.bc = build_config
     def add(self):
         edit_deb_packages(self.packages, is_installing=True)
-        VimKeyword(self.bc).add()
-        EmacsKeyword(self.bc).add()
+        VimKeyword(self.build_config).add()
+        EmacsKeyword(self.build_config).add()
 
     def remove(self):
         # VimKeyword(self.bc).remove()
@@ -598,23 +572,22 @@ class KeywordContainer():
         self.container: list[AbstractKeyword] = [
             AllKeyword(build_config),
             BaseKeyword(build_config),
-            # CustomKeyword(build_config),
-            ChromeKeyword(build_config),
-            # GeneralKeyword(build_config),
-            LatexKeyword(build_config),
-            ZoomKeyword(build_config),
-            # MediaKeyword(build_config),
-            VirtualBoxKeyword(build_config),
-            # C223JKeyword(build_config),
-            # C223NKeyword(build_config),
-            # C223PKeyword(build_config),
-            # C223WKeyword(build_config),
-            # C240Keyword(build_config),
+            C223JKeyword(build_config),
+            C223NKeyword(build_config),
+            C223PKeyword(build_config),
+            C223WKeyword(build_config),
+            C240Keyword(build_config),
             C439Keyword(build_config),
             C474Keyword(build_config),
-            # C481Keyword(build_config),
+            C481Keyword(build_config),
             C484Keyword(build_config),
-            TestKeyword(build_config)
+            ChromeKeyword(build_config),
+            GeneralKeyword(build_config),
+            LatexKeyword(build_config),
+            MediaKeyword(build_config),
+            TestKeyword(build_config),
+            VirtualBoxKeyword(build_config),
+            ZoomKeyword(build_config),
         ]
 
     def obtain(self, value: str) -> tuple:

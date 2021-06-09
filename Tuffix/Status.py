@@ -23,6 +23,7 @@ import os
 import socket
 from datetime import datetime
 from shutil import which
+import sys
 
 
 def is_tool(command: str) -> bool:
@@ -38,13 +39,11 @@ def is_tool(command: str) -> bool:
 
 def in_VM() -> bool:
     """
-    Goal: check if we're in a VM. Probably the most unreliable way to do this.
+    Goal: check if we're in a VM
+    SOURCE: https://www.kite.com/python/answers/how-to-determine-if-code-is-being-run-inside-a-virtual-machine-in-python
     """
 
-    path = "/proc/scsi/scsi"
-    with open(path) as f:
-        contents = f.readlines()
-    return (len(contents) > 1)
+    return hasattr(sys, 'real_prefix')
 
 
 def cpu_information() -> str:

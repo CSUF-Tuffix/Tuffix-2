@@ -19,6 +19,7 @@ class AbstractKeyword:
         self.description = description
         self.packges: list[str] = [] if not packages else packages
         self.checkable_packages: list[str] = [] # should be set to nothing
+        self.build_config = build_config
 
     def add(self):
         raise NotImplementedError
