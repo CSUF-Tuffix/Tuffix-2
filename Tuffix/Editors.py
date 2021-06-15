@@ -24,6 +24,7 @@ from Tuffix.SudoRun import SudoRun
 from Tuffix.KeywordHelperFunctions import *
 from Tuffix.Exceptions import *
 from Tuffix.Configuration import *
+from Tuffix.DebBuilder import DebBuilder
 
 import apt
 import os
@@ -31,6 +32,7 @@ import pathlib
 import requests
 import subprocess
 import tarfile
+import textwrap
 
 class EditorBaseKeyword(AbstractKeyword):
     def __init__(self, build_config: BuildConfig, name: str, description: str):
@@ -139,12 +141,17 @@ class EclipseKeyword(AbstractKeyword):
 
     def __init__(self, build_config: BuildConfig):
         super().__init__(build_config, 'eclipse', 'a Java IDE')
-        self.packages: list[str] = ['openjdk-11-jdk']
+        self.packages: list[str] = ['eclipse', 'openjdk-11-jdk']
+        self.checkable_packages: list[str] = self.packages[0:]
         self.link_dictionary = {
             "ECLIPSE_URL": ["http://mirror.umd.edu/eclipse/technology/epp/downloads/release/2020-06/R/eclipse-java-2020-06-R-linux-gtk-x86_64.tar.gz", False]
         }
 
     def add(self):
+        """
+        Not a fan of how this looks now
+        Untested currently, but should work
+        """
         edit_deb_packages(packages, is_installing=True)
         url = self.link_dictionary["ECLIPSE_URL"][0]
 
@@ -154,8 +161,31 @@ class EclipseKeyword(AbstractKeyword):
         with open(path, "wb") as fp:
             fp.write(content)
 
-        tarfile.open(path).extractall('/usr')
-        os.system("sudo ln -s /usr/eclipse/eclipse /usr/bin/eclipse")
+
+        D = DebBuilder("eclipse", path)
+        control = pathlib.Path("/tmp/control")
+        with open(control, "w") as fp:
+            contents = """
+            Package: eclipse
+            Version: 1.2021-06
+            Section: editors
+            Priority: optional
+            Architecture: amd64
+            Maintainer: Oracle
+            Description: Java IDE created by Oracle
+            Depends: openjdk-11-jdk
+            """
+            fp.write(textwrap.dedent(contents).strip())
+
+        postrm = pathlib.Path("/tmp/postrm")
+        with open(postinst, "w") as fp:
+            fp.writelines(["#!/usr/bin/env bash", "sudo rm -i /usr/bin/eclipse"])
+        postinst = pathlib.Path("/tmp/postinst")
+        with open(postinst, "w") as fp:
+            fp.writelines(["#!/usr/bin/env bash", "sudo ln -s /usr/eclipse/eclipse /usr/bin/eclipse"])
+        D.make(control=control, scripts=[postinst, postrm])
+
+        apt.debfile.DebPackage(filename="eclipse.deb").install()
 
         launcher = """
         [Desktop Entry]
@@ -261,7 +291,7 @@ class EditorKeywordContainer():
 
         self.container: list[EditorBaseKeyword] = [
             AtomKeyword(build_config),
-            EclipseKeyword(build_config),
+            # EclipseKeyword(build_config), NOTE : needs to undergo more testing
             EmacsKeyword(build_config),
             GeanyKeyword(build_config),
             NetbeansKeyword(build_config),
