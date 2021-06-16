@@ -10,13 +10,13 @@ from Tuffix.Silencer import silence
 import unittest
 
 class DriverTest(unittest.TestCase):
-    # def test_init(self):
-        # """
-        # Initialize Tuffix
-        # """
+     def test_init(self):
+         """
+         Initialize Tuffix
+         """
 
-        # command = "tuffix init"
-        # main(command.split())
+         command = "tuffix init"
+         main(command.split())
     def test_background(self):
         # file that exists
         command = "tuffix background /home/jared/Pictures/Wallpapers/linux.jpg"

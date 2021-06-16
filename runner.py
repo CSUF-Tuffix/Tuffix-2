@@ -17,11 +17,11 @@ format:
 """
 
 tests = {
-    "KeywordTest": ["UnitTests/test_keywords.py", True],
-    # "DriverTest": ["UnitTests/test_tuffix_driver.py", False],
-    "UtilityFunctionTest": ["UnitTests/test_utility_functions.py", False],
-    "LSBTest": ["UnitTests/test_lsb_parser.py", False],
-    "StatusTest": ["UnitTests/test_status.py", False]
+    #"KeywordTest": ["UnitTests/test_keywords.py", True],
+    "DriverTest": ["UnitTests/test_tuffix_driver.py", False],
+    #"UtilityFunctionTest": ["UnitTests/test_utility_functions.py", False],
+    #"LSBTest": ["UnitTests/test_lsb_parser.py", False],
+    #"StatusTest": ["UnitTests/test_status.py", False]
     # NOTE: Unknown how to test -> "sudo_run": "UnitTests/test_sudo_run.py"
 }
 
