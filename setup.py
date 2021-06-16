@@ -18,7 +18,7 @@ with open(os.path.join(_here, PKG_NAME, 'version.py')) as f:
     exec(f.read(), version)
 
 setup(
-    name = PKG_NAME,
+    name=PKG_NAME,
     version=version['__version__'],
     description=('Tuffix Python Library'),
     long_description=long_description,
@@ -27,18 +27,19 @@ setup(
     url='https://github.com/JaredDyreson/Tuffix-Lib',
     license='GNU GPL-3.0',
     packages=[PKG_NAME],
-    install_requires = [
-      'wheel',
-      'Crypto',
-      'packaging',
-      'psutil',
-      'pycryptodome',
-      'pyfakefs',
-      # 'python-apt @ git+https://salsa.debian.org/apt-team/python-apt', # appears to have a bug with DistUtil
-      'python-gnupg', # unknown if we still need this
-      'requests',
-      'requests',
-      'termcolor',
+    install_requires=[
+        'wheel',
+        'Crypto',
+        'packaging',
+        'psutil',
+        'pycryptodome',
+        'pyfakefs',
+        # 'python-apt @ git+https://salsa.debian.org/apt-team/python-apt', # appears to have a bug with DistUtil
+        'python-gnupg',  # unknown if we still need this
+        'requests',
+        'requests',
+        'termcolor',
+        'PyGObject'
     ],
     include_package_data=True,
     classifiers=['Programming Language :: Python :: 3.8']
