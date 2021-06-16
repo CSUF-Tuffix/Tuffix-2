@@ -17,8 +17,10 @@ import os
 import json
 import pickle  # dump custom class instance to disk
 from termcolor import colored
-from functools import partial # so we can pass in function pointers with predefined args
+# so we can pass in function pointers with predefined args
+from functools import partial
 import shutil
+
 
 class AbstractCommand:
     """
@@ -66,6 +68,7 @@ class AbstractCommand:
 
         raise NotImplementedError
 
+
 class MarkCommand(AbstractCommand):
     """
     GOAL: combine both the add and remove keywords
@@ -95,7 +98,8 @@ class MarkCommand(AbstractCommand):
                 match = _re.match(_file)
                 if(match):
                     # If the JSON file is found, we need to now dynamically create a class
-                    NewClass = DEFAULT_CLASS_GENERATOR.generate(f'{dirpath}/{_file}')
+                    NewClass = DEFAULT_CLASS_GENERATOR.generate(
+                        f'{dirpath}/{_file}')
                     NewClassInstance = NewClass()
                 return (True, NewClassInstance)
         return (False, None)
@@ -107,9 +111,9 @@ class MarkCommand(AbstractCommand):
         # TODO : check what type keyword is
 
         # if not(isinstance(current_state, Keyword.State) and
-               # isinstance(keyword, Keyword) and
-               # isinstance(install, bool)):
-               # raise ValueError
+        # isinstance(keyword, Keyword) and
+        # isinstance(install, bool)):
+        # raise ValueError
 
         current_state = read_state(self.build_config)
         new_action = current_state.installed
@@ -132,7 +136,7 @@ class MarkCommand(AbstractCommand):
 
         if not(isinstance(container, list) and
                isinstance(install, bool)):
-               raise ValueError
+            raise ValueError
 
         current_state = read_state(self.build_config)
 
@@ -159,7 +163,6 @@ class MarkCommand(AbstractCommand):
 
             self.rewrite_state(None, command, install)
 
-
             print(f'[INFO] Tuffix: successfully {past} {command.name}')
 
     def execute(self, arguments: list, custom=(None, None)):
@@ -171,7 +174,8 @@ class MarkCommand(AbstractCommand):
             raise ValueError
 
         if not(arguments):
-            raise UsageError("[ERROR] You must supply at least one keyword to mark")
+            raise UsageError(
+                "[ERROR] You must supply at least one keyword to mark")
 
         # This pertains to custom keywords we have defined in a JSON file
         custom_status, custom_command = custom
@@ -190,9 +194,9 @@ class MarkCommand(AbstractCommand):
                 # search the pickle jar to load the custom class
                 status, obj = self.search(arguments[x])
                 if(not status):
-                    raise ValueError(f'[INTERNAL ERROR] Tuffix: Could not find custom class for {arguments[x]}')
+                    raise ValueError(
+                        f'[INTERNAL ERROR] Tuffix: Could not find custom class for {arguments[x]}')
                 collection[x] = obj
-
 
         install = True if self.command == "add" else False
 
@@ -213,7 +217,8 @@ class MarkCommand(AbstractCommand):
 
         ensure_root_access()
         self.run_commands(collection, install)
-        os.system("apt autoremove") # purge system of unneeded dependencies
+        os.system("apt autoremove")  # purge system of unneeded dependencies
+
 
 class AddCommand(AbstractCommand):
     def __init__(self, build_config):
@@ -239,8 +244,9 @@ class CustomCommand(AbstractCommand):
             NewClassInstance = NewClass()
 
             self.mark = MarkCommand(DEFAULT_BUILD_CONFIG, "add")
-            self.mark.execute([NewClassInstance.name], (True, NewClassInstance))
-            shutil.copyfile(path, DEFAULT_BUILD_CONFIG.json_state_path)
+            self.mark.execute([NewClassInstance.name],
+                              (True, NewClassInstance))
+            shutil.copyfile(DEFAULT_BUILD_CONFIG.json_state_path, path)
 
 
 class DescribeCommand(AbstractCommand):
@@ -259,12 +265,12 @@ class DescribeCommand(AbstractCommand):
 
         print(f'{keyword.name}: {keyword.description}')
 
+
 class EditorCommand(AbstractCommand):
 
     def __init__(self, build_config):
         super().__init__(build_config, 'editor', 'install a given editor; ')
         self.editors = EditorKeywordContainer()
-
 
     def execute(self, arguments):
         if not (isinstance(arguments, list) and
@@ -293,6 +299,7 @@ class EditorCommand(AbstractCommand):
                 command.remove()
         command.update_state(arguments[1:], install)
         # self.update_state(current_state, arguments[1:], install)
+
 
 class RekeyCommand(AbstractCommand):
     """
@@ -488,6 +495,7 @@ class StatusCommand(AbstractCommand):
         for line in status():
             print(line)
 
+
 class SystemUpgradeCommand(AbstractCommand):
     packages = []
 
@@ -513,6 +521,7 @@ class SystemUpgradeCommand(AbstractCommand):
                 raise EnvironmentError(
                     f'[ERROR] Could not install {pkg.shortname}. Got error of {error}')
 
+
 class RemoveCommand(AbstractCommand):
     def __init__(self, build_config):
         super().__init__(build_config, 'remove', 'remove (uninstall) one or more keywords')
@@ -521,16 +530,19 @@ class RemoveCommand(AbstractCommand):
     def execute(self, arguments):
         self.mark.execute(arguments)
 
+
 class BackgroundCommand(AbstractCommand):
     def __init__(self, build_config):
         super().__init__(build_config, 'background', 'set a background')
+
     def execute(self, arguments):
         try:
             ensure_root_access()
         except UsageError:
             pass
         else:
-            raise UsageError('[ERROR] This command cannot be run as root, cowardly refusing')
+            raise UsageError(
+                '[ERROR] This command cannot be run as root, cowardly refusing')
 
         """
         There should be some really cool match case stuff here but keep it simple stupid
@@ -538,7 +550,8 @@ class BackgroundCommand(AbstractCommand):
 
         if((_len := len(arguments)) < 1):
             print(arguments)
-            raise UsageError(f'insufficient arguments, expected 1, received {_len}')
+            raise UsageError(
+                f'insufficient arguments, expected 1, received {_len}')
         path = arguments[0]
         if(path == "user-submitted"):
             print("retrieve from some nice function call")
@@ -546,8 +559,10 @@ class BackgroundCommand(AbstractCommand):
         else:
             path = pathlib.Path(path)
             if not(path.exists()):
-                raise FileNotFoundError(f'[ERROR] File {path.resolve()} does not exist')
+                raise FileNotFoundError(
+                    f'[ERROR] File {path.resolve()} does not exist')
         set_background(path)
+
 
 def all_commands(build_config):
     """
@@ -572,4 +587,3 @@ def all_commands(build_config):
             EditorCommand(build_config)
             ]
     # RekeyCommand(build_config)]
-
