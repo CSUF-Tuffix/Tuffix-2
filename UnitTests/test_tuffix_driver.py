@@ -7,6 +7,7 @@ TODO: have the unit tests run in order
 
 from Tuffix.Driver import *
 from Tuffix.Silencer import silence
+from Tuffix.Keywords import KeywordContainer
 import unittest
 
 
