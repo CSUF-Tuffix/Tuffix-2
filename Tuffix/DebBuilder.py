@@ -48,7 +48,7 @@ class DebBuilder:
 
         self.parsed_contents = _match
 
-    def make_structure(self, children: list[pathlib.Path]):
+    def make_structure(self, children: list):
         """
         Goal: create the directory structure for the Debian package
         """
