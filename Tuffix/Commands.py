@@ -246,7 +246,7 @@ class CustomCommand(AbstractCommand):
             self.mark = MarkCommand(DEFAULT_BUILD_CONFIG, "add")
             self.mark.execute([NewClassInstance.name],
                               (True, NewClassInstance))
-            shutil.copyfile(DEFAULT_BUILD_CONFIG.json_state_path, path)
+            shutil.copyfile(path, DEFAULT_BUILD_CONFIG.json_state_path)
 
 
 class DescribeCommand(AbstractCommand):
