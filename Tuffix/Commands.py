@@ -10,7 +10,7 @@ from Tuffix.Exceptions import *
 from Tuffix.Keywords import *
 from Tuffix.Status import status
 from Tuffix.UtilityFunctions import *
-from Tuffix.Editors import EditorKeywordContainer
+from Tuffix.Editors import AtomKeyword
 from Tuffix.SudoRun import SudoRun
 
 import os
@@ -320,6 +320,18 @@ class InitCommand(AbstractCommand):
         executor.run(
             f'sudo apt-key add {gpg_dest.resolve()}',
             executor.whoami)
+
+        """
+        Configure Git
+        """
+
+        self.configure_git()
+
+        """
+        Install Atom
+        """
+
+        AtomKeyword().add()
 
         create_state_directory(self.build_config)
 
