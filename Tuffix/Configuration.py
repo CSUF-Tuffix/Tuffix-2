@@ -13,6 +13,7 @@ import json
 # Configuration defined at build-time. This is a class so that we can
 # unit test with dependency injection.
 
+
 class BuildConfig:
     """
     version: packaging.Version for the currently-running Tuffix instance
@@ -22,23 +23,20 @@ class BuildConfig:
     def __init__(self,
                  version,
                  state_path,
-                 pickle_path,
                  json_state_path):
         if not (isinstance(version, packaging.version.Version) and
                 isinstance(state_path, pathlib.Path) and
                 state_path.suffix == '.json' and
-                isinstance(pickle_path, pathlib.Path) and
                 isinstance(json_state_path, pathlib.Path)):
             raise ValueError
         self.version = version
         self.state_path = state_path
-        self.pickle_state_path = pickle_path # NOTE
-        self.json_state_path = json_state_path # NOTE
+        self.json_state_path = json_state_path  # NOTE
 
 
 # Singleton BuildConfig object using the constants declared at the top of
 # this file.
-DEFAULT_BUILD_CONFIG = BuildConfig(VERSION, STATE_PATH, PICKLE_PATH, JSON_PATH)
+DEFAULT_BUILD_CONFIG = BuildConfig(VERSION, STATE_PATH, JSON_PATH)
 
 
 class State:
@@ -73,6 +71,7 @@ class State:
             }
             json.dump(document, f)
 
+
 def read_state(build_config):
     """
     Reads the current state of Tuffix.
@@ -97,6 +96,7 @@ def read_state(build_config):
     except packaging.version.InvalidVersion:
         raise EnvironmentError('version number in state file is invalid')
     except KeyError as e:
-        raise EnvironmentError(f'state file JSON is missing required keys: {e}')
+        raise EnvironmentError(
+            f'state file JSON is missing required keys: {e}')
     except ValueError:
         raise EnvironmentError('state file JSON has malformed values')
