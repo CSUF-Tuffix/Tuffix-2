@@ -4,7 +4,6 @@
 ##########################################################################
 
 from Tuffix.Configuration import BuildConfig, State, DEFAULT_BUILD_CONFIG
-from Tuffix.KeywordHelperFunctions import DEFAULT_PICKLER
 from Tuffix.Constants import *
 from Tuffix.Exceptions import *
 from Tuffix.Keywords import *

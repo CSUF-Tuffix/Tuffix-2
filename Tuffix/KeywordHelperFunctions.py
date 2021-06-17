@@ -11,12 +11,13 @@ import psutil
 import re
 import requests
 
+
 class LinkChecker:
     def __init__(self):
         self._re = re.compile("(?P<content>.*)\.git")
 
-
     # def link_up(self, link: str) -> tuple[bool, int]:
+
     def link_up(self, link: str):
         request = requests.get(link)
         status = ((request.status_code >= 200)
@@ -33,6 +34,7 @@ class LinkChecker:
             if not(status):
                 raise UsageError(
                     f'[INTERNAL ERROR] Could not reach link {link}, received code: {code}')
+
 
 class ProcessHandler():
     """
@@ -93,7 +95,8 @@ def edit_deb_packages(package_names, is_installing):
         cache.commit()
     except OSError:
         DEFAULT_PROCESS_HANDLER.remove_process("apt")
-        raise EnvironmentError('[FATAL] Could not continue, apt was holding resources. Processes were killed, please try again.')
+        raise EnvironmentError(
+            '[FATAL] Could not continue, apt was holding resources. Processes were killed, please try again.')
     except Exception as e:
         cache.close()
         raise EnvironmentError(f'[ERROR] Could not install {name}: {e}.')
@@ -102,27 +105,6 @@ def edit_deb_packages(package_names, is_installing):
         # NOTE : possible memory leak
         cache.close()
 
-class PickleFactory():
-    """
-    Pickle a custom class to disk so it can be ressurected for debugging
-    purposes.
-    """
 
-    def __init__(self):
-        pass
-
-    def pickle(self, obj, path: pathlib.Path):
-        if(not isinstance(path, pathlib.Path)):
-            raise ValueError
-
-        with open(path.resolve(), 'wb') as fp:
-            pickle.dump(obj, fp)
-
-    def depickle(self, path: str):
-        with open(path, 'rb') as fp:
-            __class = pickle.load(fp)
-        return __class
-
-DEFAULT_PICKLER = PickleFactory()
 DEFAULT_PROCESS_HANDLER = ProcessHandler()
 DEFAULT_LINK_CHECKER = LinkChecker()
