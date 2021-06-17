@@ -249,7 +249,8 @@ class CustomCommand(AbstractCommand):
             self.mark.execute([NewClassInstance.name],
                               (True, NewClassInstance))
 
-            shutil.copyfile(path, DEFAULT_BUILD_CONFIG.json_state_path / path.stem)
+            shutil.copyfile(
+                path, DEFAULT_BUILD_CONFIG.json_state_path / path.stem)
 
 
 class DescribeCommand(AbstractCommand):
@@ -267,41 +268,6 @@ class DescribeCommand(AbstractCommand):
         status, keyword = k_container.obtain(arguments[0])
 
         print(f'{keyword.name}: {keyword.description}')
-
-
-class EditorCommand(AbstractCommand):
-
-    def __init__(self, build_config):
-        super().__init__(build_config, 'editor', 'install a given editor; ')
-        self.editors = EditorKeywordContainer()
-
-    def execute(self, arguments):
-        if not (isinstance(arguments, list) and
-                all([isinstance(argument, str) for argument in arguments])):
-            raise ValueError
-        if not(arguments):
-            raise UsageError("Please supply at least one editor to install")
-
-        current_state = read_state(self.build_config)
-        install = (arguments[0] == "add")
-
-        for editor in arguments[1:]:
-            # run each editor command, will raise KeyError if command name is not found
-            # make it lowercase for sanity
-            status, command = self.editors.obtain(editor)
-            if not(status):
-                raise UsageError(f'editor: {editor} is not supported')
-
-            if((command.name in current_state.installed)):
-                if(install):
-                    raise UsageError(
-                        f'[WARNING] Tuffix: cannot add {command.name}, it is already installed')
-            if(install):
-                command.add()
-            else:
-                command.remove()
-        command.update_state(arguments[1:], install)
-        # self.update_state(current_state, arguments[1:], install)
 
 
 class RekeyCommand(AbstractCommand):
@@ -587,6 +553,5 @@ def all_commands(build_config):
             StatusCommand(build_config),
             RemoveCommand(build_config),
             SystemUpgradeCommand(build_config),
-            EditorCommand(build_config)
             ]
     # RekeyCommand(build_config)]
