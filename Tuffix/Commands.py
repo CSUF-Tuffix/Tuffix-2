@@ -385,6 +385,9 @@ class StatusCommand(AbstractCommand):
     def __init__(self, build_config):
         super().__init__(build_config, 'status', 'status of the current host')
 
+    def ascii_checkmark(self) -> str:
+        return ""
+
     def execute(self, arguments):
         if not (isinstance(arguments, list) and
                 all([isinstance(argument, str) for argument in arguments])):
@@ -392,9 +395,14 @@ class StatusCommand(AbstractCommand):
 
         if len(arguments) != 0:
             raise UsageError("status command does not accept arguments")
-
-        for line in status():
-            print(line)
+        try:
+            for line in status():
+                print(line)
+        except EnvironmentError as error:
+            print(
+                f"[ERROR] Tuffix failed to produce information about the system: {error}")
+        else:
+            print(colored("[INFO] Status succeeded!", "green"))
 
 
 class SystemUpgradeCommand(AbstractCommand):
