@@ -20,6 +20,7 @@ import json
 import requests
 import sys
 
+
 class AllKeyword(AbstractKeyword):
 
     def __init__(self, build_config):
@@ -42,8 +43,6 @@ class GeneralKeyword(AbstractKeyword):
     Point person: undergraduate committee
     SRC: sub-tuffix/min-tuffix.yml (Kitchen sink)
     """
-
-
 
     def __init__(self, build_config):
         super().__init__(
@@ -90,13 +89,12 @@ class BaseKeyword(AbstractKeyword):
     Python 2.7 is dead
     """
 
-
     def __init__(self, build_config):
         super().__init__(build_config,
                          'base',
                          'CPSC 120-121-131-301 C++ development environment')
 
-        self.packages =  ['build-essential',
+        self.packages = ['build-essential',
                          'cimg-dev',
                          'clang',
                          'clang-format',
@@ -178,49 +176,6 @@ class BaseKeyword(AbstractKeyword):
         self.google_test_attempt()
 
 
-class ChromeKeyword(AbstractKeyword):
-
-    """
-    Point person: anyone
-    SRC: sub-tuffix/chrome.yml
-    """
-
-
-    def __init__(self, build_config):
-        super().__init__(build_config, 'chrome', 'Google Chrome')
-        self.packages = ['google-chrome-stable']
-        self.checkable_packages = []
-        self.link_dictionary = {
-            "GOOGLE_CHROME_DEB": ["https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb", False],
-            "GOOGLE_SIGNING_KEY": ["https://dl.google.com/linux/linux_signing_key.pub", False]
-        }
-
-    def add(self):
-        google_chrome = self.link_dictionary["GOOGLE_CHROME_DEB"][0]
-        # google_chrome = "https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb"
-        dest = "/tmp/chrome.deb"
-
-        print("[INFO] Downloading Chrome Debian installer....")
-        with open(dest, 'wb') as fp:
-            fp.write(requests.get(google_chrome).content)
-        print("[INFO] Finished downloading...")
-        print("[INFO] Installing Chrome....")
-        apt.debfile.DebPackage(filename=dest).install()
-
-        # google_sources = "https://dl.google.com/linux/linux_signing_key.pub"
-        google_source = self.link_dictionary["GOOGLE_SIGNING_KEY"][0]
-        google_sources_path = pathlib.Path("/tmp/linux_signing_key.pub")
-
-        with open(google_sources_path, 'wb') as fp:
-            fp.write(requests.get(google_sources).content)
-        subprocess.check_output(
-            f'sudo apt-key add {google_sources_path}'.split())
-
-    def remove(self):
-        edit_deb_packages(self.packages, is_installing=False)
-        pathlib.Path("/etc/apt/sources.list.d/google-chrome.list").unlink()
-
-
 class C223JKeyword(AbstractKeyword):
 
     """
@@ -230,7 +185,6 @@ class C223JKeyword(AbstractKeyword):
     Point Person: Floyd Holliday
     SRC: sub-tuffix/cpsc223j.yml
     """
-
 
     def __init__(self, build_config):
         super().__init__(build_config, 'C223J', 'CPSC 223J (Java Programming)')
@@ -252,7 +206,6 @@ class C223NKeyword(AbstractKeyword):
     Point person: Floyd Holliday
     SRC: sub-tuffix/cpsc223n.yml
     """
-
 
     def __init__(self, build_config):
         super().__init__(build_config, 'C223N', 'CPSC 223N (C# Programming)')
@@ -278,7 +231,6 @@ class C223PKeyword(AbstractKeyword):
     SRC: sub-tuffix/cpsc223p.yml
     """
 
-
     def __init__(self, build_config):
         super().__init__(build_config, 'C223P', 'CPSC 223P (Python Programming)')
         self.packages = ['python2',
@@ -302,7 +254,6 @@ class C223WKeyword(AbstractKeyword):
     """
     Point person: Paul Inventado
     """
-
 
     def __init__(self, build_config):
         super().__init__(build_config, 'C223W', 'CPSC 223W (Swift Programming)')
@@ -335,7 +286,6 @@ class C240Keyword(AbstractKeyword):
     Point person: Floyd Holliday
     """
 
-
     def __init__(self, build_config):
         super().__init__(build_config, 'C240', 'CPSC 240 (Assembler)')
         self.packages = ['intel2gas',
@@ -354,7 +304,6 @@ class C351Keyword(AbstractKeyword):
     Point person: William McCarthy
     """
     # TODO: testing and doing
-
 
     def __init__(self, build_config):
         super().__init__(build_config, 'C351', 'CPSC 351 (Operating Systems)')
@@ -382,7 +331,6 @@ class C439Keyword(AbstractKeyword):
     Point person: <++>
     """
 
-
     def __init__(self, build_config):
         super().__init__(build_config, 'C439', 'CPSC 439 (Theory of Computation)')
         self.packages = ['minisat2']
@@ -400,7 +348,6 @@ class C474Keyword(AbstractKeyword):
     Point person: <++>
     """
 
-
     def __init__(self, build_config):
         super().__init__(build_config, 'C474', 'CPSC 474 (Parallel and Distributed Computing)')
 
@@ -409,6 +356,7 @@ class C474Keyword(AbstractKeyword):
                          'mpich',
                          'openmpi-bin',
                          'openmpi-common']
+
     def add(self):
         edit_deb_packages(self.packages, is_installing=True)
 
@@ -425,7 +373,6 @@ class C481Keyword(AbstractKeyword):
 
     Point person: Paul Inventado
     """
-
 
     def __init__(self, build_config):
         super().__init__(build_config, 'C481', 'CPSC 481 (Artificial Intelligence)')
@@ -478,7 +425,6 @@ class C484Keyword(AbstractKeyword):
 
 class MediaKeyword(AbstractKeyword):
 
-
     def __init__(self, build_config):
         super().__init__(build_config, 'media', 'Media Computation Tools')
         self.packages = ['audacity',
@@ -510,7 +456,6 @@ class LatexKeyword(AbstractKeyword):
         edit_deb_packages(self.packages, is_installing=False)
 
 
-
 class VirtualBoxKeyword(AbstractKeyword):
 
     def __init__(self, build_config):
@@ -523,6 +468,7 @@ class VirtualBoxKeyword(AbstractKeyword):
         if(in_VM()):
             raise EnvironmentError(
                 "This is a virtual enviornment, not proceeding")
+
     def add(self):
         edit_deb_packages(self.packages, is_installing=True)
 
@@ -565,6 +511,7 @@ class TestKeyword(AbstractKeyword):
                          'for testing purposes [please remove when not needed]')
 
         self.packages = ['cowsay']
+
     def add(self):
         edit_deb_packages(self.packages, is_installing=True)
         VimKeyword(self.build_config).add()
@@ -593,7 +540,6 @@ class KeywordContainer():
             C474Keyword(build_config),
             C481Keyword(build_config),
             C484Keyword(build_config),
-            ChromeKeyword(build_config),
             GeneralKeyword(build_config),
             LatexKeyword(build_config),
             MediaKeyword(build_config),
@@ -618,7 +564,8 @@ class KeywordContainer():
         _, status = self.obtain(value)
         return status
 
-def partial_class(information : tuple, cls):
+
+def partial_class(information: tuple, cls):
     """
     Generate a valid function pointer to a class __init__ function
     This class is also pickle-able
@@ -639,7 +586,6 @@ def partial_class(information : tuple, cls):
 
     name, description, packages = information
 
-
     body = {
         "__init__": functools.partialmethod(cls.__init__, build_config=DEFAULT_BUILD_CONFIG, name=name, description=description, packages=packages),
         "add": partial(edit_deb_packages, package_names=packages, is_installing=True),
@@ -649,11 +595,13 @@ def partial_class(information : tuple, cls):
     __class = type(name, (cls, ), body)
 
     try:
-        __class.__module__ = sys._getframe(1).f_globals.get('__name__', '__main__')
+        __class.__module__ = sys._getframe(
+            1).f_globals.get('__name__', '__main__')
     except (AttributeError, ValueError):
         pass
 
     return __class
+
 
 class ClassKeywordGenerator():
     """
@@ -666,13 +614,13 @@ class ClassKeywordGenerator():
 
     def generate(self, path: str):
         if not(isinstance(path, str)):
-           raise ValueError
+            raise ValueError
 
         if(not os.path.exists(path)):
             raise FileNotFoundError(f'could not load {path}')
 
         with open(path, encoding="utf-8") as fp:
-            content =  json.loads(fp.read())
+            content = json.loads(fp.read())
 
         name, instructor, packages = content["name"].replace(
             ' ', '').lower(), content["instructor"], content["packages"]
