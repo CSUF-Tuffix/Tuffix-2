@@ -241,14 +241,15 @@ class CustomCommand(AbstractCommand):
 
             NewClass = DEFAULT_CLASS_GENERATOR.generate(path)
 
+            path = pathlib.Path(path)
+
             NewClassInstance = NewClass()
 
             self.mark = MarkCommand(DEFAULT_BUILD_CONFIG, "add")
             self.mark.execute([NewClassInstance.name],
                               (True, NewClassInstance))
-            print(path)
-            print(DEFAULT_BUILD_CONFIG.json_state_path)
-            shutil.copyfile(path, DEFAULT_BUILD_CONFIG.json_state_path)
+
+            shutil.copyfile(path, DEFAULT_BUILD_CONFIG.json_state_path / path.stem)
 
 
 class DescribeCommand(AbstractCommand):
