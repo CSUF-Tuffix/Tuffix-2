@@ -442,18 +442,30 @@ class MediaKeyword(AbstractKeyword):
 
 
 class LatexKeyword(AbstractKeyword):
+    # NOTE: we would need to make some weird exceptions for this to work
 
-    def __init__(self, build_config):
+    def __init__(self, build_config: BuildConfig):
         super().__init__(build_config,
                          'latex',
                          'LaTeX typesetting environment (large)')
-        self.packages = ['texlive-full']
+        # self.packages = ['texlive-full']
 
-    def add(self):
-        edit_deb_packages(self.packages, is_installing=True)
+        self.packages = {
+            "full": ["texlive-full"],
+            "skim": ["texlive"]
+        }
+
+    def add(self, version=None):  # NOTE this can be unit tested!
+        # TODO : note which version was installed?
+        version = input(
+            "[INFO] Do you want the full or skim version of LaTeX?: ") if not version else version
+        if((_match := re.compile("full|skim", flags=re.IGNORECASE).match(version)) is not None):
+            print(_match)
+
+        # edit_deb_packages(self.packages, is_installing=True)
 
     def remove(self):
-        edit_deb_packages(self.packages, is_installing=False)
+        # edit_deb_packages(self.packages, is_installing=False)
 
 
 class VirtualBoxKeyword(AbstractKeyword):
