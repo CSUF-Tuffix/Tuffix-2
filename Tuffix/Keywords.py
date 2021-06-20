@@ -325,23 +325,6 @@ class C351Keyword(AbstractKeyword):
         edit_deb_packages(self.packages, is_installing=False)
 
 
-class C439Keyword(AbstractKeyword):
-
-    """
-    Point person: <++>
-    """
-
-    def __init__(self, build_config):
-        super().__init__(build_config, 'C439', 'CPSC 439 (Theory of Computation)')
-        self.packages = ['minisat2']
-
-    def add(self):
-        edit_deb_packages(self.packages, is_installing=True)
-
-    def remove(self):
-        edit_deb_packages(self.packages, is_installing=False)
-
-
 class C474Keyword(AbstractKeyword):
 
     """
@@ -548,7 +531,6 @@ class KeywordContainer():
             C223PKeyword(build_config),
             C223WKeyword(build_config),
             C240Keyword(build_config),
-            C439Keyword(build_config),
             C474Keyword(build_config),
             C481Keyword(build_config),
             C484Keyword(build_config),
