@@ -498,12 +498,18 @@ class ZoomKeyword(AbstractKeyword):
         edit_deb_packages(self.packages, is_installing=False)
 
 
-class TestKeyword(AbstractKeyword):
+class TMuxKeyword(AbstractKeyword):
+
+    """
+    Used for testing purposes as it only installs
+    one package from APT
+    Please use for debugging
+    """
 
     def __init__(self, build_config):
         super().__init__(build_config,
-                         'test',
-                         'for testing purposes [please remove when not needed]')
+                         'tmux',
+                         'multi-tasking in the terminal')
 
         self.packages = ['cowsay']
 
@@ -537,7 +543,7 @@ class KeywordContainer():
             GeneralKeyword(build_config),
             LatexKeyword(build_config),
             MediaKeyword(build_config),
-            TestKeyword(build_config),
+            TMuxKeyword(build_config),
             VirtualBoxKeyword(build_config),
             ZoomKeyword(build_config),
         ]
