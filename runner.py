@@ -4,7 +4,7 @@ from Tuffix.Driver import *
 from Tuffix.Configuration import DEFAULT_BUILD_CONFIG
 from Tuffix.Keywords import KeywordContainer
 from Tuffix.Exceptions import *
-from Tuffix.Silencer import silence
+from Tuffix.Quieter import quiet
 from UnitTests.SequentialTest import SequentialTestLoader
 
 import unittest
@@ -38,5 +38,5 @@ for name, arguments in tests.items():
     if(pedantic):
         runner.run(test_suite)
     else:
-        with silence():
+        with quiet():
             runner.run(test_suite)

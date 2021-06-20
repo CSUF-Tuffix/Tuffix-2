@@ -6,7 +6,7 @@ TODO: have the unit tests run in order
 
 
 from Tuffix.Driver import *
-from Tuffix.Silencer import silence
+from Tuffix.Quieter import quiet
 from Tuffix.Keywords import KeywordContainer
 import unittest
 
@@ -102,7 +102,7 @@ class DriverTest(unittest.TestCase):
     # command = "tuffix background /home/jared/Pictures/Wallpapers/linux.jpg"
     # try:
         # main(command.split())
-        # # with silence(): main(command.split())
+        # # with quiet(): main(command.split())
     # except FileNotFoundError:
         # self.assertTrue(False)
     # else:
@@ -112,7 +112,7 @@ class DriverTest(unittest.TestCase):
     # command = "tuffix background /tmp/phony_image.png"
     # try:
         # main(command.split())
-        # # with silence(): main(command.split())
+        # # with quiet(): main(command.split())
         # # main(command.split())
     # except FileNotFoundError:
         # self.assertTrue(True)
@@ -120,14 +120,14 @@ class DriverTest(unittest.TestCase):
         # self.assertTrue(False)
 
     # command = "tuffix background user-submitted"
-    # # with silence(): main(command.split())
+    # # with quiet(): main(command.split())
     # main(command.split())
 
     # command = "tuffix background"
 
     # try:
         # main(command.split())
-        # # with silence(): main(command.split())
+        # # with quiet(): main(command.split())
     # except UsageError:
         # self.assertTrue(False)
     # else:

@@ -13,13 +13,13 @@ class DummyFile(object):
     def flush(self): pass
 
 @contextlib.contextmanager
-def silence():
+def quiet():
     _stdout = sys.stdout
     sys.stdout = DummyFile()
     yield
     sys.stdout = _stdout
 
-# Try to silence apt output
+# Try to quiet apt output
 # Source: https://stackoverflow.com/a/24146012
 
 class LogInstallProgress(apt.progress.base.InstallProgress):

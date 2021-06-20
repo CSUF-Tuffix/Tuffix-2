@@ -32,7 +32,7 @@ def distrib_codename():
 def is_deb_package_installed(package_name):
     try:
         apt_pkg.init()
-        cache = apt_pkg.Cache(None)  # silence this output for testing
+        cache = apt_pkg.Cache(None)  # quiet this output for testing
         package = cache[package_name]
         return (package.current_state == apt_pkg.CURSTATE_INSTALLED)
     except KeyError:
