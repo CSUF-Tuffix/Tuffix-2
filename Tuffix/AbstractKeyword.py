@@ -48,3 +48,15 @@ class AbstractKeyword:
                 raise KeyError(f'could not find {package}')
 
         current_cache.close()
+
+    def is_deb_package_installed(self, package_name: str) -> bool:
+        if not(isinstance(package_name, str)):
+            raise ValueError(f'{package_name=} expected to be `str`')
+        try:
+            apt.apt_pkg.init()
+            cache = apt.apt_pkg.Cache(None)  # quiet this output for testing
+            package = cache[package_name]
+            return (package.current_state == apt_pkg.CURSTATE_INSTALLED)
+        except KeyError:
+            raise EnvironmentError(
+                f'[ERROR] No such package "{package_name}"; is this Ubuntu?')
