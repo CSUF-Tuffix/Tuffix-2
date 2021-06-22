@@ -69,7 +69,7 @@ class AbstractCommand:
         raise NotImplementedError
 
 
-class MarkCommand(AbstractCommand):
+class AddRemoveHelper():
     """
     GOAL: combine both the add and remove keywords
     This prevents us for not writing the same code twice.
@@ -78,12 +78,13 @@ class MarkCommand(AbstractCommand):
     NOT AVAILABLE TO PUBLIC USE (therefore not meant to be added to list of viable commands)
     """
 
-    def __init__(self, build_config, command):
-        super().__init__(build_config, 'mark', 'mark (install/remove) one or more keywords')
-        if not(isinstance(command, str)):
+    def __init__(self, build_config: BuildConfig, command: str):
+        if not(isinstance(command, str) and
+               isinstance(build_config, BuildConfig)):
             raise ValueError
 
         # either select the add or remove from the Keywords
+        self.build_config = build_config
         self.command = command
         self.container = KeywordContainer(build_config)
 
@@ -92,11 +93,12 @@ class MarkCommand(AbstractCommand):
             raise ValueError
 
         _re = re.compile(f'{pattern}.json', flags=re.IGNORECASE)
-        # TODO : change this path to something in DEFAULT_BUILD_CONFIG
-        for dirpath, _, filepath in os.walk('json_payload/'):
+        # NOTE: check if this works
+        for dirpath, _, filepath in os.walk(self.build_config.json_state_path):
             for _file in filepath:
-                match = _re.match(_file)
-                if(match):
+                # NOTE: I changed this and indentation might be messed up
+                # BEWARE. The walrus operator is pretty based
+                if((match := _re.match(_file))):
                     # If the JSON file is found, we need to now dynamically create a class
                     NewClass = DEFAULT_CLASS_GENERATOR.generate(
                         f'{dirpath}/{_file}')
@@ -108,6 +110,10 @@ class MarkCommand(AbstractCommand):
         """
         Goal: update the state file
         """
+        # NOTE: Debug
+        print(type(current_state))
+        print(type(keyword))
+        print(type(install))
         # TODO : check what type keyword is
 
         # if not(isinstance(current_state, Keyword.State) and
@@ -189,6 +195,8 @@ class MarkCommand(AbstractCommand):
             raise UsageError(
                 "[ERROR] You must supply at least one keyword to mark")
 
+        ensure_root_access()
+
         # This pertains to custom keywords we have defined in a JSON file
         custom_status, custom_command = custom
 
@@ -227,7 +235,6 @@ class MarkCommand(AbstractCommand):
                 collection = [self.container.obtain(
                     x) for x in state.installed]  # all installed
 
-        ensure_root_access()
         self.run_commands(collection, install)
         os.system("apt autoremove")  # purge system of unneeded dependencies
 
@@ -235,7 +242,7 @@ class MarkCommand(AbstractCommand):
 class AddCommand(AbstractCommand):
     def __init__(self, build_config):
         super().__init__(build_config, 'add', 'add (install) one or more keywords')
-        self.mark = MarkCommand(build_config, self.name)
+        self.mark = AddRemoveHelper(build_config, self.name)
 
     def execute(self, arguments):
         self.mark.execute(arguments)
@@ -430,7 +437,7 @@ class StatusCommand(AbstractCommand):
 class RemoveCommand(AbstractCommand):
     def __init__(self, build_config):
         super().__init__(build_config, 'remove', 'remove (uninstall) one or more keywords')
-        self.mark = MarkCommand(build_config, self.name)
+        self.mark = AddRemoveHelper(build_config, self.name)
 
     def execute(self, arguments):
         self.mark.execute(arguments)
