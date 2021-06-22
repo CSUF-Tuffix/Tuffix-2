@@ -18,6 +18,7 @@ class BuildConfig:
     """
     version: packaging.Version for the currently-running Tuffix instance
     state_path: pathlib.Path holding the path to the state.json
+    json_state_path: pathlib.Path holding the path to custom keyword files
     """
 
     def __init__(self,

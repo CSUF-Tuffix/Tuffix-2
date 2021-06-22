@@ -17,7 +17,7 @@ class AbstractKeyword:
             raise ValueError
         self.name = name
         self.description = description
-        self.packges: list[str] = [] if not packages else packages
+        self.packages: list[str] = [] if not packages else packages
         self.checkable_packages: list[str] = [] # should be set to nothing
         self.build_config = build_config
 
@@ -56,7 +56,7 @@ class AbstractKeyword:
             apt.apt_pkg.init()
             cache = apt.apt_pkg.Cache(None)  # quiet this output for testing
             package = cache[package_name]
-            return (package.current_state == apt_pkg.CURSTATE_INSTALLED)
+            return (package.current_state == apt.apt_pkg.CURSTATE_INSTALLED)
         except KeyError:
             raise EnvironmentError(
                 f'[ERROR] No such package "{package_name}"; is this Ubuntu?')

@@ -12,3 +12,5 @@ STATE_PATH = pathlib.Path('/var/lib/tuffix/state.json')
 JSON_PATH = pathlib.Path('/var/lib/tuffix/json_payloads')
 
 KEYWORD_MAX_LENGTH = 8
+
+DEBUG = False
