@@ -310,8 +310,8 @@ class InitCommand(AbstractCommand):
         keeper = SudoRun()
         whoami = keeper.whoami
 
-        username = input("Git username: ")
-        mail = input("Git email: ")
+        username = input("Git username: ") if not username else username
+        mail = input("Git email: ") if not mail else mail
         git_conf_file = pathlib.Path(f'/home/{whoami}/.gitconfig')
         commands = [
             f'git config --file {git_conf_file} user.name {username}',
