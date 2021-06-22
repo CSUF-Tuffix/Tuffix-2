@@ -28,7 +28,8 @@ for loader, module_name, is_pkg in pkgutil.walk_packages(__path__):
         globals()[module_name] = _module
 
         # https://stackoverflow.com/questions/1796180/how-can-i-get-a-list-of-all-classes-within-current-module-in-python
-        for _class in inspect.getmembers(sys.modules[module_name], inspect.isclass):
+        for _class in inspect.getmembers(
+                sys.modules[module_name], inspect.isclass):
             name, _ = _class
             if(_re.match(name)):
                 __unit_test_hierarchy__[module_name] = name

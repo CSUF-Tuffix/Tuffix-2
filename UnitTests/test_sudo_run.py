@@ -11,6 +11,7 @@ import unittest
 from Tuffix.SudoRun import SudoRun
 from Tuffix.Exceptions import *
 
+
 class TestSudoRun(unittest.TestCase):
 
     def test_check_user(self):
@@ -46,21 +47,23 @@ class TestSudoRun(unittest.TestCase):
         runner = SudoRun()
 
         try:
-            _are_params_valid = runner.run(command=bad_param, desired_user=bad_param)
+            _are_params_valid = runner.run(
+                command=bad_param, desired_user=bad_param)
         except ValueError:
             self.assertTrue(True)
         else:
             self.assertTrue(False)
 
         try:
-           _can_kate_run = runner.run(command="uname -a", desired_user="kate")
+            _can_kate_run = runner.run(command="uname -a", desired_user="kate")
         except UnknownUserException:
             self.assertTrue(True)
         else:
             self.assertTrue(False)
 
         try:
-            _can_jared_run_as_root = runner.run(command="whoami", desired_user="root")
+            _can_jared_run_as_root = runner.run(
+                command="whoami", desired_user="root")
         except PrivilageExecutionException:
             self.assertTrue(True)
         else:
@@ -73,6 +76,7 @@ class TestSudoRun(unittest.TestCase):
             # (_current_guid == 0) and
             # (_current_uid == 0)
         # )
+
 
 if __name__ == '__main__':
     print('[INFO] Please run as root')

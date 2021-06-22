@@ -34,6 +34,7 @@ import subprocess
 import tarfile
 import textwrap
 
+
 class EditorBaseKeyword(AbstractKeyword):
     def __init__(self, build_config: BuildConfig, name: str, description: str):
         super().__init__(build_config, name, description)
@@ -46,7 +47,7 @@ class EditorBaseKeyword(AbstractKeyword):
 
         if not(isinstance(arguments, list) and
                isinstance(install, bool)):
-               raise ValueError
+            raise ValueError
 
         current_state = read_state(self.build_config)
 
@@ -64,6 +65,7 @@ class EditorBaseKeyword(AbstractKeyword):
                           new_action)
         new_state.write()
 
+
 class AtomKeyword(EditorBaseKeyword):
 
     def __init__(self, build_config: BuildConfig):
@@ -71,10 +73,11 @@ class AtomKeyword(EditorBaseKeyword):
         self.packages: list[str] = ['atom']
         self.checkable_packages = []
         self.link_dictionary = {
-            "ATOM_GPG_URL": ["https://packagecloud.io/AtomEditor/atom/gpgkey", False]
-        }
+            "ATOM_GPG_URL": [
+                "https://packagecloud.io/AtomEditor/atom/gpgkey",
+                False]}
 
-    def add(self, plugins = ['dbg-gdb', 'dbg', 'output-panel']):
+    def add(self, plugins=['dbg-gdb', 'dbg', 'output-panel']):
         """
         GOAL: Get and install Atom with predefined plugins
         API usage: supply custom plugins list
@@ -82,7 +85,6 @@ class AtomKeyword(EditorBaseKeyword):
 
         if not(isinstance(plugins, list)):
             raise ValueError(f'expecting list, received {type(plugins)}')
-
 
         atom_conf_dir = pathlib.Path(f'/home/{self.normal_user}/.atom')
 
@@ -92,9 +94,9 @@ class AtomKeyword(EditorBaseKeyword):
         gpg_dest = pathlib.Path("/tmp/gpgkey")
         content = requests.get(gpg_url).content
 
-
         with open(atom_list, "w") as fp:
-            fp.write("deb [arch=amd64] https://packagecloud.io/AtomEditor/atom/any/ any main")
+            fp.write(
+                "deb [arch=amd64] https://packagecloud.io/AtomEditor/atom/any/ any main")
 
         with open(gpg_dest, "wb") as fp:
             fp.write(content)
@@ -105,10 +107,11 @@ class AtomKeyword(EditorBaseKeyword):
 
         edit_deb_packages(self.packages, is_installing=True)
 
-
         for plugin in plugins:
             print(f'[INFO] Installing {plugin}...')
-            self.executor.run(f'/usr/bin/apm install {plugin}', self.normal_user)
+            self.executor.run(
+                f'/usr/bin/apm install {plugin}',
+                self.normal_user)
             self.executor.run(
                 f'chown {self.normal_user} -R {atom_conf_dir}',
                 self.normal_user)
@@ -119,6 +122,7 @@ class AtomKeyword(EditorBaseKeyword):
         edit_deb_packages(self.packages, is_installing=False)
         pathlib.Path("/etc/apt/sources.list.d/atom.list").unlink()
         self.update_state(self.build_config, self.packages, False)
+
 
 class EmacsKeyword(EditorBaseKeyword):
     def __init__(self, build_config: BuildConfig):
@@ -133,6 +137,7 @@ class EmacsKeyword(EditorBaseKeyword):
         edit_deb_packages(self.packages, is_installing=False)
         self.update_state(self.packages, False)
 
+
 class EclipseKeyword(AbstractKeyword):
     """
     Not using the `apt` module, please be warned
@@ -144,8 +149,9 @@ class EclipseKeyword(AbstractKeyword):
         self.packages: list[str] = ['eclipse', 'openjdk-11-jdk']
         self.checkable_packages: list[str] = self.packages[0:]
         self.link_dictionary = {
-            "ECLIPSE_URL": ["http://mirror.umd.edu/eclipse/technology/epp/downloads/release/2020-06/R/eclipse-java-2020-06-R-linux-gtk-x86_64.tar.gz", False]
-        }
+            "ECLIPSE_URL": [
+                "http://mirror.umd.edu/eclipse/technology/epp/downloads/release/2020-06/R/eclipse-java-2020-06-R-linux-gtk-x86_64.tar.gz",
+                False]}
 
     def add(self):
         """
@@ -160,7 +166,6 @@ class EclipseKeyword(AbstractKeyword):
 
         with open(path, "wb") as fp:
             fp.write(content)
-
 
         D = DebBuilder("eclipse", path)
         control = pathlib.Path("/tmp/control")
@@ -179,10 +184,12 @@ class EclipseKeyword(AbstractKeyword):
 
         postrm = pathlib.Path("/tmp/postrm")
         with open(postinst, "w") as fp:
-            fp.writelines(["#!/usr/bin/env bash", "sudo rm -i /usr/bin/eclipse"])
+            fp.writelines(
+                ["#!/usr/bin/env bash", "sudo rm -i /usr/bin/eclipse"])
         postinst = pathlib.Path("/tmp/postinst")
         with open(postinst, "w") as fp:
-            fp.writelines(["#!/usr/bin/env bash", "sudo ln -s /usr/eclipse/eclipse /usr/bin/eclipse"])
+            fp.writelines(["#!/usr/bin/env bash",
+                           "sudo ln -s /usr/eclipse/eclipse /usr/bin/eclipse"])
         D.make(control=control, scripts=[postinst, postrm])
 
         apt.debfile.DebPackage(filename="eclipse.deb").install()
@@ -203,10 +210,12 @@ class EclipseKeyword(AbstractKeyword):
             fp.write(launcher)
 
         self.update_state(self.packages, True)
+
     def remove(self):
         # TODO : find where uninstaller for this package is located
         edit_deb_packages(self.packages, is_installing=False)
         self.update_state(self.packages, False)
+
 
 class GeanyKeyword(EditorBaseKeyword):
 
@@ -222,6 +231,7 @@ class GeanyKeyword(EditorBaseKeyword):
         edit_deb_packages(self.packages, is_installing=False)
         self.update_state(self.packages, False)
 
+
 class NetbeansKeyword(EditorBaseKeyword):
     def __init__(self, build_config: BuildConfig):
         super().__init__(build_config, 'netbeans', 'a Java IDE')
@@ -234,6 +244,7 @@ class NetbeansKeyword(EditorBaseKeyword):
     def remove(self):
         edit_deb_packages(self.packages, is_installing=False)
         self.update_state(self.packages, False)
+
 
 class VimKeyword(EditorBaseKeyword):
     def __init__(self, build_config: BuildConfig):
@@ -257,6 +268,7 @@ class VimKeyword(EditorBaseKeyword):
         edit_deb_packages(self.packages, is_installing=False)
         self.update_state(self.packages, False)
 
+
 class VscodeKeyword(EditorBaseKeyword):
     """
     Not using the `apt` module, please be warned
@@ -267,8 +279,9 @@ class VscodeKeyword(EditorBaseKeyword):
         self.packages: list[str] = ['code']
         self.checkable_packages = []
         self.link_dictionary = {
-            "VSCODE_DEB": ["https://code.visualstudio.com/sha/download?build=stable&os=linux-deb-x64", False]
-        }
+            "VSCODE_DEB": [
+                "https://code.visualstudio.com/sha/download?build=stable&os=linux-deb-x64",
+                False]}
 
     def add(self):
         url = self.link_dictionary["VSCODE_DEB"][0]
@@ -284,6 +297,7 @@ class VscodeKeyword(EditorBaseKeyword):
         edit_deb_packages(self.packages, is_installing=False)
         self.update_state(self.packages, False)
 
+
 class EditorKeywordContainer():
     def __init__(self, build_config=DEFAULT_BUILD_CONFIG):
         if not(isinstance(build_config, BuildConfig)):
@@ -291,7 +305,8 @@ class EditorKeywordContainer():
 
         self.container: list[EditorBaseKeyword] = [
             AtomKeyword(build_config),
-            # EclipseKeyword(build_config), NOTE : needs to undergo more testing
+            # EclipseKeyword(build_config), NOTE : needs to undergo more
+            # testing
             EmacsKeyword(build_config),
             GeanyKeyword(build_config),
             NetbeansKeyword(build_config),

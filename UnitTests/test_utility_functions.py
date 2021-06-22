@@ -26,16 +26,16 @@ class UtilityFunctionTest(unittest.TestCase):
         # #  if `tuffix init` has already occurred
 
         # if not(os.path.exists(self.build_configuration.state_path)):
-            # self.assertTrue(True)
-            # return
+        # self.assertTrue(True)
+        # return
 
         # try:
-            # create_state_directory(
-                # self.build_configuration)
+        # create_state_directory(
+        # self.build_configuration)
         # except UsageError:
-            # self.assertTrue(False)
+        # self.assertTrue(False)
         # if not(os.path.exists(self.build_configuration.state_path)):
-            # self.assertTrue(False)
+        # self.assertTrue(False)
         # # shutil.rmtree(self.build_configuration.state_path.parent.absolute())
 
     # def test_distrib_codename(self):
@@ -43,50 +43,49 @@ class UtilityFunctionTest(unittest.TestCase):
         # # Also note that this method should be depreciated in favor of LSBParser
 
         # try:
-            # result = distrib_codename()
-            # self.assertTrue(isinstance(result, str))
+        # result = distrib_codename()
+        # self.assertTrue(isinstance(result, str))
         # except (OSError, FileNotFoundError):
-            # self.assertTrue(False)
+        # self.assertTrue(False)
 
     # def test_is_package_installed(self):
         # example_package = "python3"
         # try:
-            # is_deb_package_installed(example_package)
+        # is_deb_package_installed(example_package)
         # except EnvironmentError:
-            # self.assertTrue(False)
+        # self.assertTrue(False)
 
     # def test_ensure_root_access(self):
         # # this function needs to be run as non-root users
         # user = getpass.getuser()
         # try:
-            # ensure_root_access()
+        # ensure_root_access()
         # except UsageError:
-            # self.assertTrue((user != "root"))
+        # self.assertTrue((user != "root"))
         # else:
-            # # we are root
-            # self.assertTrue(True)
+        # # we are root
+        # self.assertTrue(True)
 
     # def test_ensure_ubuntu(self):
         # # Please try this on Ubuntu
         # try:
-            # ensure_ubuntu()
+        # ensure_ubuntu()
         # except UsageError:
-            # self.assertTrue(False)
+        # self.assertTrue(False)
 
     # def test_shell_command_presence(self):
         # try:
-            # ensure_shell_command_exists("spongebob")
+        # ensure_shell_command_exists("spongebob")
         # except EnvironmentError:
-            # pass
+        # pass
         # else:
-            # self.assertTrue(False)
+        # self.assertTrue(False)
 
         # try:
-            # ensure_shell_command_exists("echo")
+        # ensure_shell_command_exists("echo")
         # except EnvironmentError:
-            # # echo should be installed by default
-            # self.assertTrue(False)
-
+        # # echo should be installed by default
+        # self.assertTrue(False)
 
     def test_get_user_submitted_wallpaper(self):
         _response = retreieve_user_submitted_wallpaper()
@@ -106,4 +105,3 @@ class UtilityFunctionTest(unittest.TestCase):
         # try:
         # except EnvironmentError:
             # self.assertTrue(False)
-

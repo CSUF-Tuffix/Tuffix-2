@@ -39,7 +39,7 @@ class lsb_parser():
         return content
 
     def lsb_codename(self) -> str:
-       return self.file_map["DISTRIB_CODENAME"]
+        return self.file_map["DISTRIB_CODENAME"]
 
     def lsb_id(self) -> str:
         return self.file_map["DISTRIB_ID"]

@@ -3,6 +3,7 @@ import unittest
 # global a
 # a= 100
 
+
 class ExampleTest(unittest.TestCase):
     def test_b(self):
         # assert(a == 100)
@@ -13,5 +14,3 @@ class ExampleTest(unittest.TestCase):
         print("testing a")
         # assert(a == 90)
         # a-=10
-
-

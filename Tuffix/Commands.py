@@ -99,7 +99,8 @@ class AddRemoveHelper():
                 # NOTE: I changed this and indentation might be messed up
                 # BEWARE. The walrus operator is pretty based
                 if((match := _re.match(_file))):
-                    # If the JSON file is found, we need to now dynamically create a class
+                    # If the JSON file is found, we need to now dynamically
+                    # create a class
                     NewClass = DEFAULT_CLASS_GENERATOR.generate(
                         f'{dirpath}/{_file}')
                     return (True, NewClass())
@@ -169,7 +170,6 @@ class AddRemoveHelper():
             self.rewrite_state(None, command, install)
 
             print(f'[INFO] Tuffix: successfully {past} {command.name}')
-
 
     def execute(self, arguments: list, custom=(None, None)):
         """

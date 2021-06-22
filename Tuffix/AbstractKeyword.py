@@ -2,6 +2,7 @@ from Tuffix.Configuration import *
 
 import apt
 
+
 class AbstractKeyword:
     """
     Keyword names may begin with a course code (digits), but Python
@@ -18,7 +19,7 @@ class AbstractKeyword:
         self.name = name
         self.description = description
         self.packages: list[str] = [] if not packages else packages
-        self.checkable_packages: list[str] = [] # should be set to nothing
+        self.checkable_packages: list[str] = []  # should be set to nothing
         self.build_config = build_config
 
     def add(self):

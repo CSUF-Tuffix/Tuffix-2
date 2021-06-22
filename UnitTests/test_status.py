@@ -32,7 +32,7 @@ class StatusTest(unittest.TestCase):
         _out = host()
         self.assertTrue(isinstance(_out, str))
 
-        _re = re.compile("([\w|\W]+)\@([\w|\W]+)")
+        _re = re.compile("([\\w|\\W]+)\\@([\\w|\\W]+)")
         _match = _re.match(_out)
         self.assertTrue(
             _match
@@ -110,7 +110,10 @@ class StatusTest(unittest.TestCase):
         )
 
         _git_information = [
-            True if(isinstance(element, str)) else False for element in _git_information]
+            True if(
+                isinstance(
+                    element,
+                    str)) else False for element in _git_information]
         self.assertTrue(
             all(_git_information)
         )

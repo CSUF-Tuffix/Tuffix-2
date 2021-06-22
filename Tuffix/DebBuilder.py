@@ -5,6 +5,7 @@ import shutil
 import tarfile
 import textwrap
 
+
 class DebBuilder:
     """
     Take a tar ball and convert it to a Debian installer
@@ -19,14 +20,14 @@ class DebBuilder:
         self.name = name
         self.payload = payload
         _re_control = """
-        Package: (?P<package>\w+)
+        Package: (?P<package>\\w+)
         Version: (?P<version>.*)
-        Section: (?P<section>\w+)
-        Priority: (?P<severity>\w+)
+        Section: (?P<section>\\w+)
+        Priority: (?P<severity>\\w+)
         Architecture: (?P<arch>[a-zA-Z0-9]+)
-        Maintainer: (?P<maintainer>[a-zA-Z]+)\s*?([<](?P<email>.*)[>])*
+        Maintainer: (?P<maintainer>[a-zA-Z]+)\\s*?([<](?P<email>.*)[>])*
         Description: (?P<description>.*)
-        Depends: *(?P<list>([a-zA-Z0-9\-]+)(,\s*[a-zA-Z0-9\-]+)*)
+        Depends: *(?P<list>([a-zA-Z0-9\\-]+)(,\\s*[a-zA-Z0-9\\-]+)*)
         """
         self.control_re = re.compile(textwrap.dedent(_re_control).strip())
 
@@ -62,7 +63,11 @@ class DebBuilder:
         for child in children:
             (self.output / child).mkdir(parents=True, exist_ok=True)
 
-    def make(self, control: pathlib.Path, scripts=[], base_dir=pathlib.Path('usr')):
+    def make(
+            self,
+            control: pathlib.Path,
+            scripts=[],
+            base_dir=pathlib.Path('usr')):
         if not(isinstance(control, pathlib.Path) and
                isinstance(scripts, list)):
             raise ValueError
@@ -94,4 +99,3 @@ class DebBuilder:
         self.debian_path = pathlib.Path(f'/tmp/{self.name}.deb')
         os.system(
             f'dpkg-deb --build {self.output} {self.debian_path.resolve()}')
-

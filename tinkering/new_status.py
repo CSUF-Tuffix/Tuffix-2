@@ -76,8 +76,8 @@ def git_configuration() -> tuple[str]:
         universal_newlines="\n").splitlines())
 
     regexes: list[str] = [
-        re.compile("user\.name\=(?P<user>.*)"),
-        re.compile("user\.email\\=(?P<email>.*)")
+        re.compile("user\\.name\\=(?P<user>.*)"),
+        re.compile("user\\.email\\=(?P<email>.*)")
 
     ]
     user, email = file_matcher(git_output, regexes)
@@ -101,7 +101,7 @@ def system_shell() -> tuple[str]:
 
     regexes: list[str] = [
         re.compile(
-            f"{user}\:x\:\d+\:\d+\:+\/home\/{user}\:(?P<path>.*)")
+            f"{user}\\:x\\:\\d+\\:\\d+\\:+\\/home\\/{user}\\:(?P<path>.*)")
     ]
     shell_path = file_matcher(content, regexes)
     shell_name = os.path.basename(''.join(*shell_path))
@@ -111,7 +111,7 @@ def system_shell() -> tuple[str]:
                                         stderr=subprocess.STDOUT,
                                         encoding="utf-8").communicate()
     regexes: list[str] = [
-        re.compile(f"{shell_name}\s*[version]?\s(?P<version>\d+\.\d+)")
+        re.compile(f"{shell_name}\\s*[version]?\\s(?P<version>\\d+\\.\\d+)")
     ]
     print(shell_version)
     shell_version = file_matcher(shell_version, regexes)
@@ -119,4 +119,3 @@ def system_shell() -> tuple[str]:
 
 
 system_shell()
-

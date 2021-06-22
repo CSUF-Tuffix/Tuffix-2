@@ -4,6 +4,7 @@ from Tuffix.AbstractKeyword import AbstractKeyword
 from Tuffix.Configuration import DEFAULT_BUILD_CONFIG
 import unittest
 
+
 class AbstractKeywordTest(unittest.TestCase):
     def test_init_default(self):
         """
@@ -12,7 +13,11 @@ class AbstractKeywordTest(unittest.TestCase):
         """
 
         try:
-            _ = AbstractKeyword(DEFAULT_BUILD_CONFIG, 'test', "this is an example AbstractKeyword", [])
+            _ = AbstractKeyword(
+                DEFAULT_BUILD_CONFIG,
+                'test',
+                "this is an example AbstractKeyword",
+                [])
         except ValueError:
             self.assertTrue(False)
 
@@ -24,7 +29,11 @@ class AbstractKeywordTest(unittest.TestCase):
         """
 
         try:
-            _ = AbstractKeyword(DEFAULT_BUILD_CONFIG, 'this is a long long name that should surely break', "long long description", [])
+            _ = AbstractKeyword(
+                DEFAULT_BUILD_CONFIG,
+                'this is a long long name that should surely break',
+                "long long description",
+                [])
         except ValueError:
             self.assertTrue(True)
         else:
@@ -36,7 +45,11 @@ class AbstractKeywordTest(unittest.TestCase):
         This should raise a `NotImplementedError` by default
         """
 
-        AbstractKeywordTest = AbstractKeyword(DEFAULT_BUILD_CONFIG, 'test', "this is an example AbstractKeyword", ["cowsay"])
+        AbstractKeywordTest = AbstractKeyword(
+            DEFAULT_BUILD_CONFIG,
+            'test',
+            "this is an example AbstractKeyword",
+            ["cowsay"])
         try:
             AbstractKeywordTest.add()
         except NotImplementedError:
@@ -50,21 +63,27 @@ class AbstractKeywordTest(unittest.TestCase):
         This should raise a `NotImplementedError` by default
         """
 
-        AbstractKeywordTest = AbstractKeyword(DEFAULT_BUILD_CONFIG, 'test', "this is an example AbstractKeyword", ["cowsay"])
+        AbstractKeywordTest = AbstractKeyword(
+            DEFAULT_BUILD_CONFIG,
+            'test',
+            "this is an example AbstractKeyword",
+            ["cowsay"])
         try:
             AbstractKeywordTest.remove()
         except NotImplementedError:
             self.assertTrue(True)
         else:
             self.assertTrue(False)
-    
+
     def test_check_install_candidates_vetted(self):
         """
         This checks the installability of a package
         These should work because they were dependencies of the `tuffix` Debian installer
         """
 
-        AbstractKeywordTest = AbstractKeyword(DEFAULT_BUILD_CONFIG, 'test', "this is an example AbstractKeyword", ["git", "openssh-client", "openssh-server", "python3", "python3-pip", "vim"])
+        AbstractKeywordTest = AbstractKeyword(
+            DEFAULT_BUILD_CONFIG, 'test', "this is an example AbstractKeyword", [
+                "git", "openssh-client", "openssh-server", "python3", "python3-pip", "vim"])
         try:
             AbstractKeywordTest.check_candiates()
         except KeyError:
@@ -76,7 +95,9 @@ class AbstractKeywordTest(unittest.TestCase):
         These should fail because they do not exist
         """
 
-        AbstractKeywordTest = AbstractKeyword(DEFAULT_BUILD_CONFIG, 'test', "this is an example AbstractKeyword", ["kevinwortman", "jareddyreson", "paulinventado", "mshafae"])
+        AbstractKeywordTest = AbstractKeyword(
+            DEFAULT_BUILD_CONFIG, 'test', "this is an example AbstractKeyword", [
+                "kevinwortman", "jareddyreson", "paulinventado", "mshafae"])
         try:
             AbstractKeywordTest.check_candiates()
         except KeyError:
@@ -91,7 +112,9 @@ class AbstractKeywordTest(unittest.TestCase):
         These should work because they were installed during the `tuffix.deb` installation
         """
 
-        AbstractKeywordTest = AbstractKeyword(DEFAULT_BUILD_CONFIG, 'test', "this is an example AbstractKeyword", ["git", "openssh-client", "openssh-server", "python3", "python3-pip", "vim"])
+        AbstractKeywordTest = AbstractKeyword(
+            DEFAULT_BUILD_CONFIG, 'test', "this is an example AbstractKeyword", [
+                "git", "openssh-client", "openssh-server", "python3", "python3-pip", "vim"])
         for package in AbstractKeywordTest.packages:
             try:
                 status = AbstractKeywordTest.is_deb_package_installed(package)
@@ -106,7 +129,11 @@ class AbstractKeywordTest(unittest.TestCase):
         have actually been installed
         These should work because the latest kernel version is 5.8 and I assume that the user does not have these installed by default
         """
-        AbstractKeywordTest = AbstractKeyword(DEFAULT_BUILD_CONFIG, 'test', "this is an example AbstractKeyword", ["linux-headers-5.4.0-26-generic"])
+        AbstractKeywordTest = AbstractKeyword(
+            DEFAULT_BUILD_CONFIG,
+            'test',
+            "this is an example AbstractKeyword",
+            ["linux-headers-5.4.0-26-generic"])
         for package in AbstractKeywordTest.packages:
             try:
                 status = AbstractKeywordTest.is_deb_package_installed(package)

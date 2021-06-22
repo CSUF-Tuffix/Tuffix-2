@@ -14,7 +14,7 @@ import requests
 
 class LinkChecker:
     def __init__(self):
-        self._re = re.compile("(?P<content>.*)\.git")
+        self._re = re.compile("(?P<content>.*)\\.git")
 
     # def link_up(self, link: str) -> tuple[bool, int]:
 

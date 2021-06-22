@@ -12,6 +12,7 @@ class DummyFile(object):
     def write(self, x): pass
     def flush(self): pass
 
+
 @contextlib.contextmanager
 def quiet():
     _stdout = sys.stdout
@@ -22,11 +23,15 @@ def quiet():
 # Try to quiet apt output
 # Source: https://stackoverflow.com/a/24146012
 
+
 class LogInstallProgress(apt.progress.base.InstallProgress):
     def fork(self):
         pid = os.fork()
         if pid == 0:
-            logfd = os.open("dpkg.log", os.O_RDWR | os.O_APPEND | os.O_CREAT, 0o644)
+            logfd = os.open(
+                "dpkg.log",
+                os.O_RDWR | os.O_APPEND | os.O_CREAT,
+                0o644)
             os.dup2(logfd, 1)
             os.dup2(logfd, 2)
         return pid

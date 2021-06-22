@@ -5,17 +5,23 @@ import unittest
 
 tests = [
     ["tuffix", "background", "user-submitted"],
-    ["tuffix", "background", "https://images.wallpapersden.com/image/download/linux-retro_bGpqbmuUmZqaraWkpJRmbmdlrWZlbWU.jpg"],  # from the internet
+    ["tuffix",
+     "background",
+     "https://images.wallpapersden.com/image/download/linux-retro_bGpqbmuUmZqaraWkpJRmbmdlrWZlbWU.jpg"],
+    # from the internet
     ["tuffix", "background", "/tmp/background.png"],  # from disk
     ["tuffix", "background", "FAIL"],  # from disk
 ]
 
 matches = {
-    "user": re.compile("user-submitted", re.IGNORECASE),
-    "disk": re.compile("(?P<path>.*)\.(?P<extension>[A-Za-z]+)", re.IGNORECASE)
-}
+    "user": re.compile(
+        "user-submitted",
+        re.IGNORECASE),
+    "disk": re.compile(
+        "(?P<path>.*)\\.(?P<extension>[A-Za-z]+)",
+        re.IGNORECASE)}
 
-_re = re.compile('(?P<path>.*)\.(?P<extension>[A-Za-z]+)')
+_re = re.compile('(?P<path>.*)\\.(?P<extension>[A-Za-z]+)')
 wallpaper_dir = pathlib.Path(f'{pathlib.Path.home()}/Pictures/Wallpapers')
 
 

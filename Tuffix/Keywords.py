@@ -4,7 +4,8 @@
 ##########################################################################
 
 from Tuffix.AbstractKeyword import AbstractKeyword
-# this is because we want to have access to this base class across two source files that import each other
+# this is because we want to have access to this base class across two
+# source files that import each other
 
 from Tuffix.Editors import *
 
@@ -114,9 +115,12 @@ class BaseKeyword(AbstractKeyword):
                          'python2']
 
         self.link_dictionary = {
-            "GOOGLE_TEST_URL": ["https://github.com/google/googletest.git", True],
-            "TEST_URL": ["https://github.com/JaredDyreson/tuffix-google-test.git", True]
-        }
+            "GOOGLE_TEST_URL": [
+                "https://github.com/google/googletest.git",
+                True],
+            "TEST_URL": [
+                "https://github.com/JaredDyreson/tuffix-google-test.git",
+                True]}
 
     def add(self):
         self.google_test_all()
@@ -588,10 +592,20 @@ def partial_class(information: tuple, cls):
     name, description, packages = information
 
     body = {
-        "__init__": functools.partialmethod(cls.__init__, build_config=DEFAULT_BUILD_CONFIG, name=name, description=description, packages=packages),
-        "add": partial(edit_deb_packages, package_names=packages, is_installing=True),
-        "remove": partial(edit_deb_packages, package_names=packages, is_installing=False)
-    }
+        "__init__": functools.partialmethod(
+            cls.__init__,
+            build_config=DEFAULT_BUILD_CONFIG,
+            name=name,
+            description=description,
+            packages=packages),
+        "add": partial(
+            edit_deb_packages,
+            package_names=packages,
+            is_installing=True),
+        "remove": partial(
+            edit_deb_packages,
+            package_names=packages,
+            is_installing=False)}
 
     __class = type(name, (cls, ), body)
 
