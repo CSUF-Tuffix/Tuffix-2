@@ -48,7 +48,6 @@ class AbstractCommand:
 
     def __repr__(self):
         return f"""
-        Class: {self.__name__}
         Name: {self.name}
         Description: {self.description}
         """

@@ -17,7 +17,8 @@ format:
 """
 
 tests = {
-    "AbstractKeywordTest": ["UnitTests/test_abstract_keyword.py", False]
+    # "AbstractKeywordTest": ["UnitTests/test_abstract_keyword.py", False],
+    "AbstractCommandTest": ["UnitTests/test_abstract_command.py", True]
     # "KeywordTest": ["UnitTests/test_keywords.py", True],
     # "DriverTest": ["UnitTests/test_tuffix_driver.py", False],
     # "UtilityFunctionTest": ["UnitTests/test_utility_functions.py", False],
