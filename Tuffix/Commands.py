@@ -102,8 +102,7 @@ class AddRemoveHelper():
                     # If the JSON file is found, we need to now dynamically create a class
                     NewClass = DEFAULT_CLASS_GENERATOR.generate(
                         f'{dirpath}/{_file}')
-                    NewClassInstance = NewClass()
-                return (True, NewClassInstance)
+                    return (True, NewClass())
         return (False, None)
 
     def rewrite_state(self, current_state, keyword, install):
@@ -264,7 +263,7 @@ class CustomCommand(AbstractCommand):
 
             NewClassInstance = NewClass()
 
-            self.mark = MarkCommand(DEFAULT_BUILD_CONFIG, "add")
+            self.mark = AddRemoveHelper(DEFAULT_BUILD_CONFIG, "add")
             self.mark.execute([NewClassInstance.name],
                               (True, NewClassInstance))
 

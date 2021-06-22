@@ -448,6 +448,7 @@ class LatexKeyword(AbstractKeyword):
         # edit_deb_packages(self.packages, is_installing=True)
 
     def remove(self):
+        pass
         # edit_deb_packages(self.packages, is_installing=False)
 
 

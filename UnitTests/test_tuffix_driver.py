@@ -20,16 +20,6 @@ class DriverTest(unittest.TestCase):
         command = "tuffix init"
         main(command.split())
 
-    def test_editor(self):
-        """
-        Add and remove an editor: emacs
-        """
-
-        command = "tuffix editor add emacs"
-        main(command.split())
-        command = "tuffix editor remove emacs"
-        main(command.split())
-
     def test_list(self):
         """
         List all viable commands
@@ -54,7 +44,7 @@ class DriverTest(unittest.TestCase):
         Add keyword `test`
         """
 
-        command = "tuffix add test"
+        command = "tuffix add tmux"
         main(command.split())
 
     def test_remove(self):
@@ -62,7 +52,7 @@ class DriverTest(unittest.TestCase):
         Remove keyword `test`
         """
 
-        command = "tuffix remove test"
+        command = "tuffix remove tmux"
         main(command.split())
 
     def test_installed(self):
