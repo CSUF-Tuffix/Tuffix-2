@@ -21,9 +21,29 @@ import subprocess
 from termcolor import colored
 import os
 import socket
-from datetime import datetime
-from shutil import which
+import datetime
+import shutil
 import sys
+
+
+def ensure_ubuntu(self):
+    """
+    /etc/debian_release -> /etc/debian_version
+    """
+
+    if not(os.path.exists("/etc/debian_version")):
+        raise UsageError(
+            'this is not an Debian derivative, please try again')
+
+
+def ensure_root_access(self):
+    """
+    Raises UsageError if we do not have root access.
+    """
+
+    if(os.getuid() != 0):
+        raise UsageError(
+            'you do not have root access; run this command like $ sudo tuffix ...')
 
 
 def is_tool(command: str) -> bool:
@@ -34,7 +54,7 @@ def is_tool(command: str) -> bool:
 
     if not(isinstance(command, str)):
         raise ValueError
-    return which(command) is not None
+    return shutil.which(command) is not None
 
 
 def in_VM() -> bool:
@@ -111,7 +131,7 @@ def current_time() -> str:
     Goal: return the current date and time
     """
 
-    return datetime.now().strftime("%a %d %B %Y %H:%M:%S")
+    return datetime.datetime.now().strftime("%a %d %B %Y %H:%M:%S")
 
 
 def current_model() -> str:
@@ -191,7 +211,8 @@ def graphics_information() -> tuple:
     vga_regex, controller_regex = re.compile(
         "VGA.*\\:(?P<model>(?:(?!\\s\\().)*)"), re.compile("3D.*\\:(?P<model>(?:(?!\\s\\().)*)")
 
-    _default_shell_path, _lspci_path = which("bash"), which("lspci")
+    _default_shell_path, _lspci_path = shutil.which(
+        "bash"), shutil.which("lspci")
 
     if(not _default_shell_path):
         raise EnvironmentError(f'could not find bash')
@@ -231,7 +252,7 @@ def list_git_configuration() -> tuple:
     Retrieve Git configuration information about the current user
     """
     keeper = SudoRun()
-    _git_path = which("git")
+    _git_path = shutil.which("git")
     if not(_git_path):
         raise EnvironmentError('could not find git')
 

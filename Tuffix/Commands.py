@@ -7,7 +7,7 @@ from Tuffix.Configuration import BuildConfig, State, DEFAULT_BUILD_CONFIG
 from Tuffix.Constants import *
 from Tuffix.Exceptions import *
 from Tuffix.Keywords import *
-from Tuffix.Status import status
+from Tuffix.Status import status, ensure_root_access
 from Tuffix.UtilityFunctions import *
 from Tuffix.Editors import AtomKeyword
 from Tuffix.SudoRun import SudoRun
@@ -19,6 +19,7 @@ from termcolor import colored
 # so we can pass in function pointers with predefined args
 from functools import partial
 import shutil
+import apt
 
 
 class AbstractCommand:
@@ -164,6 +165,18 @@ class MarkCommand(AbstractCommand):
 
             print(f'[INFO] Tuffix: successfully {past} {command.name}')
 
+    def is_deb_package_installed(self, package_name: str) -> bool:
+        if not(isinstance(package_name, str)):
+            raise ValueError(f'{package_name=} expected to be `str`')
+        try:
+            apt.apt_pkg.init()
+            cache = apt.apt_pkg.Cache(None)  # quiet this output for testing
+            package = cache[package_name]
+            return (package.current_state == apt_pkg.CURSTATE_INSTALLED)
+        except KeyError:
+            raise EnvironmentError(
+                f'[ERROR] No such package "{package_name}"; is this Ubuntu?')
+
     def execute(self, arguments: list, custom=(None, None)):
         """
         Goal: install or remove keywords
@@ -272,6 +285,16 @@ class DescribeCommand(AbstractCommand):
 class InitCommand(AbstractCommand):
     def __init__(self, build_config):
         super().__init__(build_config, 'init', 'initialize tuffix')
+
+    def create_state_directory(build_config):
+        """
+        Create the directory for the state file, unless it already exists
+        """
+
+        ensure_root_access()
+        os.makedirs(build_config.state_path, exist_ok=True)
+        os.makedirs(build_config.json_state_path,
+                    exist_ok=True)  # for custom commands
 
     def configure_git(self, username=None, mail=None):
         """
