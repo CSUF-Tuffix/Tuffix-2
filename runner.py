@@ -1,14 +1,16 @@
 #!/usr/bin/env python3.9
 
-from Tuffix.Driver import *
-from Tuffix.Configuration import DEFAULT_BUILD_CONFIG
-from Tuffix.Keywords import KeywordContainer
-from Tuffix.Exceptions import *
-from Tuffix.Quieter import quiet
-from UnitTests.SequentialTest import SequentialTestLoader
+# from Tuffix.Driver import *
+# from Tuffix.Configuration import DEFAULT_BUILD_CONFIG
+# from Tuffix.Keywords import KeywordContainer
+# from Tuffix.Exceptions import *
+# from Tuffix.Quieter import quiet
+# from UnitTests.SequentialTest import SequentialTestLoader
 
 import unittest
 import importlib.util
+import os
+import pathlib
 
 """
 format:
@@ -16,22 +18,35 @@ format:
 "<CLASS NAME OF TEST>": ["PATH", SILENT(False)/VERBOSE(True)]
 """
 
-tests = {
-    # "AbstractKeywordTest": ["UnitTests/test_abstract_keyword.py", False],
-    "AbstractCommandTest": ["UnitTests/test_abstract_command.py", True]
-    # "KeywordTest": ["UnitTests/test_keywords.py", True],
-    # "DriverTest": ["UnitTests/test_tuffix_driver.py", False],
-    # "UtilityFunctionTest": ["UnitTests/test_utility_functions.py", False],
-    # "LSBTest": ["UnitTests/test_lsb_parser.py", False],
-    # "StatusTest": ["UnitTests/test_status.py", False]
-    # NOTE: Unknown how to test -> "sudo_run": "UnitTests/test_sudo_run.py"
-}
-
 runner = unittest.TextTestRunner()
 
-for name, arguments in tests.items():
-    path, pedantic = arguments
-    print(f'  - [TEST] Conducting {name}')
+
+def construct_filesystem(pedantic: bool) -> list[dict]:
+    if not(isinstance(pedantic, bool)):
+        raise ValueError(f'{pedantic=} is not a `bool`')
+
+    excluded_dirs = ["__pycache__"]
+    excluded_files = ["SequentialTest.py", "__init__.py"]
+    container = []
+
+    for dirpath, dirs, filepath in os.walk("UnitTests", topdown=True):
+        dirs.sort()
+        dirs[:] = [d for d in dirs if d not in excluded_dirs]
+        filepath[:] = [f for f in filepath if f not in excluded_files]
+        test_name = os.path.basename(dirpath)
+        if not(test_name == "UnitTests"):
+            filepath = [(path, pedantic) for path in filepath]
+            container.append(
+                {test_name: filepath}
+            )
+    return container
+
+
+def conduct_test(path: pathlib.Path, pedantic: bool):
+    if not(isinstance(path, pathlib.Path) and
+           isinstance(pedantic, bool)):
+        raise ValueError(f'{path=} is not a `pathlib.Path`')
+
     spec = importlib.util.spec_from_file_location("test", path)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
@@ -42,3 +57,16 @@ for name, arguments in tests.items():
     else:
         with quiet():
             runner.run(test_suite)
+
+
+def run_tests():
+    tests = construct_filesystem(pedantic=False)
+    base_folder = pathlib.Path("UnitTests")
+    for test in tests:
+        for name, arguments in test.items():
+            for subtest, pedantic in arguments:
+                path = (base_folder / name / subtest)
+                conduct_test(path, pedantic)
+
+
+run_tests()
