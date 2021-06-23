@@ -516,12 +516,12 @@ class TMuxKeyword(AbstractKeyword):
                          'tmux',
                          'multi-tasking in the terminal')
 
-        self.packages = ['cowsay']
+        self.packages = ['tmux']
 
     def add(self):
         edit_deb_packages(self.packages, is_installing=True)
-        VimKeyword(self.build_config).add()
-        EmacsKeyword(self.build_config).add()
+        # VimKeyword(self.build_config).add()
+        # EmacsKeyword(self.build_config).add()
 
     def remove(self):
         # VimKeyword(self.bc).remove()

@@ -109,15 +109,9 @@ class AddRemoveHelper():
         """
         Goal: update the state file
         """
-        # NOTE: Debug
-        print(type(keyword))
-        print(type(install))
-        # TODO : check what type keyword is
-
-        # if not(isinstance(current_state, Keyword.State) and
-        # isinstance(keyword, Keyword) and
-        # isinstance(install, bool)):
-        # raise ValueError
+        if not(isinstance(keyword, AbstractKeyword) and
+               isinstance(install, bool)):
+               raise ValueError
 
         current_state = read_state(self.build_config)
         new_action = current_state.installed
