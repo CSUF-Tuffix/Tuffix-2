@@ -105,7 +105,7 @@ class AddRemoveHelper():
                     return (True, NewClass())
         return (False, None)
 
-    def rewrite_state(self, current_state, keyword, install):
+    def rewrite_state(self, keyword, install):
         """
         Goal: update the state file
         """
@@ -166,7 +166,7 @@ class AddRemoveHelper():
                 raise UsageError(
                     f'[INTERNAL ERROR] {command.__name__} does not have the function {self.command}')
 
-            self.rewrite_state(None, command, install)
+            self.rewrite_state(command, install)
 
             print(f'[INFO] Tuffix: successfully {past} {command.name}')
 

@@ -95,3 +95,22 @@ class AddRemoveHelperTest(unittest.TestCase):
             (status == False) and
             isinstance(class_instance, type(None))
         )
+
+    def test_rewrite_state_install(self):
+        """
+        Test if the program can update the state
+        """
+
+        helper = AddRemoveHelper(DEFAULT_BUILD_CONFIG, 'rewriter')
+        example_keyword = TMuxKeyword(DEFAULT_BUILD_CONFIG)
+        install = True
+
+        helper.rewrite_state(keyword=example_keyword, install=install)
+
+        """
+        match read_state(DEFAULT_BUILD_CONFIG):
+            case {"version": version, "installed": keywords_installed, "editors": editors_installed}:;
+                if(installed)
+            case _:
+                self.assertTrue(False)
+        """
