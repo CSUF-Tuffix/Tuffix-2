@@ -12,6 +12,7 @@ import importlib.util
 import os
 import pathlib
 import re
+import pickle
 
 runner = unittest.TextTestRunner()
 
@@ -68,5 +69,5 @@ def run_tests():
                 path = (base_folder / name / subtest)
                 conduct_test(path, pedantic)
 
-
+# cache this so it doesn't run all of them at once
 run_tests()
