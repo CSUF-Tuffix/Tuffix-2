@@ -110,7 +110,6 @@ class AddRemoveHelper():
         Goal: update the state file
         """
         # NOTE: Debug
-        print(type(current_state))
         print(type(keyword))
         print(type(install))
         # TODO : check what type keyword is

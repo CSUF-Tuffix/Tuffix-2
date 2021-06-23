@@ -34,6 +34,13 @@ class BuildConfig:
         self.state_path = state_path
         self.json_state_path = json_state_path  # NOTE
 
+    def __eq__(self, other):
+        return (
+            self.version == other.version and
+            self.state_path == other.state_path and
+            self.json_state_path == other.json_state_path
+        )
+
 
 # Singleton BuildConfig object using the constants declared at the top of
 # this file.
@@ -61,6 +68,15 @@ class State:
         self.version = version
         self.installed = installed
         self.editors = editors
+
+    def __eq__(self, other):
+        # this might be nice to implement as a dataclass?
+        return (
+            self.build_config == other.build_config and
+            self.version == other.version and
+            self.installed == other.installed and
+            self.editors == other.editors
+        )
 
     # Write this state to disk.
     def write(self):

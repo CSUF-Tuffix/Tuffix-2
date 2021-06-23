@@ -2,7 +2,7 @@
 
 from Tuffix.Commands import AddRemoveHelper, AbstractCommand
 from Tuffix.Keywords import AbstractKeyword
-from Tuffix.Configuration import DEFAULT_BUILD_CONFIG
+from Tuffix.Configuration import DEFAULT_BUILD_CONFIG, read_state
 
 import unittest
 import functools
@@ -101,6 +101,7 @@ class AddRemoveHelperTest(unittest.TestCase):
         Test if the program can update the state
         """
 
+        original_state = read_state(DEFAULT_BUILD_CONFIG)
         helper = AddRemoveHelper(DEFAULT_BUILD_CONFIG, 'rewriter')
         example_keyword = TMuxKeyword(DEFAULT_BUILD_CONFIG)
         install = True
