@@ -102,11 +102,23 @@ class AddRemoveHelperTest(unittest.TestCase):
         """
 
         original_state = read_state(DEFAULT_BUILD_CONFIG)
+
         helper = AddRemoveHelper(DEFAULT_BUILD_CONFIG, 'rewriter')
         example_keyword = TMuxKeyword(DEFAULT_BUILD_CONFIG)
-        install = True
 
-        helper.rewrite_state(keyword=example_keyword, install=install)
+        helper.rewrite_state(keyword=example_keyword,
+                             install=True)  # install the keyword
+
+        updated_state = read_state(DEFAULT_BUILD_CONFIG)  # note the state
+
+        helper.rewrite_state(keyword=example_keyword,
+                             install=False)  # remove the keyword
+
+        reverted_state = read_state(
+            DEFAULT_BUILD_CONFIG)  # note the state again
+
+        # check if the new state is equal to the snap shot
+        self.assertTrue(original_state == reverted_state)
 
         """
         match read_state(DEFAULT_BUILD_CONFIG):
