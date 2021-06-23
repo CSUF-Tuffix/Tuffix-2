@@ -25,7 +25,7 @@ def construct_filesystem(pedantic: bool) -> list[dict]:
     if not(isinstance(pedantic, bool)):
         raise ValueError(f'{pedantic=} is not a `bool`')
 
-    excluded_dirs = ["__pycache__"]
+    excluded_dirs = ["__pycache__", "TEST"]
     excluded_files = ["SequentialTest.py", "__init__.py"]
     container = []
 
