@@ -4,24 +4,19 @@
 # from Tuffix.Configuration import DEFAULT_BUILD_CONFIG
 # from Tuffix.Keywords import KeywordContainer
 # from Tuffix.Exceptions import *
-# from Tuffix.Quieter import quiet
-# from UnitTests.SequentialTest import SequentialTestLoader
+from Tuffix.Quieter import quiet
+from UnitTests.SequentialTest import SequentialTestLoader
 
 import unittest
 import importlib.util
 import os
 import pathlib
-
-"""
-format:
-
-"<CLASS NAME OF TEST>": ["PATH", SILENT(False)/VERBOSE(True)]
-"""
+import re
 
 runner = unittest.TextTestRunner()
 
 
-def construct_filesystem(pedantic: bool) -> list[dict]:
+def construct_filesystem(pedantic: bool) -> list:
     if not(isinstance(pedantic, bool)):
         raise ValueError(f'{pedantic=} is not a `bool`')
 
@@ -46,17 +41,22 @@ def conduct_test(path: pathlib.Path, pedantic: bool):
     if not(isinstance(path, pathlib.Path) and
            isinstance(pedantic, bool)):
         raise ValueError(f'{path=} is not a `pathlib.Path`')
+    test_re = re.compile(".*Test")
 
     spec = importlib.util.spec_from_file_location("test", path)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
-    _test = getattr(module, name, None)
-    test_suite = SequentialTestLoader().loadTestsFromTestCase(_test)
-    if(pedantic):
-        runner.run(test_suite)
-    else:
-        with quiet():
+    tests = [_test for _test in dir(module) if (test_re.match(_test))]
+
+    for _test in tests:
+        print(f'[INFO] Conducting {_test}')
+        test_instance = getattr(module, _test, None)
+        test_suite = SequentialTestLoader().loadTestsFromTestCase(test_instance)
+        if(pedantic):
             runner.run(test_suite)
+        else:
+            with quiet():
+                runner.run(test_suite)
 
 
 def run_tests():

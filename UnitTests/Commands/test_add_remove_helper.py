@@ -1,25 +1,26 @@
 #!/usr/bin/env python3.9
 
-from Tuffix.Commands import AddRemoveHelper
+from Tuffix.Commands import AddRemoveHelper, AbstractCommand
+from Tuffix.Keywords import AbstractKeyword
 from Tuffix.Configuration import DEFAULT_BUILD_CONFIG
 
 import unittest
 import functools
 import textwrap
 import json
+import pathlib
 
 
 def partial_class(container: tuple):
     # NOTE : please include this in all derived classes
     # Duplicate code
 
-    build_config, name, description = container
+    build_config, name = container
     body = {
         "__init__": functools.partialmethod(
             AddRemoveHelper.__init__,
             build_config=build_config,
-            name=name,
-            description=description
+            command=name
         )
     }
     return type("test", (AddRemoveHelper, ), body)
@@ -75,7 +76,7 @@ class AddRemoveHelperTest(unittest.TestCase):
         status, class_instance = resultant
         self.assertTrue(
             isinstance(status, bool) and
-            isinstance(status == True) and
+            (status == True) and
             isinstance(class_instance, AbstractKeyword)
         )
         payload_path.unlink()
@@ -92,5 +93,5 @@ class AddRemoveHelperTest(unittest.TestCase):
         self.assertTrue(
             isinstance(status, bool) and
             (status == False) and
-            isinstance(class_instance, NoneType)
+            isinstance(class_instance, type(None))
         )
