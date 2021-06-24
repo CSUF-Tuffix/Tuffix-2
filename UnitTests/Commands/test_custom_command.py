@@ -69,11 +69,11 @@ class CustomCommandTest(unittest.TestCase):
                 "instructor": "Jared Dyreson",
             }
         ]
-        custom = CustomCommand()
+        custom = CustomCommand(DEFAULT_BUILD_CONFIG)
         path = "/tmp/malformed_payload.json"
 
         for payload in payloads:
-            with open(path, "w") fp:
+            with open(path, "w") as fp:
                 json.dump(payload, fp)
             try:
                 custom.execute(arguments=[path])

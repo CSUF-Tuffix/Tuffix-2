@@ -100,8 +100,8 @@ class AddRemoveHelper():
                 if((match := _re.match(_file))):
                     # If the JSON file is found, we need to now dynamically
                     # create a class
-                    NewClass = DEFAULT_CLASS_GENERATOR.generate(
-                        f'{dirpath}/{_file}')
+                    path = pathlib.Path(f'{dirpath}/{_file}')
+                    NewClass = DEFAULT_CLASS_GENERATOR.generate(path.resolve())
                     return (True, NewClass())
         return (False, None)
 
@@ -239,7 +239,7 @@ class CustomCommand(AbstractCommand):
         for path in arguments:
             path = pathlib.Path(path)
 
-            if not(path.isfile()):
+            if not(path.is_file()):
                 raise FileNotFoundError(f'[ERROR] Could not load {path}')
 
             NewClass = DEFAULT_CLASS_GENERATOR.generate(path)

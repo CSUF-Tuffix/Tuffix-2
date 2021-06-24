@@ -16,5 +16,5 @@ class DescribeCommandTest(unittest.TestCase):
         for keyword in container.container:
             with Capturing() as output:
                 name, description = keyword.name, keyword.description
-                describe(name)
+                describe.execute([name])
             self.assertTrue([f'{name}: {description}'] == output)

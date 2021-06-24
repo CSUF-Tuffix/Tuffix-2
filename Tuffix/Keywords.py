@@ -20,7 +20,7 @@ import functools
 import json
 import requests
 import sys
-
+import pathlib
 
 class AllKeyword(AbstractKeyword):
 
@@ -626,11 +626,11 @@ class ClassKeywordGenerator():
     def __init__(self):
         pass
 
-    def generate(self, path: str):
-        if not(isinstance(path, str)):
-            raise ValueError
+    def generate(self, path: pathlib.PosixPath):
+        if not(isinstance(path, pathlib.PosixPath)):
+            raise ValueError(f'received type {type(path).__name__}')
 
-        if(not os.path.exists(path)):
+        if(not path.is_file()):
             raise FileNotFoundError(f'could not load {path}')
 
         with open(path, encoding="utf-8") as fp:
