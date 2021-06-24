@@ -163,10 +163,11 @@ class AddRemoveHelper():
 
             print(f'[INFO] Tuffix: successfully {past} {command.name}')
 
-    def execute(self, arguments: list, custom=(None, None)):
+    def execute(self, arguments: list, custom=(None, None), override=True):
         """
         Goal: install or remove keywords
         """
+
         if not (isinstance(arguments, list) and
                 all([isinstance(argument, str) for argument in arguments])):
             raise ValueError
@@ -205,10 +206,11 @@ class AddRemoveHelper():
 
         if(arguments[0] == "all"):
             try:
-                input(
-                    "[INFO] Tuffix: Are you sure you want to install/remove all packages? Press enter to continue or CTRL-D to exit: ")
-            except EOFError:
-                quit()
+                if not(override):
+                    input(
+                        "[INFO] Tuffix: Are you sure you want to install/remove all packages? Press enter to continue or CTRL-D to exit: ")
+                except EOFError:
+                    quit()
             if(install):
                 collection = self.container.container  # all keywords
             else:

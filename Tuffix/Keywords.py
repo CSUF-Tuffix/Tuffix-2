@@ -589,7 +589,7 @@ def partial_class(information: tuple, cls):
             raise FormattingError('expecting (name, description, packages)')
     """
 
-    name, description, packages = information
+    name, description, packages = information # will raise a ValueError if insufficient args given
 
     body = {
         "__init__": functools.partialmethod(
@@ -621,7 +621,6 @@ def partial_class(information: tuple, cls):
 class ClassKeywordGenerator():
     """
     Generate a custom keyword class for usage in add/remove commands
-    BUG: there might be an issue in where the class is instantiated
     """
 
     def __init__(self):
@@ -636,10 +635,10 @@ class ClassKeywordGenerator():
 
         with open(path, encoding="utf-8") as fp:
             content = json.loads(fp.read())
-
+        
+        # will throw KeyError if there are missing fields
         name, instructor, packages = content["name"].replace(
             ' ', '').lower(), content["instructor"], content["packages"]
-        description = f'{name} created by {instructor}'
 
         return partial_class((name, instructor, packages), AbstractKeyword)
 
