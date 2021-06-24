@@ -353,6 +353,9 @@ class InitCommand(AbstractCommand):
             f'sudo apt-key add {gpg_dest.resolve()}',
             executor.whoami)
 
+    def install_atom(self):
+        AtomKeyword().add(write=False)
+
     def execute(self, arguments: list):
         if not (isinstance(arguments, list) and
                 all([isinstance(argument, str) for argument in arguments]) and
@@ -367,8 +370,6 @@ class InitCommand(AbstractCommand):
 
         self.configure_ppa()
         self.configure_git()
-
-        AtomKeyword().add(write=False)
 
         state = State(self.build_config,
                       self.build_config.version, [], ["atom"])

@@ -2,7 +2,7 @@
 
 from Tuffix.Keywords import KeywordContainer
 from Tuffix.Commands import DescribeCommand
-from Tuffix.Configuration import DEFAULT_BUILD_CONFIG
+from Tuffix.Configuration import DEFAULT_BUILD_CONFIG, read_state
 
 from Tuffix.Quieter import Capturing
 
@@ -17,9 +17,12 @@ class DescribeCommandTest(unittest.TestCase):
         Custom keywords are NOT CURRENTLY SUPPORTED
         """
 
-        container = KeywordContainer(DEFAULT_BUILD_CONFIG)
+        container = KeywordContainer(DEFAULT_BUILD_CONFIG).container
+        current_state = read_state(DEFAULT_BUILD_CONFIG)
+        container.extend(current_state.editors)
+
         describe = DescribeCommand(DEFAULT_BUILD_CONFIG)
-        for keyword in container.container:
+        for keyword in container:
             with Capturing() as output:
                 name, description = keyword.name, keyword.description
                 describe.execute([name])

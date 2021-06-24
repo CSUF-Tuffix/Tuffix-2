@@ -45,6 +45,10 @@ class BuildConfig:
 # Singleton BuildConfig object using the constants declared at the top of
 # this file.
 DEFAULT_BUILD_CONFIG = BuildConfig(VERSION, STATE_PATH, JSON_PATH)
+DEBUG_BUILD_CONFIG = BuildConfig(
+    VERSION, '/tmp/tuffix/state.json', '/tmp/tuffix/json_payloads')
+# this is for reading and writing to a separate Tuffix instance on the machine
+# we can remove it when we're done so we don't have to worry about having left-over installations
 
 
 class State:
