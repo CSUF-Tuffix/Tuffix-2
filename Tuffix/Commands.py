@@ -34,7 +34,7 @@ class AbstractCommand:
     a nonempty string.
     """
 
-    def __init__(self, build_config, name, description):
+    def __init__(self, build_config: BuildConfig, name: str, description: str):
         if not (isinstance(build_config, BuildConfig) and
                 isinstance(name, str) and
                 len(name) > 0 and
@@ -52,7 +52,7 @@ class AbstractCommand:
         Description: {self.description}
         """
 
-    def execute(self, arguments):
+    def execute(self, arguments: list):
         """
         Execute the command.
         arguments: list of commandline arguments after the command name.
@@ -95,8 +95,6 @@ class AddRemoveHelper():
         # NOTE: check if this works
         for dirpath, _, filepath in os.walk(self.build_config.json_state_path):
             for _file in filepath:
-                # NOTE: I changed this and indentation might be messed up
-                # BEWARE. The walrus operator is pretty based
                 if((match := _re.match(_file))):
                     # If the JSON file is found, we need to now dynamically
                     # create a class
@@ -105,7 +103,7 @@ class AddRemoveHelper():
                     return (True, NewClass())
         return (False, None)
 
-    def rewrite_state(self, keyword, install):
+    def rewrite_state(self, keyword: AbstractKeyword, install: bool):
         """
         Goal: update the state file
         """
@@ -169,7 +167,8 @@ class AddRemoveHelper():
         """
 
         if not (isinstance(arguments, list) and
-                all([isinstance(argument, str) for argument in arguments])):
+                all([isinstance(argument, str) for argument in arguments]) and
+                isinstance(override, bool)):
             raise ValueError
 
         if not(arguments):
@@ -222,20 +221,35 @@ class AddRemoveHelper():
 
 
 class AddCommand(AbstractCommand):
-    def __init__(self, build_config):
+    """
+    Add a valid keyword either defined in Tuffix/Keywords.py or
+    defined as a JSON file passed via the command line
+    """
+
+    def __init__(self, build_config: BuildConfig):
         super().__init__(build_config, 'add', 'add (install) one or more keywords')
         self.mark = AddRemoveHelper(build_config, self.name)
 
-    def execute(self, arguments):
+    def execute(self, arguments: list):
+        if not(isinstance(arguments, list) and
+               all([isinstance(_, str) for _ in arguments])):
+            raise ValueError
         self.mark.execute(arguments)
 
 
 class CustomCommand(AbstractCommand):
+    """
+    User defined keyword that gets generated via a JSON file
+    """
 
-    def __init__(self, build_config):
+    def __init__(self, build_config: BuildConfig):
         super().__init__(build_config, 'custom', 'user-defined json payload')
 
     def execute(self, arguments: list):
+        if not(isinstance(arguments, list) and
+               all([isinstance(_, str) for _ in arguments])):
+            raise ValueError
+
         for path in arguments:
             path = pathlib.Path(path)
 
@@ -256,6 +270,11 @@ class CustomCommand(AbstractCommand):
 
 class DescribeCommand(AbstractCommand):
 
+    """
+    Describe a valid keyword either defined in Tuffix/Keywords.py or as
+    a JSON file
+    """
+
     def __init__(self, build_config):
         super().__init__(build_config, 'describe', 'describe a given keyword')
 
@@ -272,10 +291,20 @@ class DescribeCommand(AbstractCommand):
 
 
 class InitCommand(AbstractCommand):
-    def __init__(self, build_config):
+    """
+    Initialize Tuffix by:
+        - creating the directory structure
+        - configure git
+        - install the Tuffix PPA
+        - install the Atom text editor
+
+    Instructors should tell students to make an account on Github
+    """
+
+    def __init__(self, build_config: BuildConfig):
         super().__init__(build_config, 'init', 'initialize tuffix')
 
-    def create_state_directory(build_config):
+    def create_state_directory(build_config: BuildConfig):
         """
         Create the directory for the state file, unless it already exists
         """
@@ -287,7 +316,7 @@ class InitCommand(AbstractCommand):
 
     def configure_git(self, username=None, mail=None):
         """
-        GOAL: Configure git
+        GOAL: Configure Git
         """
 
         keeper = SudoRun()
@@ -304,17 +333,19 @@ class InitCommand(AbstractCommand):
             keeper.run(command, whoami)
         print(colored("Successfully configured git", 'green'))
 
-    def execute(self, arguments):
+    def execute(self, arguments: list):
         if not (isinstance(arguments, list) and
-                all([isinstance(argument, str) for argument in arguments])):
+                all([isinstance(argument, str) for argument in arguments]) and
+                not arguments):
+            # this should also be caught when testing (give multiple args)
             raise ValueError
 
-        if len(arguments) != 0:
-            raise UsageError("init command does not accept arguments")
         if(STATE_PATH.exists()):
             raise UsageError("init has already been done")
 
-        # ensure we have our PPA installed
+        """
+        Install PPA
+        """
 
         gpg_url = "https://www.tuffix.xyz/repo/KEY.gpg"
         tuffix_list = pathlib.Path("/etc/apt/sources.list.d/tuffix.list")
