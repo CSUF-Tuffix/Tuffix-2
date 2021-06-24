@@ -304,14 +304,14 @@ class InitCommand(AbstractCommand):
     def __init__(self, build_config: BuildConfig):
         super().__init__(build_config, 'init', 'initialize tuffix')
 
-    def create_state_directory(build_config: BuildConfig):
+    def create_state_directory():
         """
         Create the directory for the state file, unless it already exists
         """
 
         ensure_root_access()
-        os.makedirs(build_config.state_path, exist_ok=True)
-        os.makedirs(build_config.json_state_path,
+        os.makedirs(self.build_config.state_path, exist_ok=True)
+        os.makedirs(self.build_config.json_state_path,
                     exist_ok=True)  # for custom commands
 
     def configure_git(self, username=None, mail=None):
@@ -333,6 +333,26 @@ class InitCommand(AbstractCommand):
             keeper.run(command, whoami)
         print(colored("Successfully configured git", 'green'))
 
+    def configure_ppa(self):
+        """
+        Goal: Install PPA
+        """
+
+        gpg_url = "https://www.tuffix.xyz/repo/KEY.gpg"
+        tuffix_list = pathlib.Path("/etc/apt/sources.list.d/tuffix.list")
+
+        gpg_dest = pathlib.Path("/tmp/tuffix.gpg")
+        executor = SudoRun()
+
+        content = requests.get(gpg_url).content
+        with open(gpg_dest, "wb") as gd, open(tuffix_list, "w") as tl:
+            gd.write(content)
+            tl.write("deb https://www.tuffix.xyz/repo focal main")
+
+        executor.run(
+            f'sudo apt-key add {gpg_dest.resolve()}',
+            executor.whoami)
+
     def execute(self, arguments: list):
         if not (isinstance(arguments, list) and
                 all([isinstance(argument, str) for argument in arguments]) and
@@ -343,41 +363,15 @@ class InitCommand(AbstractCommand):
         if(STATE_PATH.exists()):
             raise UsageError("init has already been done")
 
-        """
-        Install PPA
-        """
+        self.create_state_directory()
 
-        gpg_url = "https://www.tuffix.xyz/repo/KEY.gpg"
-        tuffix_list = pathlib.Path("/etc/apt/sources.list.d/tuffix.list")
-
-        gpg_dest = pathlib.Path("/tmp/tuffix.gpg")
-        executor = SudoRun()
-
-        content = requests.get(gpg_url).content
-        with open(gpg_dest, "wb") as fp:
-            fp.write(content)
-        with open(tuffix_list, "w") as fp:
-            fp.write("deb https://www.tuffix.xyz/repo focal main")
-
-        executor.run(
-            f'sudo apt-key add {gpg_dest.resolve()}',
-            executor.whoami)
-
-        """
-        Configure Git
-        """
-
+        self.configure_ppa()
         self.configure_git()
 
-        """
-        Install Atom
-        """
+        AtomKeyword().add(write=False)
 
-        AtomKeyword().add()
-
-        create_state_directory(self.build_config)
-
-        state = State(self.build_config, self.build_config.version, [], [])
+        state = State(self.build_config,
+                      self.build_config.version, [], ["atom"])
         state.write()
 
         print('[INFO] Tuffix init succeeded')

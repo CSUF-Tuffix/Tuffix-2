@@ -11,6 +11,12 @@ import unittest
 
 class DescribeCommandTest(unittest.TestCase):
     def test_describe_command_valid(self):
+        """
+        List all valid commands and check the output
+        of the function call
+        Custom keywords are NOT CURRENTLY SUPPORTED
+        """
+
         container = KeywordContainer(DEFAULT_BUILD_CONFIG)
         describe = DescribeCommand(DEFAULT_BUILD_CONFIG)
         for keyword in container.container:

@@ -77,7 +77,7 @@ class AtomKeyword(EditorBaseKeyword):
                 "https://packagecloud.io/AtomEditor/atom/gpgkey",
                 False]}
 
-    def add(self, plugins=['dbg-gdb', 'dbg', 'output-panel']):
+    def add(self, plugins=['dbg-gdb', 'dbg', 'output-panel'], write=True):
         """
         GOAL: Get and install Atom with predefined plugins
         API usage: supply custom plugins list
@@ -116,7 +116,9 @@ class AtomKeyword(EditorBaseKeyword):
                 f'chown {self.normal_user} -R {atom_conf_dir}',
                 self.normal_user)
         print("[INFO] Finished installing Atom")
-        self.update_state(self.build_config, self.packages, True)
+
+        if(write):
+            self.update_state(self.build_config, self.packages, True)
 
     def remove(self):
         edit_deb_packages(self.packages, is_installing=False)
