@@ -1,6 +1,8 @@
 import sys
 import contextlib
-import apt
+
+from io import StringIO
+import sys
 
 """
 Silence function output
@@ -20,18 +22,17 @@ def quiet():
     yield
     sys.stdout = _stdout
 
-# Try to quiet apt output
-# Source: https://stackoverflow.com/a/24146012
+# Capture the output of a function
+# Source : https://stackoverflow.com/a/16571630
 
 
-class LogInstallProgress(apt.progress.base.InstallProgress):
-    def fork(self):
-        pid = os.fork()
-        if pid == 0:
-            logfd = os.open(
-                "dpkg.log",
-                os.O_RDWR | os.O_APPEND | os.O_CREAT,
-                0o644)
-            os.dup2(logfd, 1)
-            os.dup2(logfd, 2)
-        return pid
+class Capturing(list):
+    def __enter__(self):
+        self._stdout = sys.stdout
+        sys.stdout = self._stringio = StringIO()
+        return self
+
+    def __exit__(self, *args):
+        self.extend(self._stringio.getvalue().splitlines())
+        del self._stringio    # free up some memory
+        sys.stdout = self._stdout

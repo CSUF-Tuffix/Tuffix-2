@@ -111,7 +111,7 @@ class AddRemoveHelper():
         """
         if not(isinstance(keyword, AbstractKeyword) and
                isinstance(install, bool)):
-               raise ValueError
+            raise ValueError
 
         current_state = read_state(self.build_config)
         new_action = current_state.installed
@@ -205,8 +205,8 @@ class AddRemoveHelper():
         # ./tuffix remove all
 
         if(arguments[0] == "all"):
-            try:
-                if not(override):
+            if not(override):
+                try:
                     input(
                         "[INFO] Tuffix: Are you sure you want to install/remove all packages? Press enter to continue or CTRL-D to exit: ")
                 except EOFError:
@@ -237,12 +237,12 @@ class CustomCommand(AbstractCommand):
 
     def execute(self, arguments: list):
         for path in arguments:
-            if(not os.path.exists(path)):
+            path = pathlib.Path(path)
+
+            if not(path.isfile()):
                 raise FileNotFoundError(f'[ERROR] Could not load {path}')
 
             NewClass = DEFAULT_CLASS_GENERATOR.generate(path)
-
-            path = pathlib.Path(path)
 
             NewClassInstance = NewClass()
 
