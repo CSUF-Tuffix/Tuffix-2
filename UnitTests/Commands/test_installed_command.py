@@ -45,7 +45,7 @@ class InstalledCommandTest(unittest.TestCase):
         tmux
         """
         self.assertTrue(
-            output == [textwrap.dedent(message).strip()]
+            ['\n'.join(output)] == [textwrap.dedent(message).strip()]
         )
 
     def test_installed_target_present_removed(self):
@@ -56,6 +56,7 @@ class InstalledCommandTest(unittest.TestCase):
 
         __remove = RemoveCommand(DEBUG_BUILD_CONFIG)
         __remove.execute(self.installed_packages)
-        self.assertTrue(
+        try:
             self.test_installed_target_not_present()
-        )
+        except AssertionError:
+            self.assertTrue(False)

@@ -39,6 +39,7 @@ class EditorBaseKeyword(AbstractKeyword):
     def __init__(self, build_config: BuildConfig, name: str, description: str):
         super().__init__(build_config, name, description)
         self.build_config = build_config
+        self.executor = SudoRun()
 
     def update_state(self, arguments: list, install=True):
         """
@@ -77,6 +78,7 @@ class AtomKeyword(EditorBaseKeyword):
                 "https://packagecloud.io/AtomEditor/atom/gpgkey",
                 False]}
 
+
     def add(self, plugins=['dbg-gdb', 'dbg', 'output-panel'], write=True):
         """
         GOAL: Get and install Atom with predefined plugins
@@ -86,7 +88,7 @@ class AtomKeyword(EditorBaseKeyword):
         if not(isinstance(plugins, list)):
             raise ValueError(f'expecting list, received {type(plugins)}')
 
-        atom_conf_dir = pathlib.Path(f'/home/{self.normal_user}/.atom')
+        atom_conf_dir = pathlib.Path(f'/home/{self.executor.whoami}/.atom')
 
         gpg_url = self.link_dictionary["ATOM_GPG_URL"][0]
         atom_list = pathlib.Path("/etc/apt/sources.list.d/atom.list")
@@ -103,7 +105,7 @@ class AtomKeyword(EditorBaseKeyword):
 
         self.executor.run(
             f'sudo apt-key add {gpg_dest.resolve()}',
-            self.normal_user)
+            self.executor.whoami)
 
         edit_deb_packages(self.packages, is_installing=True)
 
@@ -111,19 +113,20 @@ class AtomKeyword(EditorBaseKeyword):
             print(f'[INFO] Installing {plugin}...')
             self.executor.run(
                 f'/usr/bin/apm install {plugin}',
-                self.normal_user)
+                self.executor.whoami)
             self.executor.run(
-                f'chown {self.normal_user} -R {atom_conf_dir}',
-                self.normal_user)
+                f'chown {self.executor.whoami} -R {atom_conf_dir}',
+                self.executor.whoami)
         print("[INFO] Finished installing Atom")
 
         if(write):
-            self.update_state(self.build_config, self.packages, True)
+            self.update_state(self.packages, True)
 
-    def remove(self):
+    def remove(self, write=False):
         edit_deb_packages(self.packages, is_installing=False)
         pathlib.Path("/etc/apt/sources.list.d/atom.list").unlink()
-        self.update_state(self.build_config, self.packages, False)
+        if(write):
+            self.update_state(self.packages, False)
 
 
 class EmacsKeyword(EditorBaseKeyword):

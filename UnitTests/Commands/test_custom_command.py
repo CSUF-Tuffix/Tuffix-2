@@ -1,22 +1,34 @@
 #!/usr/bin/env python3.9
 
-from Tuffix.Commands import CustomCommand
+from Tuffix.Commands import CustomCommand, InitCommand
 
-from Tuffix.Configuration import DEFAULT_BUILD_CONFIG
+from Tuffix.Configuration import DEBUG_BUILD_CONFIG
 
 import unittest
 import textwrap
 import pathlib
 import json
+import shutil
 
 
 class CustomCommandTest(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.custom = CustomCommand(DEBUG_BUILD_CONFIG)
+        init = InitCommand(DEBUG_BUILD_CONFIG)
+        init.create_state_directory()
+
+    @classmethod
+    def tearDownClass(cls):
+        parent = cls.custom.build_config.state_path.parent
+        shutil.rmtree(parent)
+
     def test_init(self):
         """
         Test the __init__ function
         """
         try:
-            CustomCommand(DEFAULT_BUILD_CONFIG)
+            CustomCommand(DEBUG_BUILD_CONFIG)
         except ValueError:
             self.assertTrue(False)
 
@@ -36,8 +48,8 @@ class CustomCommandTest(unittest.TestCase):
         with open(payload_path, "w") as fp:
             json.dump(payload, fp)
 
-        custom = CustomCommand(DEFAULT_BUILD_CONFIG)
-        custom.execute(arguments=[payload_path.resolve()])
+        custom = CustomCommand(DEBUG_BUILD_CONFIG)
+        custom.execute(arguments=[str(payload_path.resolve())])
 
         payload_path.unlink()
 
@@ -46,7 +58,7 @@ class CustomCommandTest(unittest.TestCase):
         Test execute with invalid payload
         """
 
-        custom = CustomCommand(DEFAULT_BUILD_CONFIG)
+        custom = CustomCommand(DEBUG_BUILD_CONFIG)
         try:
             custom.execute(arguments=['/tmp/this_is_a_fake_path.json'])
         except FileNotFoundError:
@@ -69,7 +81,7 @@ class CustomCommandTest(unittest.TestCase):
                 "instructor": "Jared Dyreson",
             }
         ]
-        custom = CustomCommand(DEFAULT_BUILD_CONFIG)
+        custom = CustomCommand(DEBUG_BUILD_CONFIG)
         path = "/tmp/malformed_payload.json"
 
         for payload in payloads:

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3.9
 
 from Tuffix.Keywords import KeywordContainer
+from Tuffix.Editors import EditorKeywordContainer, EditorBaseKeyword
 from Tuffix.Commands import DescribeCommand
 from Tuffix.Configuration import DEFAULT_BUILD_CONFIG, read_state
 
@@ -18,8 +19,7 @@ class DescribeCommandTest(unittest.TestCase):
         """
 
         container = KeywordContainer(DEFAULT_BUILD_CONFIG).container
-        current_state = read_state(DEFAULT_BUILD_CONFIG)
-        container.extend(current_state.editors)
+        container.extend(EditorKeywordContainer(DEFAULT_BUILD_CONFIG).container)
 
         describe = DescribeCommand(DEFAULT_BUILD_CONFIG)
         for keyword in container:

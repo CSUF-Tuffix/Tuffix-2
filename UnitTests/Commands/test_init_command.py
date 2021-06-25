@@ -1,7 +1,7 @@
 #!/usr/bin/env python3.9
 
 from Tuffix.Commands import InitCommand
-from Tuffix.Configuration import DEBUG_BUILD_CONFIG
+from Tuffix.Configuration import DEBUG_BUILD_CONFIG, read_state
 from Tuffix.Editors import AtomKeyword
 from Tuffix.Quieter import Capturing
 from Tuffix.SudoRun import SudoRun
@@ -25,27 +25,14 @@ class InitCommandTest(unittest.TestCase):
         parent = cls.init.build_config.state_path.parent
         shutil.rmtree(parent)
 
-    def test_execute_no_args(self):
-        """
-        Make sure we throw a ValueError for not providing
-        arguments to the function
-        """
-        __init = InitCommand(DEBUG_BUILD_CONFIG)
-        try:
-            __init.execute([])
-        except ValueError:
-            pass
-        else:
-            self.assertTrue(False)
-
     def test_create_state_directory(self):
         """
         Test if the state directory can be created
         """
 
-        state_path, json_path = self.init.build_config.state_path, self.init.build_config.json_path
+        state_path, json_path = self.init.build_config.state_path, self.init.build_config.json_state_path
 
-        init.create_state_directory()
+        self.init.create_state_directory()
 
         # check if Tuffix was successfully been configured
         if not(state_path.is_file() and json_path.is_dir()):
@@ -68,15 +55,25 @@ class InitCommandTest(unittest.TestCase):
             termcolor.colored("Successfully configured git", 'green') ==
             output[0])
 
-        with open(git_configuration_file, "w") as fp:
+        with open(git_configuration_file, "r") as fp:
             content = ''.join(fp.readlines())
 
-        _user_re = re.compile("user = (?P<username>.*)")
+        _user_re = re.compile("name = (?P<username>.*)")
         _email_re = re.compile("email = (?P<email>.*)")
 
-        if not((user_match := _user_re.search(content)) and
-               (email_match := _email_re.search(content))):
+        user_match = _user_re.search(content)
+        email_match = _email_re.search(content)
+
+        if not(user_match and email_match):
+            print(user_match)
+            print(email_match)
             self.assertTrue(False)
+
+        # if not((user_match := _user_re.search(content)) and
+               # (email_match := _email_re.search(content))):
+            # print(user_match)
+            # print(email_match)
+            # self.assertTrue(False)
 
         user, mail = user_match.group("username"), email_match.group("email")
 
@@ -89,12 +86,8 @@ class InitCommandTest(unittest.TestCase):
         tuffix_list = pathlib.Path("/etc/apt/sources.list.d/tuffix.list")
         self.init.configure_ppa()
 
-        if not(tuffix_list.is_file() or
-               (apt_key := shutil.which("apt-key")) or
-               (bash := shutil.which("bash"))):
+        if not(tuffix_list.is_file()):
             self.assertTrue(False)
-
-        # NOTE: this might need to change when I leave the project
 
         expression = """
         (?P<id>(([A-Za-z0-9]{4}\s*)){10})
@@ -102,6 +95,9 @@ class InitCommandTest(unittest.TestCase):
         """
 
         apt_key_re = re.compile(textwrap.dedent(expression).strip())
+        apt_key = shutil.which("apt-key")
+        bash = shutil.which("bash")
+
         apt_key_output = '\n'.join(subprocess.check_output(
             f'{apt_key} list',
             shell=True,
@@ -112,15 +108,15 @@ class InitCommandTest(unittest.TestCase):
         if not(match := (apt_key_re.search(apt_key_output))):
             self.assertTrue(False)
 
-        _id, author, email = match.groups()
+        _id, _, _, author, _, email = match.groups()
 
         self.assertTrue(
-            (author == "Jared Dyreson") and
+            (author == "Jared Dyreson ") and
             (email == "jareddyreson@csu.fullerton.edu")
         )
 
         removal_output = '\n'.join(subprocess.check_output(
-            f'{apt_key} del {_id}',
+            f'{apt_key} del "{_id}"',
             shell=True,
             executable=bash,
             encoding="utf-8",
@@ -137,11 +133,11 @@ class InitCommandTest(unittest.TestCase):
         Please consult UnitTests/Editors/test_atom_keyword.py for a micro perspective
         """
 
-        self.init.install_atom()
+        self.init.install_atom(write=True)
         current_state = read_state(self.init.build_config)
         self.assertTrue("atom" in current_state.editors)
 
-        AtomKeyword().remove()
+        AtomKeyword(self.init.build_config).remove(write=True)
         new_state = read_state(self.init.build_config)
 
-        self.assertTrue("atom" not in current_state.editors)
+        self.assertTrue(new_state.editors == [])

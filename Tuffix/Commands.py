@@ -217,7 +217,7 @@ class AddRemoveHelper():
                     x) for x in state.installed]  # all installed
 
         self.run_commands(collection, install)
-        os.system("apt autoremove")  # purge system of unneeded dependencies
+        os.system("apt autoremove -y")  # purge system of unneeded dependencies
 
 
 class AddCommand(AbstractCommand):
@@ -260,12 +260,12 @@ class CustomCommand(AbstractCommand):
 
             NewClassInstance = NewClass()
 
-            self.mark = AddRemoveHelper(DEFAULT_BUILD_CONFIG, "add")
+            self.mark = AddRemoveHelper(self.build_config, "add")
             self.mark.execute([NewClassInstance.name],
                               (True, NewClassInstance))
 
             shutil.copyfile(
-                path, DEFAULT_BUILD_CONFIG.json_state_path / path.stem)
+                path, self.build_config.json_state_path / path.stem)
 
 
 class DescribeCommand(AbstractCommand):
@@ -281,7 +281,7 @@ class DescribeCommand(AbstractCommand):
     def execute(self, arguments):
         if not (isinstance(arguments, list) and
                 all([isinstance(_, str) for _ in arguments])):
-            raise ValueError
+            raise ValueError(f'received type: {type(arguments[0])}')
         if(len(arguments) != 1):
             raise UsageError("Please supply at only one keyword to describe")
         k_container = KeywordContainer(DEFAULT_BUILD_CONFIG)
@@ -304,13 +304,19 @@ class InitCommand(AbstractCommand):
     def __init__(self, build_config: BuildConfig):
         super().__init__(build_config, 'init', 'initialize tuffix')
 
-    def create_state_directory():
+    def create_state_directory(self):
         """
         Create the directory for the state file, unless it already exists
         """
 
         ensure_root_access()
-        os.makedirs(self.build_config.state_path, exist_ok=True)
+        os.makedirs(self.build_config.state_path.parent, exist_ok=True)
+
+        new_state = State(self.build_config,
+                          self.build_config.version,
+                          [], [])
+        new_state.write()
+
         os.makedirs(self.build_config.json_state_path,
                     exist_ok=True)  # for custom commands
 
@@ -354,7 +360,7 @@ class InitCommand(AbstractCommand):
             executor.whoami)
 
     def install_atom(self, write=False):
-        AtomKeyword().add(write=write)
+        AtomKeyword(self.build_config).add(write=write)
 
     def execute(self, arguments: list):
         if not (isinstance(arguments, list) and
@@ -404,7 +410,7 @@ class ListCommand(AbstractCommand):
 
     def execute(self, arguments: list):
         if not(isinstance(arguments, list) and
-                ((argc := len(arguments) != 0))):
+                ((argc := len(arguments) >= 0))):
             raise ValueError
 
         container = KeywordContainer(self.build_config).container
@@ -419,18 +425,20 @@ class StatusCommand(AbstractCommand):
 
     def execute(self, arguments: list):
         if not(isinstance(arguments, list) and
-                ((argc := len(arguments)) != 0)):
+                ((argc := len(arguments)) >= 0)):
             raise ValueError
 
+        messsage = (None, None)
         try:
             for line in status():
                 print(line)
         except EnvironmentError as error:
-            message = f'{"#" * 10} [INFO] Status failed ({error}) {"#" * 10}'
-            print(colored(message, "red"))
+            message = (f'{"#" * 10} [INFO] Status failed ({error}) {"#" * 10}', "red")
         else:
-            messsage = f'{"#" * 10} [INFO] Status succeeded {"#" * 10}'
-            print(colored(message, "green"))
+            message = (f'{"#" * 10} [INFO] Status succeeded {"#" * 10}', "green")
+        content, color = message
+        print(colored(content, color))
+        
 
 
 class RemoveCommand(AbstractCommand):

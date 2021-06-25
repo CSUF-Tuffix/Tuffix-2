@@ -554,6 +554,9 @@ class KeywordContainer():
             ZoomKeyword(build_config),
         ]
 
+        __container = EditorKeywordContainer(build_config).container
+        self.container.extend(__container)
+
     def obtain(self, value: str) -> tuple:
         if(not isinstance(value, str)):
             raise ValueError(f'incorrect type: {type(value)}')
