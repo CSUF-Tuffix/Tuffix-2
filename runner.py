@@ -61,13 +61,26 @@ def conduct_test(path: pathlib.Path, pedantic: bool):
 
 
 def run_tests():
-    tests = construct_filesystem(pedantic=False)
+    # tests = construct_filesystem(pedantic=False)
+    tests = [{'Commands': [
+        ('test_abstract_command_base.py', False),
+        ('test_add_command.py', False),
+        # ('test_add_remove_helper.py', False),
+        # ('test_custom_command.py', False),
+        # ('test_describe_command.py', False),
+        # ('test_init_command.py', False),
+        # ('test_installed_command.py', False),
+        # ('test_list_command.py', False),
+        # ('test_remove_command.py', False),
+        # ('test_status_command.py', False)]}
+    ]
     base_folder = pathlib.Path("UnitTests")
     for test in tests:
         for name, arguments in test.items():
             for subtest, pedantic in arguments:
                 path = (base_folder / name / subtest)
                 conduct_test(path, pedantic)
+
 
 # cache this so it doesn't run all of them at once
 run_tests()
