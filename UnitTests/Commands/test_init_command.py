@@ -66,7 +66,7 @@ class InitCommandTest(unittest.TestCase):
 
         self.assertTrue(
             termcolor.colored("Successfully configured git", 'green') ==
-            *output)
+            output[0])
 
         with open(git_configuration_file, "w") as fp:
             content = ''.join(fp.readlines())
