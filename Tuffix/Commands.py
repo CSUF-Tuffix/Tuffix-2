@@ -385,16 +385,15 @@ class InstalledCommand(AbstractCommand):
 
     def execute(self, arguments):
         if not (isinstance(arguments, list) and
-                all([isinstance(_, str) for _ in arguments]) and
                 not arguments):
             raise ValueError
 
         state = read_state(self.build_config)
 
-        if((_len := len(state.installed)) == 0):
+        if((argc := len(state.installed)) == 0):
             print('[INFO] No keywords are installed')
         else:
-            print(f'[INFO] Tuffix installed keywords {_len}:')
+            print(f'[INFO] Tuffix installed keywords ({argc}):')
             for name in state.installed:
                 print(name)
 
@@ -405,11 +404,11 @@ class ListCommand(AbstractCommand):
 
     def execute(self, arguments: list):
         if not(isinstance(arguments, list) and
-                ((size := len(arguments) != 0))):
+                ((argc := len(arguments) != 0))):
             raise ValueError
 
         container = KeywordContainer(self.build_config).container
-        print('tuffix list of keywords:')
+        print('[INFO] Tuffix list of keywords:')
         for keyword in container:
             print(f'{keyword.name.ljust(KEYWORD_MAX_LENGTH)}   {keyword.description}')
 
@@ -427,8 +426,8 @@ class StatusCommand(AbstractCommand):
             for line in status():
                 print(line)
         except EnvironmentError as error:
-            print(
-                f"[ERROR] Tuffix failed to produce information about the system: {error}")
+            message = f'{"#" * 10} [INFO] Status failed ({error}) {"#" * 10}'
+            print(colored(message, "red"))
         else:
             messsage = f'{"#" * 10} [INFO] Status succeeded {"#" * 10}'
             print(colored(message, "green"))
