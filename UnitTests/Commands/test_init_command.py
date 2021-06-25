@@ -20,7 +20,7 @@ class InitCommandTest(unittest.TestCase):
     def setUpClass(cls):
         cls.init = InitCommand(DEBUG_BUILD_CONFIG)
 
-    @classemethod
+    @classmethod
     def tearDownClass(cls):
         parent = cls.init.build_config.state_path.parent
         shutil.rmtree(parent)
