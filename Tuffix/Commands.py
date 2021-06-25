@@ -280,7 +280,7 @@ class DescribeCommand(AbstractCommand):
 
     def execute(self, arguments):
         if not (isinstance(arguments, list) and
-                all([isinstance(argument, str) for argument in arguments])):
+                all([isinstance(_, str) for _ in arguments])):
             raise ValueError
         if(len(arguments) != 1):
             raise UsageError("Please supply at only one keyword to describe")
@@ -353,12 +353,12 @@ class InitCommand(AbstractCommand):
             f'sudo apt-key add {gpg_dest.resolve()}',
             executor.whoami)
 
-    def install_atom(self):
-        AtomKeyword().add(write=False)
+    def install_atom(self, write=False):
+        AtomKeyword().add(write=write)
 
     def execute(self, arguments: list):
         if not (isinstance(arguments, list) and
-                all([isinstance(argument, str) for argument in arguments]) and
+                all([isinstance(_, str) for _ in arguments]) and
                 not arguments):
             # this should also be caught when testing (give multiple args)
             raise ValueError
@@ -370,6 +370,7 @@ class InitCommand(AbstractCommand):
 
         self.configure_ppa()
         self.configure_git()
+        self.install_atom(write=True)
 
         state = State(self.build_config,
                       self.build_config.version, [], ["atom"])
@@ -379,59 +380,49 @@ class InitCommand(AbstractCommand):
 
 
 class InstalledCommand(AbstractCommand):
-    def __init__(self, build_config):
+    def __init__(self, build_config: BuildConfig):
         super().__init__(build_config, 'installed', 'list all currently-installed keywords')
 
     def execute(self, arguments):
         if not (isinstance(arguments, list) and
-                all([isinstance(argument, str) for argument in arguments])):
+                all([isinstance(_, str) for _ in arguments]) and
+                not arguments):
             raise ValueError
-
-        if len(arguments) != 0:
-            raise UsageError("installed command does not accept arguments")
 
         state = read_state(self.build_config)
 
-        if len(state.installed) == 0:
+        if((_len := len(state.installed)) == 0):
             print('[INFO] No keywords are installed')
         else:
-            print('[INFO] Tuffix installed keywords:')
+            print(f'[INFO] Tuffix installed keywords {_len}:')
             for name in state.installed:
                 print(name)
 
 
 class ListCommand(AbstractCommand):
-    def __init__(self, build_config):
+    def __init__(self, build_config: BuildConfig):
         super().__init__(build_config, 'list', 'list all available keywords')
 
-    def execute(self, arguments):
-        if not (isinstance(arguments, list) and
-                all([isinstance(argument, str) for argument in arguments])):
+    def execute(self, arguments: list):
+        if not(isinstance(arguments, list) and
+                ((size := len(arguments) != 0))):
             raise ValueError
 
-        if len(arguments) != 0:
-            raise UsageError("list command does not accept arguments")
-
+        container = KeywordContainer(self.build_config).container
         print('tuffix list of keywords:')
-        container = KeywordContainer(self.build_config)
-        for keyword in container.container:
+        for keyword in container:
             print(f'{keyword.name.ljust(KEYWORD_MAX_LENGTH)}   {keyword.description}')
 
 
 class StatusCommand(AbstractCommand):
-    def __init__(self, build_config):
+    def __init__(self, build_config: BuildConfig):
         super().__init__(build_config, 'status', 'status of the current host')
 
-    def ascii_checkmark(self) -> str:
-        return ""
-
-    def execute(self, arguments):
-        if not (isinstance(arguments, list) and
-                all([isinstance(argument, str) for argument in arguments])):
+    def execute(self, arguments: list):
+        if not(isinstance(arguments, list) and
+                ((argc := len(arguments)) != 0)):
             raise ValueError
 
-        if len(arguments) != 0:
-            raise UsageError("status command does not accept arguments")
         try:
             for line in status():
                 print(line)
@@ -439,26 +430,30 @@ class StatusCommand(AbstractCommand):
             print(
                 f"[ERROR] Tuffix failed to produce information about the system: {error}")
         else:
-            print(colored("[INFO] Status succeeded!", "green"))
+            messsage = f'{"#" * 10} [INFO] Status succeeded {"#" * 10}'
+            print(colored(message, "green"))
 
 
 class RemoveCommand(AbstractCommand):
-    def __init__(self, build_config):
+    def __init__(self, build_config: BuildConfig):
         super().__init__(build_config, 'remove', 'remove (uninstall) one or more keywords')
         self.mark = AddRemoveHelper(build_config, self.name)
 
-    def execute(self, arguments):
+    def execute(self, arguments: list):
+        if not(isinstance(arguments, list) and
+               all([isinstance(_, str) for _ in arguments])):
+            raise ValueError
         self.mark.execute(arguments)
 
 
-def all_commands(build_config):
+def all_commands(build_config: BuildConfig):
     """
     CURRENT COMMANDS SUPPORTED
     Create and return a list containing one instance of every known
     AbstractCommand, using build_config and state for each.
     """
 
-    if not isinstance(build_config, BuildConfig):
+    if not(isinstance(build_config, BuildConfig)):
         raise ValueError
     # alphabetical order
     return [AddCommand(build_config),
@@ -468,5 +463,4 @@ def all_commands(build_config):
             InstalledCommand(build_config),
             ListCommand(build_config),
             StatusCommand(build_config),
-            RemoveCommand(build_config),
-            ]
+            RemoveCommand(build_config), ]
