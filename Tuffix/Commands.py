@@ -320,6 +320,15 @@ class InitCommand(AbstractCommand):
         os.makedirs(self.build_config.json_state_path,
                     exist_ok=True)  # for custom commands
 
+    def remove_state_directory(self):
+        """
+        Remove the current state path
+        """
+
+        ensure_root_access()
+        shutil.rmtree(self.build_config.state_path.parent)
+        
+
     def configure_git(self, username=None, mail=None):
         """
         GOAL: Configure Git

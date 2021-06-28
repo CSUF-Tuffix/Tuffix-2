@@ -8,4 +8,4 @@ import unittest
 
 class BuildConfigTest(unittest.TestCase):
     def test_eq_operator(self):
-        self.assertTrue(DEFAULT_BUILD_CONFIG == DEBUG_BUILD_CONFIG)
+        self.assertFalse(DEFAULT_BUILD_CONFIG == DEBUG_BUILD_CONFIG)

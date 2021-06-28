@@ -61,7 +61,7 @@ def conduct_test(path: pathlib.Path, pedantic: bool):
 
 
 def run_tests():
-    tests = construct_filesystem(pedantic=False)
+    tests = construct_filesystem(pedantic=True)
     base_folder = pathlib.Path("UnitTests")
     for test in tests:
         for name, arguments in test.items():
