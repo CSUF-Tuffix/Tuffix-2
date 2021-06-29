@@ -31,10 +31,10 @@ class DebBuilderTest(unittest.TestCase):
         cls.parent = pathlib.Path(f'/tmp/{cls.Debbuilder.name}')
 
         cls.scripts = [
-            pathlib.Path("preinst"),
-            pathlib.Path("postinst"),
-            pathlib.Path("prerm"),
-            pathlib.Path("postrm")
+            pathlib.Path("/tmp/preinst"),
+            pathlib.Path("/tmp/postinst"),
+            pathlib.Path("/tmp/prerm"),
+            pathlib.Path("/tmp/postrm")
         ]
         for script in cls.scripts:
             script.touch()
