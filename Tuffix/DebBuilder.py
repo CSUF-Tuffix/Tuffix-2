@@ -5,6 +5,7 @@ import shutil
 import tarfile
 import textwrap
 
+from Tuffix.Exceptions import ParsingError
 
 class DebBuilder:
     """
@@ -45,7 +46,7 @@ class DebBuilder:
         _match = self.control_re.match(contents)
 
         if(not _match):
-            raise ValueError('control filed parsing')
+            raise ParsingError('control filed parsing')
 
         self.parsed_contents = _match
 
@@ -66,24 +67,25 @@ class DebBuilder:
     def make(
             self,
             control: pathlib.Path,
-            scripts=[],
-            base_dir=pathlib.Path('usr')):
+            scripts =  [],
+            base_dir = [pathlib.Path('usr')], 
+            children = []):
         if not(isinstance(control, pathlib.Path) and
-               isinstance(scripts, list)):
+               isinstance(scripts, list) and
+               isinstance(base_dir, list) and
+               all([isinstance(path, pathlib.Path) for path in base_dir]) and
+               isinstance(children, list)):
             raise ValueError
 
-        self.parse_control_file(control)  # can raise ValueError
+        self.parse_control_file(control)  # can raise ParsingError
 
-        children: list[pathlib.Path] = [
-            pathlib.Path('DEBIAN'),
-            base_dir  # assuming relative to root -> usr == /usr
-        ]
+        base_dir.insert(0, pathlib.Path('DEBIAN'))
 
         self.make_structure(children)
 
         with tarfile.open(self.payload) as tar:
             # dump contents of tar into base dir
-            tar.extractall(self.output / base_dir)
+            tar.extractall(self.output / base_dir[0])
 
         debian_base = pathlib.Path(f'/tmp/{self.name}/DEBIAN')
         shutil.copy(control, (debian_base / 'control'))
@@ -98,4 +100,4 @@ class DebBuilder:
                 destination.chmod(0o775)  # give proper permissions
         self.debian_path = pathlib.Path(f'/tmp/{self.name}.deb')
         os.system(
-            f'dpkg-deb --build {self.output} {self.debian_path.resolve()}')
+            f'dpkg-deb --build {self.output} {self.debian_path}')

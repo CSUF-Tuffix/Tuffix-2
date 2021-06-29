@@ -39,7 +39,8 @@ setup(
         'requests',
         'requests',
         'termcolor',
-        'PyGObject'
+        'PyGObject',
+        'python-magic'
     ],
     include_package_data=True,
     classifiers=['Programming Language :: Python :: 3.8']

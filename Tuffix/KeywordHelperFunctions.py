@@ -19,7 +19,7 @@ class LinkChecker:
     # def link_up(self, link: str) -> tuple[bool, int]:
 
     def link_up(self, link: str):
-        request = requests.get(link)
+        request = requests.head(link)
         status = ((request.status_code >= 200)
                   and (request.status_code <= 299))
         return (status, request.status_code)

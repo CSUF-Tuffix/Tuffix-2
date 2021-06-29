@@ -68,3 +68,14 @@ class PrivilageExecutionException(MessageException):
 
     def __init__(self, message):
         super().__init__(message)
+
+
+class ParsingError(MessageException):
+    """
+    issue reported when root code execution is invoked by non privilaged user.
+    Use for internal API
+    """
+
+    def __init__(self, message):
+        super().__init__(message)
+
