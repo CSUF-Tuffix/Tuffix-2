@@ -298,33 +298,6 @@ class C240Keyword(AbstractKeyword):
         self.edit_deb_packages(self.packages, is_installing=False)
 
 
-class C351Keyword(AbstractKeyword):
-
-    """
-    Point person: William McCarthy
-    TO BE REMOVED
-    """
-
-    def __init__(self, build_config):
-        super().__init__(build_config, 'C351', 'CPSC 351 (Operating Systems)')
-        self.packages = [f'linux-headers-{current_kernel_revision()}']
-
-    def add(self):
-        print('important that you make a save state in your VM of tuffix or just install the tuffix installers scripts in another VM if you have a native install. You can mess up your main OS')
-        self.edit_deb_packages(self.packages, is_installing=True)
-        silberschatz_url = "http://cs.westminstercollege.edu/~greg/osc10e/final-src-osc10e.zip"
-        r = requests.get(silberschatz_url)
-        stored = "/tmp/kernel-exercises.zip"
-        with open(stored, 'wb') as f:
-            f.write(r.content)
-
-        with ZipFile(stored, 'r') as zipObj:
-            zipObj.extractAll()
-
-    def remove(self):
-        self.edit_deb_packages(self.packages, is_installing=False)
-
-
 class C474Keyword(AbstractKeyword):
 
     """
