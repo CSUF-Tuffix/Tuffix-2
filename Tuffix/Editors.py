@@ -1,10 +1,7 @@
-##########################################################################
-# editors
-# AUTHOR: Jared Dyreson
-##########################################################################
-
-
 """
+editors
+AUTHOR: Jared Dyreson
+
 Supported:
 - atom
 - eclipse
@@ -15,13 +12,9 @@ Supported:
 - vscode
 """
 
-# NOTE : bug present in class structure where packages variable is not defined
-# must use the self.name attr to get the package name. Unknown cause
-
 from Tuffix.Keywords import AbstractKeyword
 
 from Tuffix.SudoRun import SudoRun
-from Tuffix.KeywordHelperFunctions import *
 from Tuffix.Exceptions import *
 from Tuffix.Configuration import *
 from Tuffix.DebBuilder import DebBuilder
@@ -130,7 +123,7 @@ class AtomKeyword(EditorBaseKeyword):
             f'sudo apt-key add {gpg_dest.resolve()}',
             self.executor.whoami)
 
-        edit_deb_packages(self.packages, is_installing=True)
+        self.edit_deb_packages(self.packages, is_installing=True)
 
         for plugin in plugins:
             print(f'[INFO] Installing {plugin}...')
@@ -146,7 +139,7 @@ class AtomKeyword(EditorBaseKeyword):
             self.update_state(self.packages, True)
 
     def remove(self, write=False):
-        edit_deb_packages(self.packages, is_installing=False)
+        self.edit_deb_packages(self.packages, is_installing=False)
         self.file_path["ATOM_SOURCE"].unlink()
         if(write):
             self.update_state(self.packages, False)
@@ -162,11 +155,11 @@ class EmacsKeyword(EditorBaseKeyword):
         self.packages: list[str] = ['emacs']
 
     def add(self):
-        edit_deb_packages(self.packages, is_installing=True)
+        self.edit_deb_packages(self.packages, is_installing=True)
         self.update_state(self.packages, True)
 
     def remove(self):
-        edit_deb_packages(self.packages, is_installing=False)
+        self.edit_deb_packages(self.packages, is_installing=False)
         self.update_state(self.packages, False)
 
 
@@ -195,7 +188,7 @@ class EclipseKeyword(AbstractKeyword):
         If any issues arise post installation, please let the developers know ASAP
         """
 
-        edit_deb_packages(packages, is_installing=True)
+        self.edit_deb_packages(packages, is_installing=True)
         url = self.link_dictionary["ECLIPSE_URL"].link
 
         content = requests.get(url).content
@@ -256,7 +249,7 @@ class EclipseKeyword(AbstractKeyword):
 
     def remove(self):
         self.file_footprint["ECLIPSE_LAUNCHER"].unlink()
-        edit_deb_packages(self.packages, is_installing=False)
+        self.edit_deb_packages(self.packages, is_installing=False)
         self.update_state(self.packages, False)
 
 
@@ -267,11 +260,11 @@ class GeanyKeyword(EditorBaseKeyword):
         self.packages: list[str] = ['geany']
 
     def add(self):
-        edit_deb_packages(self.packages, is_installing=True)
+        self.edit_deb_packages(self.packages, is_installing=True)
         self.update_state(self.packages, True)
 
     def remove(self):
-        edit_deb_packages(self.packages, is_installing=False)
+        self.edit_deb_packages(self.packages, is_installing=False)
         self.update_state(self.packages, False)
 
 
@@ -281,11 +274,11 @@ class NetbeansKeyword(EditorBaseKeyword):
         self.packages: list[str] = ['netbeans']
 
     def add(self):
-        edit_deb_packages(self.packages, is_installing=True)
+        self.edit_deb_packages(self.packages, is_installing=True)
         self.update_state(self.packages, True)
 
     def remove(self):
-        edit_deb_packages(self.packages, is_installing=False)
+        self.edit_deb_packages(self.packages, is_installing=False)
         self.update_state(self.packages, False)
 
 
@@ -307,13 +300,13 @@ class VimKeyword(EditorBaseKeyword):
             content = requests.get(vimrc_path).content
             with open(vrc, "wb") as fp:
                 fp.write(content)
-        edit_deb_packages(self.packages, is_installing=True)
+        self.edit_deb_packages(self.packages, is_installing=True)
         self.update_state(self.packages[:1], True)
         if(vimrc_path):
             self.executor.run(f'vim +silent +PluginInstall +qall')
 
     def remove(self):
-        edit_deb_packages(self.packages, is_installing=False)
+        self.edit_deb_packages(self.packages, is_installing=False)
         self.update_state(self.packages[:1], False)
 
 
@@ -341,7 +334,7 @@ class VscodeKeyword(EditorBaseKeyword):
         self.update_state(self.packages, True)
 
     def remove(self):
-        edit_deb_packages(self.packages, is_installing=False)
+        self.edit_deb_packages(self.packages, is_installing=False)
         self.update_state(self.packages, False)
 
 

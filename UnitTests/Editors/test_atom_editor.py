@@ -2,7 +2,7 @@
 
 
 from Tuffix.Configuration import DEBUG_BUILD_CONFIG, read_state, State
-from Tuffix.KeywordHelperFunctions import DEFAULT_LINK_CHECKER
+from Tuffix.LinkChecker import DEFAULT_LINK_CHECKER
 from Tuffix.Commands import InitCommand
 from Tuffix.Editors import AtomKeyword
 from Tuffix.Exceptions import UsageError

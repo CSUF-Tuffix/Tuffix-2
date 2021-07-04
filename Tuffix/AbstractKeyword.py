@@ -38,7 +38,6 @@ class AbstractKeyword:
         current_cache.update()
 
         container = self.packages if not self.checkable_packages else self.checkable_packages
-        print(container)
 
         for package in container:
             # will raise KeyError if not found
@@ -61,3 +60,37 @@ class AbstractKeyword:
         except KeyError:
             raise EnvironmentError(
                 f'[ERROR] No such package "{package_name}"; is this Ubuntu?')
+
+    def edit_deb_packages(self, package_names: list, is_installing: bool):
+        if not (isinstance(package_names, list) and
+                all(isinstance(name, str) for name in package_names) and
+                isinstance(is_installing, bool)):
+            raise ValueError
+        print(
+            f'[INFO] Adding all packages to the APT queue ({len(package_names)})')
+        cache = apt.cache.Cache()
+        cache.update()
+        cache.open()
+
+        for name in package_names:
+            print(
+                f'[INFO] {"Installing" if is_installing else "Removing"} package: {name}')
+            try:
+                cache[name].mark_install() if(
+                    is_installing) else cache[name].mark_delete()
+            except KeyError:
+                raise EnvironmentError(
+                    f'[ERROR] Debian package "{name}" not found, is this Ubuntu?')
+        try:
+            cache.commit()
+        except OSError:
+            DEFAULT_PROCESS_HANDLER.remove_process("apt")
+            raise EnvironmentError(
+                '[FATAL] Could not continue, apt was holding resources. Processes were killed, please try again.')
+        except Exception as e:
+            cache.close()
+            raise EnvironmentError(f'[ERROR] Could not install {name}: {e}.')
+        finally:
+            # unittest complains there is an open file but I have tried closing it in every avenue
+            # NOTE : possible memory leak
+            cache.close()

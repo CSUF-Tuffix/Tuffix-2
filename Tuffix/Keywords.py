@@ -1,7 +1,7 @@
-##########################################################################
-# keywords
-# AUTHORS: Kevin Wortman, Jared Dyreson
-##########################################################################
+"""
+keywords
+AUTHORS: Kevin Wortman, Jared Dyreson
+"""
 
 from Tuffix.AbstractKeyword import AbstractKeyword
 # this is because we want to have access to this base class across two
@@ -11,11 +11,11 @@ from Tuffix.Editors import *
 
 from Tuffix.Configuration import *
 from Tuffix.SudoRun import SudoRun
-from Tuffix.KeywordHelperFunctions import *
 from Tuffix.Status import *
 
 from apt import debfile, cache
 from zipfile import ZipFile
+
 import functools
 import json
 import requests
@@ -33,10 +33,10 @@ class AllKeyword(AbstractKeyword):
         self.packages = []
 
     def add(self):
-        edit_deb_packages(self.packages, is_installing=True)
+        self.edit_deb_packages(self.packages, is_installing=True)
 
     def remove(self):
-        edit_deb_packages(self.packages, is_installing=False)
+        self.edit_deb_packages(self.packages, is_installing=False)
 
 
 class GeneralKeyword(AbstractKeyword):
@@ -73,12 +73,12 @@ class GeneralKeyword(AbstractKeyword):
                          'synaptic']
 
     def add(self):
-        edit_deb_packages(self.packages, is_installing=True)
+        self.edit_deb_packages(self.packages, is_installing=True)
         VimKeyword(self.build_config).add()
         EmacsKeyword(self.build_config).add()
 
     def remove(self):
-        edit_deb_packages(self.packages, is_installing=False)
+        self.edit_deb_packages(self.packages, is_installing=False)
         VimKeyword(self.build_config).remove()
         EmacsKeyword(self.build_config).remove()
 
@@ -125,10 +125,10 @@ class BaseKeyword(AbstractKeyword):
 
     def add(self):
         self.google_test_all()
-        edit_deb_packages(self.packages, is_installing=True)
+        self.edit_deb_packages(self.packages, is_installing=True)
 
     def remove(self):
-        edit_deb_packages(self.packages, is_installing=False)
+        self.edit_deb_packages(self.packages, is_installing=False)
 
     def google_test_build(self):
         """
@@ -200,10 +200,10 @@ class C223JKeyword(AbstractKeyword):
                          'openjdk-8-jre']
 
     def add(self):
-        edit_deb_packages(self.packages, is_installing=True)
+        self.edit_deb_packages(self.packages, is_installing=True)
 
     def remove(self):
-        edit_deb_packages(self.packages, is_installing=False)
+        self.edit_deb_packages(self.packages, is_installing=False)
 
 
 class C223NKeyword(AbstractKeyword):
@@ -218,10 +218,10 @@ class C223NKeyword(AbstractKeyword):
                          'netbeans']
 
     def add(self):
-        edit_deb_packages(self.packages, is_installing=True)
+        self.edit_deb_packages(self.packages, is_installing=True)
 
     def remove(self):
-        edit_deb_packages(self.packages, is_installing=False)
+        self.edit_deb_packages(self.packages, is_installing=False)
 
 
 class C223PKeyword(AbstractKeyword):
@@ -248,10 +248,10 @@ class C223PKeyword(AbstractKeyword):
                          'virtualenvwrapper']
 
     def add(self):
-        edit_deb_packages(self.packages, is_installing=True)
+        self.edit_deb_packages(self.packages, is_installing=True)
 
     def remove(self):
-        edit_deb_packages(self.packages, is_installing=False)
+        self.edit_deb_packages(self.packages, is_installing=False)
 
 
 class C223WKeyword(AbstractKeyword):
@@ -279,10 +279,10 @@ class C223WKeyword(AbstractKeyword):
                          'zlib1g-dev']
 
     def add(self):
-        edit_deb_packages(self.packages, is_installing=True)
+        self.edit_deb_packages(self.packages, is_installing=True)
 
     def remove(self):
-        edit_deb_packages(self.packages, is_installing=False)
+        self.edit_deb_packages(self.packages, is_installing=False)
 
 
 class C240Keyword(AbstractKeyword):
@@ -297,10 +297,10 @@ class C240Keyword(AbstractKeyword):
                          'nasm']
 
     def add(self):
-        edit_deb_packages(self.packages, is_installing=True)
+        self.edit_deb_packages(self.packages, is_installing=True)
 
     def remove(self):
-        edit_deb_packages(self.packages, is_installing=False)
+        self.edit_deb_packages(self.packages, is_installing=False)
 
 
 class C351Keyword(AbstractKeyword):
@@ -316,7 +316,7 @@ class C351Keyword(AbstractKeyword):
 
     def add(self):
         print('important that you make a save state in your VM of tuffix or just install the tuffix installers scripts in another VM if you have a native install. You can mess up your main OS')
-        edit_deb_packages(self.packages, is_installing=True)
+        self.edit_deb_packages(self.packages, is_installing=True)
         silberschatz_url = "http://cs.westminstercollege.edu/~greg/osc10e/final-src-osc10e.zip"
         r = requests.get(silberschatz_url)
         stored = "/tmp/kernel-exercises.zip"
@@ -327,7 +327,7 @@ class C351Keyword(AbstractKeyword):
             zipObj.extractAll()
 
     def remove(self):
-        edit_deb_packages(self.packages, is_installing=False)
+        self.edit_deb_packages(self.packages, is_installing=False)
 
 
 class C474Keyword(AbstractKeyword):
@@ -346,10 +346,10 @@ class C474Keyword(AbstractKeyword):
                          'openmpi-common']
 
     def add(self):
-        edit_deb_packages(self.packages, is_installing=True)
+        self.edit_deb_packages(self.packages, is_installing=True)
 
     def remove(self):
-        edit_deb_packages(self.packages, is_installing=False)
+        self.edit_deb_packages(self.packages, is_installing=False)
 
 
 class C481Keyword(AbstractKeyword):
@@ -371,11 +371,11 @@ class C481Keyword(AbstractKeyword):
                          'swi-prolog-x']
 
     def add(self):
-        edit_deb_packages(self.packages, is_installing=True)
+        self.edit_deb_packages(self.packages, is_installing=True)
         EclipseKeyword(self.build_config).add()
 
     def remove(self):
-        edit_deb_packages(packages, is_installing=False)
+        self.edit_deb_packages(packages, is_installing=False)
         EclipseKeyword(self.build_config).remove()
 
 
@@ -405,10 +405,10 @@ class C484Keyword(AbstractKeyword):
                          'openctm-tools']
 
     def add(self):
-        edit_deb_packages(self.packages, is_installing=True)
+        self.edit_deb_packages(self.packages, is_installing=True)
 
     def remove(self):
-        edit_deb_packages(self.packages, is_installing=False)
+        self.edit_deb_packages(self.packages, is_installing=False)
 
 
 class MediaKeyword(AbstractKeyword):
@@ -423,10 +423,10 @@ class MediaKeyword(AbstractKeyword):
                          'vlc']
 
     def add(self):
-        edit_deb_packages(self.packages, is_installing=True)
+        self.edit_deb_packages(self.packages, is_installing=True)
 
     def remove(self):
-        edit_deb_packages(self.packages, is_installing=False)
+        self.edit_deb_packages(self.packages, is_installing=False)
 
 
 class LatexKeyword(AbstractKeyword):
@@ -450,11 +450,11 @@ class LatexKeyword(AbstractKeyword):
         if((_match := re.compile("full|skim", flags=re.IGNORECASE).match(version)) is not None):
             print(_match)
 
-        # edit_deb_packages(self.packages, is_installing=True)
+        # self.edit_deb_packages(self.packages, is_installing=True)
 
     def remove(self):
         pass
-        # edit_deb_packages(self.packages, is_installing=False)
+        # self.edit_deb_packages(self.packages, is_installing=False)
 
 
 class VirtualBoxKeyword(AbstractKeyword):
@@ -471,10 +471,10 @@ class VirtualBoxKeyword(AbstractKeyword):
                 "This is a virtual enviornment, not proceeding")
 
     def add(self):
-        edit_deb_packages(self.packages, is_installing=True)
+        self.edit_deb_packages(self.packages, is_installing=True)
 
     def remove(self):
-        edit_deb_packages(self.packages, is_installing=False)
+        self.edit_deb_packages(self.packages, is_installing=False)
 
 
 class ZoomKeyword(AbstractKeyword):
@@ -492,7 +492,7 @@ class ZoomKeyword(AbstractKeyword):
 
     def add(self):
         # print("[WARNING] Zoom is not an open source piece of software")
-        edit_deb_packages(self.checkable_packages, is_installing=True)
+        self.edit_deb_packages(self.checkable_packages, is_installing=True)
 
         url = "https://zoom.us/client/latest/zoom_amd64.deb"
         file_path = "/tmp/zoom"
@@ -501,7 +501,7 @@ class ZoomKeyword(AbstractKeyword):
         apt.debfile.DebPackage(filename=file_path).install()
 
     def remove(self):
-        edit_deb_packages(self.packages, is_installing=False)
+        self.edit_deb_packages(self.packages, is_installing=False)
 
 
 class TMuxKeyword(AbstractKeyword):
@@ -520,14 +520,14 @@ class TMuxKeyword(AbstractKeyword):
         self.packages = ['tmux']
 
     def add(self):
-        edit_deb_packages(self.packages, is_installing=True)
+        self.edit_deb_packages(self.packages, is_installing=True)
         # VimKeyword(self.build_config).add()
         # EmacsKeyword(self.build_config).add()
 
     def remove(self):
         # VimKeyword(self.bc).remove()
         # EmacsKeyword(self.bc).remove()
-        edit_deb_packages(self.packages, is_installing=False)
+        self.edit_deb_packages(self.packages, is_installing=False)
 
 
 class KeywordContainer():
@@ -604,11 +604,11 @@ def partial_class(information: tuple, cls):
             description=description,
             packages=packages),
         "add": partial(
-            edit_deb_packages,
+            self.edit_deb_packages,
             package_names=packages,
             is_installing=True),
         "remove": partial(
-            edit_deb_packages,
+            self.edit_deb_packages,
             package_names=packages,
             is_installing=False)}
 
