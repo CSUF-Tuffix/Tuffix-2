@@ -2,9 +2,17 @@ from Tuffix.Configuration import DEBUG_BUILD_CONFIG, read_state, State
 from Tuffix.Commands import InitCommand
 from Tuffix.Editors import EmacsKeyword
 
+# from UnitTests.BaseEditorTester import BaseTestClass
 import unittest
 
 IGNORE_ME = True
+
+# class EmacsKeywordTest(BaseTestClass.BaseEditorsTest):
+# @classmethod
+# def setUpClass(cls):
+# super(BaseTestClass.BaseEditorsTest, cls).setUpClass()
+# # cls.Keyword = EmacsKeyword(DEBUG_BUILD_CONFIG)
+# # print(f'{cls.__name__} -> {dir(cls)}')
 
 
 class EmacsKeywordTest(unittest.TestCase):
@@ -35,7 +43,7 @@ class EmacsKeywordTest(unittest.TestCase):
 
         try:
             self.assertTrue(self.Emacs.is_deb_package_installed('emacs'))
-        except EnvError:
+        except EnvironmentError:
             self.assertTrue(False)
 
     def test_remove(self):
@@ -49,5 +57,5 @@ class EmacsKeywordTest(unittest.TestCase):
 
         try:
             self.assertFalse(self.Emacs.is_deb_package_installed('emacs'))
-        except EnvError:
+        except EnvironmentError:
             self.assertTrue(False)

@@ -4,7 +4,8 @@ from Tuffix.Editors import GeanyKeyword
 
 import unittest
 
-# IGNORE_ME = True
+IGNORE_ME = True
+
 
 class GeanyKeywordTest(unittest.TestCase):
     @classmethod

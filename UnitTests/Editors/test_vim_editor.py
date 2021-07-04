@@ -2,6 +2,7 @@ from Tuffix.Configuration import DEBUG_BUILD_CONFIG, read_state, State
 from Tuffix.Commands import InitCommand
 from Tuffix.Editors import VimKeyword
 
+import unittest
 
 class VimKeywordTest(unittest.TestCase):
     @classmethod
@@ -23,18 +24,17 @@ class VimKeywordTest(unittest.TestCase):
         Install vim and check the state path
         """
 
-       before_install = read_state(DEBUG_BUILD_CONFIG)
-       self.assertTrue("vim" not in before_install.editors)
-       self.Vim.add(write=True)
-       after_install = read_state(DEBUG_BUILD_CONFIG)
-       self.assertTrue("vim" in after_install.editors)
+        before_install = read_state(DEBUG_BUILD_CONFIG)
+        self.assertTrue("vim" not in before_install.editors)
+        self.Vim.add()
+        after_install = read_state(DEBUG_BUILD_CONFIG)
+        self.assertTrue("vim" in after_install.editors)
 
     def test_remove(self):
         """
         Remove vim and check the state path
         """
 
-        self.Vim.remove(write=True)
+        self.Vim.remove()
         after_removal = read_state(DEBUG_BUILD_CONFIG)
         self.assertTrue("vim" not in after_removal.editors)
-

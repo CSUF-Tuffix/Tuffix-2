@@ -1,9 +1,5 @@
-#!/usr/bin/env python3.9
+#!/usr/bin/env python3
 
-# from Tuffix.Driver import *
-# from Tuffix.Configuration import DEFAULT_BUILD_CONFIG
-# from Tuffix.Keywords import KeywordContainer
-# from Tuffix.Exceptions import *
 from Tuffix.Quieter import quiet
 from UnitTests.SequentialTest import SequentialTestLoader
 
@@ -17,12 +13,12 @@ import pickle
 runner = unittest.TextTestRunner()
 
 
-def construct_filesystem(pedantic: bool) -> list:
+def construct_filesystem(pedantic):
     if not(isinstance(pedantic, bool)):
         raise ValueError(f'{pedantic=} is not a `bool`')
 
     excluded_dirs = ["__pycache__", "TEST"]
-    excluded_files = ["SequentialTest.py", "__init__.py"]
+    excluded_files = ["SequentialTest.py", "__init__.py", "BaseTester.py"]
     container = []
 
     for dirpath, dirs, filepath in os.walk("UnitTests", topdown=True):
@@ -36,6 +32,7 @@ def construct_filesystem(pedantic: bool) -> list:
                 {test_name: filepath}
             )
     return container
+    # return sorted(container, reverse=False)
 
 
 def conduct_test(path: pathlib.Path, pedantic: bool):
@@ -55,6 +52,8 @@ def conduct_test(path: pathlib.Path, pedantic: bool):
     for _test in tests:
         print(f'[INFO] Conducting {_test}')
         test_instance = getattr(module, _test, None)
+        # if(hasattr(test_instance, 'setUp')):
+        # test_instance.setUp()
         test_suite = SequentialTestLoader().loadTestsFromTestCase(test_instance)
         if(pedantic):
             runner.run(test_suite)

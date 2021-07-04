@@ -54,12 +54,10 @@ class AtomKeywordTest(unittest.TestCase):
         installable_packages = ["dbg-gdb", "dbg", "output-panel"]
 
         with CapturingStderr() as _:
-            self.assertFalse(
-                all([self.Atom.check_apm_candiate(_) for _ in uninstallable_packages])
-            )
-            self.assertTrue(
-                all([self.Atom.check_apm_candiate(_) for _ in installable_packages])
-            )
+            self.assertFalse(all([self.Atom.check_apm_candiate(_)
+                                  for _ in uninstallable_packages]))
+            self.assertTrue(all([self.Atom.check_apm_candiate(_)
+                                 for _ in installable_packages]))
 
     def test_ppa_installation(self):
         """
@@ -70,8 +68,8 @@ class AtomKeywordTest(unittest.TestCase):
         self.Atom.install_ppa()
 
         expression = """
-        (?P<id>(([A-Z0-9]{4}\s*)){10})
-        uid\s*[[].*[]]\s*(?P<link>https\:\/\/.*)\s\(.*\)\s[<](?P<email>.*)[>]
+        (?P<id>(([A-Z0-9]{4}\\s*)){10})
+        uid\\s*[[].*[]]\\s*(?P<link>https\\:\\/\\/.*)\\s\\(.*\\)\\s[<](?P<email>.*)[>]
         """
 
         apt_key_re = re.compile(textwrap.dedent(expression).strip())
@@ -98,7 +96,6 @@ class AtomKeywordTest(unittest.TestCase):
         for _, artifcat in self.Atom.file_footprint.items():
             self.assertTrue(artifcat.is_file())
 
-
     def test_add(self):
         self.Atom.add(write=False)
         try:
@@ -110,8 +107,8 @@ class AtomKeywordTest(unittest.TestCase):
         pass
         # self.Atom.remove(write=False)
         # for _, artifcat in self.Atom.file_footprint.items():
-            # self.assertFalse(artifcat.is_file())
+        # self.assertFalse(artifcat.is_file())
         # try:
-            # self.assertFalse(self.Atom.is_deb_package_installed('atom'))
+        # self.assertFalse(self.Atom.is_deb_package_installed('atom'))
         # except EnvironmentError:
-            # self.assertTrue(False)
+        # self.assertTrue(False)
