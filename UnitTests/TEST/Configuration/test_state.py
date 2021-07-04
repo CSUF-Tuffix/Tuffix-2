@@ -2,7 +2,7 @@
 
 from Tuffix.Configuration import State, read_state, BuildConfig, DEBUG_BUILD_CONFIG, DEFAULT_BUILD_CONFIG
 from Tuffix.Commands import InitCommand
-from Tuffix.Exceptions import EnvironmentError as EnvError
+# from Tuffix.Exceptions import EnvironmentError as EnvError
 
 # NOTE : naming conflict from std::EnvironmentError
 # SEVERITY: moderate
@@ -47,7 +47,7 @@ class StateTest(unittest.TestCase):
 
         try:
             read_state(DEBUG_BUILD_CONFIG)
-        except (FileNotFoundError, EnvError):
+        except (FileNotFoundError, EnvironmentError):
             self.Init.create_state_directory()
             self.state.write()
         else:
@@ -73,7 +73,7 @@ class StateTest(unittest.TestCase):
 
         try:
             read_state(DEBUG_BUILD_CONFIG)
-        except EnvError:
+        except EnvironmentError:
             self.state = self.another
         else:
             self.assertTrue(False)
@@ -83,7 +83,7 @@ class StateTest(unittest.TestCase):
 
         try:
             read_state(DEBUG_BUILD_CONFIG)
-        except EnvError:
+        except EnvironmentError:
             self.state = self.another
         else:
             self.assertTrue(False)
@@ -97,7 +97,7 @@ class StateTest(unittest.TestCase):
         # ValueError <- given in constructor of State()
         try:
             read_state(DEBUG_BUILD_CONFIG)
-        except EnvError:
+        except EnvironmentError:
             self.state = self.another
         else:
             self.assertTrue(False)

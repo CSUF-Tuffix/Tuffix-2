@@ -6,7 +6,6 @@ from Tuffix.LinkChecker import DEFAULT_LINK_CHECKER
 from Tuffix.Commands import InitCommand
 from Tuffix.Editors import AtomKeyword
 from Tuffix.Exceptions import UsageError
-from Tuffix.Exceptions import EnvironmentError as EnvError 
 from Tuffix.Quieter import CapturingStderr, Capturing
 
 import unittest
@@ -104,7 +103,7 @@ class AtomKeywordTest(unittest.TestCase):
         self.Atom.add(write=False)
         try:
             self.assertTrue(self.Atom.is_deb_package_installed('atom'))
-        except EnvError:
+        except EnvironmentError:
             self.assertTrue(False)
 
     def test_remove(self):
@@ -114,5 +113,5 @@ class AtomKeywordTest(unittest.TestCase):
             # self.assertFalse(artifcat.is_file())
         # try:
             # self.assertFalse(self.Atom.is_deb_package_installed('atom'))
-        # except EnvError:
+        # except EnvironmentError:
             # self.assertTrue(False)

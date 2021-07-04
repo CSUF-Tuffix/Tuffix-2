@@ -2,8 +2,6 @@ from Tuffix.Configuration import DEBUG_BUILD_CONFIG, read_state, State
 from Tuffix.Commands import InitCommand
 from Tuffix.Editors import GeanyKeyword
 
-from Tuffix.Exceptions import EnvironmentError as EnvError
-
 import unittest
 
 # IGNORE_ME = True
@@ -36,7 +34,7 @@ class GeanyKeywordTest(unittest.TestCase):
 
         try:
             self.assertTrue(self.Geany.is_deb_package_installed('geany'))
-        except EnvError:
+        except EnvironmentError:
             self.assertTrue(False)
 
     def test_remove(self):
@@ -50,5 +48,5 @@ class GeanyKeywordTest(unittest.TestCase):
 
         try:
             self.assertFalse(self.Geany.is_deb_package_installed('geany'))
-        except EnvError:
+        except EnvironmentError:
             self.assertTrue(False)

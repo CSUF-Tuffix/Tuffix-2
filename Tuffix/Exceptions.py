@@ -23,15 +23,6 @@ class UsageError(MessageException):
         super().__init__(message)
 
 
-class EnvironmentError(MessageException):
-    """
-    Problem with the environment (wrong OS, essential shell command missing, etc.)
-    """
-
-    def __init__(self, message):
-        super().__init__(message)
-
-
 class StatusError(MessageException):
     """
     Issue reported by the `status` command, that's at the level of a fatal error
