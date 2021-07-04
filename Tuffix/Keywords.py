@@ -7,11 +7,12 @@ from Tuffix.AbstractKeyword import AbstractKeyword
 # this is because we want to have access to this base class across two
 # source files that import each other
 
-from Tuffix.Editors import *
+from Tuffix.Editors import VimKeyword, EmacsKeyword
 
 from Tuffix.Configuration import *
 from Tuffix.SudoRun import SudoRun
 from Tuffix.Status import *
+from Tuffix.LinkChecker import LinkPacket
 
 from apt import debfile, cache
 from zipfile import ZipFile
@@ -116,12 +117,9 @@ class BaseKeyword(AbstractKeyword):
                          'python2']
 
         self.link_dictionary = {
-            "GOOGLE_TEST_URL": [
-                "https://github.com/google/googletest.git",
-                True],
-            "TEST_URL": [
-                "https://github.com/JaredDyreson/tuffix-google-test.git",
-                True]}
+            "GOOGLE_TEST_URL": LinkPacket(link="https://github.com/google/googletest.git", is_git=True),
+            "TEST_URL": LinkPacket(link="https://github.com/JaredDyreson/tuffix-google-test.git", is_git=True)
+        }
 
     def add(self):
         self.google_test_all()
@@ -134,8 +132,7 @@ class BaseKeyword(AbstractKeyword):
         """
         GOAL: Get and install GoogleTest
         """
-        GOOGLE_TEST_URL = self.link_dictionary["GOOGLE_TEST_URL"][0]
-        # GOOGLE_TEST_URL = "https://github.com/google/googletest.git"
+        GOOGLE_TEST_URL = self.link_dictionary["GOOGLE_TEST_URL"].link
         GOOGLE_DEST = "google"
 
         os.chdir("/tmp")
@@ -157,7 +154,7 @@ class BaseKeyword(AbstractKeyword):
         """
         # TODO : change link to be under CSUF domain
         # TEST_URL = "https://github.com/JaredDyreson/tuffix-google-test.git"
-        TEST_URL = self.link_dictionary["TEST_URL"][0]
+        TEST_URL = self.link_dictionary["TEST_URL"].link
         TEST_DEST = "test"
 
         os.chdir("/tmp")
@@ -240,8 +237,6 @@ class C223PKeyword(AbstractKeyword):
         super().__init__(build_config, 'C223P', 'CPSC 223P (Python Programming)')
         self.packages = ['python2',
                          'python2-dev',
-                         # 'python-pip',
-                         # 'python-virtualenv',
                          'python3',
                          'python3-dev',
                          'python3-pip',
@@ -307,8 +302,8 @@ class C351Keyword(AbstractKeyword):
 
     """
     Point person: William McCarthy
+    TO BE REMOVED
     """
-    # TODO: testing and doing
 
     def __init__(self, build_config):
         super().__init__(build_config, 'C351', 'CPSC 351 (Operating Systems)')
@@ -372,11 +367,11 @@ class C481Keyword(AbstractKeyword):
 
     def add(self):
         self.edit_deb_packages(self.packages, is_installing=True)
-        EclipseKeyword(self.build_config).add()
+        # EclipseKeyword(self.build_config).add()
 
     def remove(self):
         self.edit_deb_packages(packages, is_installing=False)
-        EclipseKeyword(self.build_config).remove()
+        # EclipseKeyword(self.build_config).remove()
 
 
 class C484Keyword(AbstractKeyword):
@@ -415,8 +410,9 @@ class MediaKeyword(AbstractKeyword):
 
     def __init__(self, build_config):
         super().__init__(build_config, 'media', 'Media Computation Tools')
-        self.packages = ['audacity',
-                         'blender',
+        # Audacity is marked for removal, there has been some privacy concerns
+        # 'audacity',
+        self.packages = ['blender',
                          'gimp',
                          'imagemagick',
                          'sox',

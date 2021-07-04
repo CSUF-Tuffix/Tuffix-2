@@ -199,7 +199,7 @@ class EclipseKeyword(AbstractKeyword):
         If any issues arise post installation, please let the developers know ASAP
         """
 
-        self.edit_deb_packages(packages, is_installing=True)
+        self.edit_deb_packages(self.packages[1:], is_installing=True)
         url = self.link_dictionary["ECLIPSE_URL"].link
 
         content = requests.get(url).content
@@ -338,7 +338,7 @@ class VscodeKeyword(EditorBaseKeyword):
 
     def add(self):
         url = self.link_dictionary["VSCODE_DEB"].link
-        deb_path = pathlib.Path("/tmp/vscode.deb")
+        deb_path = "/tmp/vscode.deb"
         print("[INFO] Downloading installer...")
         content = requests.get(url).content
         with open(deb_path, "wb") as fp:

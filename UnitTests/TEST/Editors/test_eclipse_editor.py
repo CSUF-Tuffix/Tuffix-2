@@ -2,6 +2,9 @@ from Tuffix.Configuration import DEBUG_BUILD_CONFIG, read_state, State
 from Tuffix.Commands import InitCommand
 from Tuffix.Editors import EclipseKeyword
 
+import unittest
+
+IGNORE_ME = True
 
 class EclipseKeywordTest(unittest.TestCase):
     @classmethod
@@ -23,20 +26,20 @@ class EclipseKeywordTest(unittest.TestCase):
         Install eclipse and check the state path
         """
 
-       before_install = read_state(DEBUG_BUILD_CONFIG)
-       self.assertTrue("eclipse" not in before_install.editors)
-       self.Eclipse.add(write=True)
-       after_install = read_state(DEBUG_BUILD_CONFIG)
-       self.assertTrue("eclipse" in after_install.editors)
-       for name, path in self.Eclipse.file_footprint.items():
-           self.assertTrue(path.is_file())
+        before_install = read_state(DEBUG_BUILD_CONFIG)
+        self.assertTrue("eclipse" not in before_install.editors)
+        self.Eclipse.add()
+        after_install = read_state(DEBUG_BUILD_CONFIG)
+        self.assertTrue("eclipse" in after_install.editors)
+        for name, path in self.Eclipse.file_footprint.items():
+            self.assertTrue(path.is_file())
 
     def test_remove(self):
         """
         Remove eclipse and check the state path
         """
 
-        self.Eclipse.remove(write=True)
+        self.Eclipse.remove()
         after_removal = read_state(DEBUG_BUILD_CONFIG)
         self.assertTrue("eclipse" not in after_removal.editors)
         for name, path in self.Eclipse.file_footprint.items():

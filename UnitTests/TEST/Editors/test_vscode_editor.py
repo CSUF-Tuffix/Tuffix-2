@@ -2,6 +2,9 @@ from Tuffix.Configuration import DEBUG_BUILD_CONFIG, read_state, State
 from Tuffix.Commands import InitCommand
 from Tuffix.Editors import VscodeKeyword
 
+import unittest
+
+IGNORE_ME = True
 
 class VscodeKeywordTest(unittest.TestCase):
     @classmethod
@@ -23,18 +26,18 @@ class VscodeKeywordTest(unittest.TestCase):
         Install vscode and check the state path
         """
 
-       before_install = read_state(DEBUG_BUILD_CONFIG)
-       self.assertTrue("vscode" not in before_install.editors)
-       self.Vscode.add(write=True)
-       after_install = read_state(DEBUG_BUILD_CONFIG)
-       self.assertTrue("vscode" in after_install.editors)
+        before_install = read_state(DEBUG_BUILD_CONFIG)
+        self.assertTrue("code" not in before_install.editors)
+        self.Vscode.add()
+        after_install = read_state(DEBUG_BUILD_CONFIG)
+        self.assertTrue("code" in after_install.editors)
 
     def test_remove(self):
         """
         Remove vscode and check the state path
         """
 
-        self.Vscode.remove(write=True)
+        self.Vscode.remove()
         after_removal = read_state(DEBUG_BUILD_CONFIG)
-        self.assertTrue("vscode" not in after_removal.editors)
+        self.assertTrue("code" not in after_removal.editors)
 
