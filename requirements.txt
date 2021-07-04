@@ -1,8 +1,0 @@
-Crypto
-packaging
-pycryptodome
-pyfakefs
-python-gnupg
-requests
-termcolor
-psutil
