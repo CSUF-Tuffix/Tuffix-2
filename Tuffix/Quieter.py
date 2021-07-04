@@ -37,6 +37,7 @@ class Capturing(list):
         del self._stringio    # free up some memory
         sys.stdout = self._stdout
 
+
 class CapturingStderr(list):
     def __enter__(self):
         self._stderr = sys.stderr

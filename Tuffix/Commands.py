@@ -327,7 +327,6 @@ class InitCommand(AbstractCommand):
 
         ensure_root_access()
         shutil.rmtree(self.build_config.state_path.parent)
-        
 
     def configure_git(self, username=None, mail=None):
         """
@@ -442,12 +441,15 @@ class StatusCommand(AbstractCommand):
             for line in status():
                 print(line)
         except EnvironmentError as error:
-            message = (f'{"#" * 10} [INFO] Status failed ({error}) {"#" * 10}', "red")
+            message = (
+                f'{"#" * 10} [INFO] Status failed ({error}) {"#" * 10}',
+                "red")
         else:
-            message = (f'{"#" * 10} [INFO] Status succeeded {"#" * 10}', "green")
+            message = (
+                f'{"#" * 10} [INFO] Status succeeded {"#" * 10}',
+                "green")
         content, color = message
         print(colored(content, color))
-        
 
 
 class RemoveCommand(AbstractCommand):

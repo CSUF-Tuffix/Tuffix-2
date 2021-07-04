@@ -19,7 +19,8 @@ class DescribeCommandTest(unittest.TestCase):
         """
 
         container = KeywordContainer(DEFAULT_BUILD_CONFIG).container
-        container.extend(EditorKeywordContainer(DEFAULT_BUILD_CONFIG).container)
+        container.extend(EditorKeywordContainer(
+            DEFAULT_BUILD_CONFIG).container)
 
         describe = DescribeCommand(DEFAULT_BUILD_CONFIG)
         for keyword in container:

@@ -1,8 +1,9 @@
 from Tuffix.Configuration import DEBUG_BUILD_CONFIG, read_state, State
 from Tuffix.Commands import InitCommand
-from Tuffix.Editors import NetbeansKeyword
+from Tuffix.Editors import VimKeyword
 
-class NetbeansKeyword(unittest.TestCase):
+
+class VimKeywordTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.state = State(DEBUG_BUILD_CONFIG,
@@ -11,29 +12,29 @@ class NetbeansKeyword(unittest.TestCase):
         cls.Init = InitCommand(DEBUG_BUILD_CONFIG)
         cls.Init.create_state_directory()
         cls.state.write()
-        cls.Netbeans = NetbeansKeyword(DEBUG_BUILD_CONFIG)
+        cls.Vim = VimKeyword(DEBUG_BUILD_CONFIG)
 
     @classmethod
     def tearDownClass(cls):
         cls.state.build_config.state_path.unlink()
-    
+
     def test_add(self):
         """
-        Install netbeans and check the state path
+        Install vim and check the state path
         """
 
        before_install = read_state(DEBUG_BUILD_CONFIG)
-       self.assertTrue("netbeans" not in before_install.editors)
-       self.Netbeans.add(write=True)
+       self.assertTrue("vim" not in before_install.editors)
+       self.Vim.add(write=True)
        after_install = read_state(DEBUG_BUILD_CONFIG)
-       self.assertTrue("netbeans" in after_install.editors)
+       self.assertTrue("vim" in after_install.editors)
 
     def test_remove(self):
         """
-        Remove netbeans and check the state path
+        Remove vim and check the state path
         """
 
-        self.Netbeans.remove(write=True)
+        self.Vim.remove(write=True)
         after_removal = read_state(DEBUG_BUILD_CONFIG)
-        self.assertTrue("netbeans" not in after_removal.editors)
+        self.assertTrue("vim" not in after_removal.editors)
 

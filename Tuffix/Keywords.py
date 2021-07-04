@@ -645,7 +645,11 @@ class ClassKeywordGenerator():
         name, instructor, packages = content["name"].replace(
             ' ', '').lower(), content["instructor"], content["packages"]
 
-        return partial_class((name, f'created by {instructor} for {name}', packages), AbstractKeyword)
+        return partial_class(
+            (name,
+             f'created by {instructor} for {name}',
+             packages),
+            AbstractKeyword)
 
 
 DEFAULT_CLASS_GENERATOR = ClassKeywordGenerator()

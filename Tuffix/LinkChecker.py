@@ -3,6 +3,7 @@ import re
 import requests
 import dataclasses
 
+
 @dataclasses.dataclass
 class LinkPacket:
     link: str
@@ -18,8 +19,8 @@ class LinkChecker:
             raise ValueError
 
         request = requests.head(link)
-        status = ((request.status_code >= 200)
-                  and (request.status_code <= 299) or request.status_code == 302)
+        status = ((request.status_code >= 200) and (
+            request.status_code <= 299) or request.status_code == 302)
         return (status, request.status_code)
 
     def check_links(self, manifest: dict) -> None:
@@ -35,7 +36,6 @@ class LinkChecker:
             if not(status):
                 raise UsageError(
                     f'[INTERNAL ERROR] Could not reach link {link}, received code: {code}')
-
 
 
 DEFAULT_LINK_CHECKER = LinkChecker()

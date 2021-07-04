@@ -43,7 +43,6 @@ class StateTest(unittest.TestCase):
         # init has not been completed yet
         # OSError, FileNotFoundError
 
-
         self.Init.remove_state_directory()
 
         try:

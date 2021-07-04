@@ -11,6 +11,7 @@ import requests
 import tarfile
 import magic
 
+
 class DebBuilderTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -25,7 +26,7 @@ class DebBuilderTest(unittest.TestCase):
 
         cls.Debbuilder = DebBuilder(
             name='unittestexample_jtool',
-            payload=cls.payload_path    
+            payload=cls.payload_path
         )
 
         cls.parent = pathlib.Path(f'/tmp/{cls.Debbuilder.name}')
@@ -63,7 +64,7 @@ class DebBuilderTest(unittest.TestCase):
             self.Debbuilder.parse_control_file(self.control_path)
         except ParsingError:
             self.assertTrue(False)
-    
+
     def test_make_structure(self):
         """
         Ensure the structure is made during this function call
@@ -87,7 +88,9 @@ class DebBuilderTest(unittest.TestCase):
         with tarfile.open(self.payload_path) as fp:
             fp.extractall(self.parent / self.children[1])
 
-        perm = lambda x: oct(self.permissions) == oct(x.stat().st_mode & 0o777)
+        def perm(x): return oct(
+            self.permissions) == oct(
+            x.stat().st_mode & 0o777)
 
         self.assertTrue(
             all([perm(x) for x in self.scripts])
@@ -97,12 +100,10 @@ class DebBuilderTest(unittest.TestCase):
             self.Debbuilder.make(
                 control=self.control_path,
                 scripts=self.scripts,
-                base_dir = [pathlib.Path('usr')],
-                children = self.children
-            ) 
-        __m = magic.Magic(mime = True)
+                base_dir=[pathlib.Path('usr')],
+                children=self.children
+            )
+        __m = magic.Magic(mime=True)
 
-        self.assertTrue(
-            self.Debbuilder.debian_path.exists() and
-            __m.from_file(f'{self.Debbuilder.debian_path}') == "application/vnd.debian.binary-package"
-        )
+        self.assertTrue(self.Debbuilder.debian_path.exists() and __m.from_file(
+            f'{self.Debbuilder.debian_path}') == "application/vnd.debian.binary-package")

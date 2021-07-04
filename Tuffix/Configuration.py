@@ -48,7 +48,8 @@ DEFAULT_BUILD_CONFIG = BuildConfig(VERSION, STATE_PATH, JSON_PATH)
 DEBUG_BUILD_CONFIG = BuildConfig(
     VERSION, DEBUG_STATE_PATH, DEBUG_JSON_PATH)
 # this is for reading and writing to a separate Tuffix instance on the machine
-# we can remove it when we're done so we don't have to worry about having left-over installations
+# we can remove it when we're done so we don't have to worry about having
+# left-over installations
 
 
 class State:

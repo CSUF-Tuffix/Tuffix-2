@@ -70,7 +70,7 @@ class InitCommandTest(unittest.TestCase):
             self.assertTrue(False)
 
         # if not((user_match := _user_re.search(content)) and
-               # (email_match := _email_re.search(content))):
+            # (email_match := _email_re.search(content))):
             # print(user_match)
             # print(email_match)
             # self.assertTrue(False)
@@ -90,8 +90,8 @@ class InitCommandTest(unittest.TestCase):
             self.assertTrue(False)
 
         expression = """
-        (?P<id>(([A-Za-z0-9]{4}\s*)){10})
-        uid\s*\[.*\]\s*(?P<author>([A-Za-z]+\s?)+)\<(?P<email>.*)\>
+        (?P<id>(([A-Za-z0-9]{4}\\s*)){10})
+        uid\\s*\\[.*\\]\\s*(?P<author>([A-Za-z]+\\s?)+)\\<(?P<email>.*)\\>
         """
 
         apt_key_re = re.compile(textwrap.dedent(expression).strip())

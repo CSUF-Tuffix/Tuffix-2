@@ -13,6 +13,7 @@ Supported:
 """
 
 from Tuffix.Keywords import AbstractKeyword
+from Tuffix.LinkChecker import LinkPacket
 
 from Tuffix.SudoRun import SudoRun
 from Tuffix.Exceptions import *
@@ -69,7 +70,9 @@ class AtomKeyword(EditorBaseKeyword):
         self.checkable_packages = []
 
         self.link_dictionary = {
-            "ATOM_GPG_URL": LinkPacket(link="https://packagecloud.io/AtomEditor/atom/gpgkey", is_git=False)}
+            "ATOM_GPG_URL": LinkPacket(
+                link="https://packagecloud.io/AtomEditor/atom/gpgkey",
+                is_git=False)}
 
         self.file_footprint = {
             "ATOM_SOURCE": pathlib.Path("/etc/apt/sources.list.d/atom.list")
@@ -85,26 +88,20 @@ class AtomKeyword(EditorBaseKeyword):
 
         if not(
             (bash := shutil.which("bash")) and
-            (apm := shutil.which("apm"))):
+                (apm := shutil.which("apm"))):
             raise ValueError
         try:
             self.executor.run(
                 f'{apm} view {package}',
-                self.executor.whoami) 
+                self.executor.whoami)
         except Exception as e:
             return False
         return True
 
-    def add(self, plugins=['dbg-gdb', 'dbg', 'output-panel'], write=True):
+    def install_ppa(self):
         """
-        GOAL: Get and install Atom with predefined plugins
-        API usage: supply custom plugins list
+        GOAL: install the Atom PPA
         """
-
-        if not(isinstance(plugins, list)):
-            raise ValueError(f'expecting list, received {type(plugins)}')
-
-        atom_conf_dir = pathlib.Path(f'/home/{self.executor.whoami}/.atom')
 
         gpg_url = self.link_dictionary["ATOM_GPG_URL"].link
         atom_list = self.file_footprint["ATOM_SOURCE"]
@@ -123,7 +120,20 @@ class AtomKeyword(EditorBaseKeyword):
             f'sudo apt-key add {gpg_dest.resolve()}',
             self.executor.whoami)
 
-        self.edit_deb_packages(self.packages, is_installing=True)
+    def add(self, plugins=['dbg-gdb', 'dbg', 'output-panel'], write=True):
+        """
+        GOAL: Get and install Atom with predefined plugins
+        API usage: supply custom plugins list
+        """
+
+        if not(isinstance(plugins, list)):
+            raise ValueError(f'expecting list, received {type(plugins)}')
+
+        atom_conf_dir = pathlib.Path(f'/home/{self.executor.whoami}/.atom')
+
+        self.install_ppa()
+
+        # self.edit_deb_packages(self.packages, is_installing=True)
 
         for plugin in plugins:
             print(f'[INFO] Installing {plugin}...')
@@ -139,8 +149,8 @@ class AtomKeyword(EditorBaseKeyword):
             self.update_state(self.packages, True)
 
     def remove(self, write=False):
-        self.edit_deb_packages(self.packages, is_installing=False)
-        self.file_path["ATOM_SOURCE"].unlink()
+        # self.edit_deb_packages(self.packages, is_installing=False)
+        self.file_footprint["ATOM_SOURCE"].unlink()
         if(write):
             self.update_state(self.packages, False)
 
@@ -177,10 +187,11 @@ class EclipseKeyword(AbstractKeyword):
         self.checkable_packages: list[str] = self.packages[0:]
 
         self.link_dictionary = {
-            "ECLIPSE_URL": LinkPacket(link="http://mirror.umd.edu/eclipse/technology/epp/downloads/release/2020-06/R/eclipse-java-2020-06-R-linux-gtk-x86_64.tar.gz", is_git=False)}
-        self.file_footprint = {
-            "ECLIPSE_LAUNCHER": pathlib.Path('/usr/share/applications/eclipse.desktop')
-        }
+            "ECLIPSE_URL": LinkPacket(
+                link="http://mirror.umd.edu/eclipse/technology/epp/downloads/release/2020-06/R/eclipse-java-2020-06-R-linux-gtk-x86_64.tar.gz",
+                is_git=False)}
+        self.file_footprint = {"ECLIPSE_LAUNCHER": pathlib.Path(
+            '/usr/share/applications/eclipse.desktop')}
 
     def add(self):
         """
@@ -293,7 +304,8 @@ class VimKeyword(EditorBaseKeyword):
         """
 
         if not(isinstance(vimrc_path, str)):
-            raise ValueError(f'expected `str`, obtained {type(vimrc_path).__name__}')
+            raise ValueError(
+                f'expected `str`, obtained {type(vimrc_path).__name__}')
 
         if(vimrc_path):
             vrc = pathlib.Path(f'/home/{self.executor.whoami}/.vimrc')
@@ -320,8 +332,9 @@ class VscodeKeyword(EditorBaseKeyword):
         self.packages: list[str] = ['code']
         self.checkable_packages = []
         self.link_dictionary = {
-            "VSCODE_DEB": LinkPacket(link="https://code.visualstudio.com/sha/download?build=stable&os=linux-deb-x64", is_git=False)
-        }
+            "VSCODE_DEB": LinkPacket(
+                link="https://code.visualstudio.com/sha/download?build=stable&os=linux-deb-x64",
+                is_git=False)}
 
     def add(self):
         url = self.link_dictionary["VSCODE_DEB"].link

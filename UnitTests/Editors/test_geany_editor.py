@@ -2,6 +2,12 @@ from Tuffix.Configuration import DEBUG_BUILD_CONFIG, read_state, State
 from Tuffix.Commands import InitCommand
 from Tuffix.Editors import GeanyKeyword
 
+from Tuffix.Exceptions import EnvironmentError as EnvError
+
+import unittest
+
+# IGNORE_ME = True
+
 class GeanyKeywordTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -16,24 +22,33 @@ class GeanyKeywordTest(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         cls.state.build_config.state_path.unlink()
-    
+
     def test_add(self):
         """
         Install geany and check the state path
         """
 
-       before_install = read_state(DEBUG_BUILD_CONFIG)
-       self.assertTrue("geany" not in before_install.editors)
-       self.Emacs.add(write=True)
-       after_install = read_state(DEBUG_BUILD_CONFIG)
-       self.assertTrue("geany" in after_install.editors)
+        before_install = read_state(DEBUG_BUILD_CONFIG)
+        self.assertTrue("geany" not in before_install.editors)
+        self.Geany.add()
+        after_install = read_state(DEBUG_BUILD_CONFIG)
+        self.assertTrue("geany" in after_install.editors)
+
+        try:
+            self.assertTrue(self.Geany.is_deb_package_installed('geany'))
+        except EnvError:
+            self.assertTrue(False)
 
     def test_remove(self):
         """
         Remove geany and check the state path
         """
 
-        self.Emacs.remove(write=True)
+        self.Geany.remove()
         after_removal = read_state(DEBUG_BUILD_CONFIG)
         self.assertTrue("geany" not in after_removal.editors)
 
+        try:
+            self.assertFalse(self.Geany.is_deb_package_installed('geany'))
+        except EnvError:
+            self.assertTrue(False)

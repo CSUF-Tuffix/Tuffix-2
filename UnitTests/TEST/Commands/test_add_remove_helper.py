@@ -77,7 +77,7 @@ class AddRemoveHelperTest(unittest.TestCase):
         status, class_instance = resultant
         self.assertTrue(
             isinstance(status, bool) and
-            (status == True) and
+            (status) and
             isinstance(class_instance, AbstractKeyword)
         )
         payload_path.unlink()
@@ -128,17 +128,21 @@ class AddRemoveHelperTest(unittest.TestCase):
             case _:
                 self.assertTrue(False)
         """
-    
+
     def test_run_commands_install(self):
         helper_add = AddRemoveHelper(DEFAULT_BUILD_CONFIG, 'add')
         # Test install
-        helper_add.run_commands(container=[(True, TMuxKeyword(DEFAULT_BUILD_CONFIG))], install=True)
+        helper_add.run_commands(
+            container=[
+                (True, TMuxKeyword(DEFAULT_BUILD_CONFIG))], install=True)
         updated_state = read_state(DEFAULT_BUILD_CONFIG)  # note the state
         self.assertTrue("tmux" in updated_state.installed)
 
         # Test reinstall
         try:
-            helper_add.run_commands(container=[(True, TMuxKeyword(DEFAULT_BUILD_CONFIG))], install=True)
+            helper_add.run_commands(
+                container=[
+                    (True, TMuxKeyword(DEFAULT_BUILD_CONFIG))], install=True)
         except UsageError:
             pass
         else:
@@ -147,12 +151,15 @@ class AddRemoveHelperTest(unittest.TestCase):
     def test_run_commands_remove(self):
         helper_remove = AddRemoveHelper(DEFAULT_BUILD_CONFIG, 'remove')
         # Test Remove
-        helper_remove.run_commands(container=[(True, TMuxKeyword(DEFAULT_BUILD_CONFIG))], install=False)
-        updated_state= read_state(DEFAULT_BUILD_CONFIG)
+        helper_remove.run_commands(
+            container=[
+                (True, TMuxKeyword(DEFAULT_BUILD_CONFIG))], install=False)
+        updated_state = read_state(DEFAULT_BUILD_CONFIG)
         self.assertTrue("tmux" not in updated_state.installed)
 
         try:
-            helper_remove.run_commands([(True, AllKeyword(DEFAULT_BUILD_CONFIG))], install=False)
+            helper_remove.run_commands(
+                [(True, AllKeyword(DEFAULT_BUILD_CONFIG))], install=False)
         except UsageError:
             pass
         else:
@@ -161,7 +168,9 @@ class AddRemoveHelperTest(unittest.TestCase):
     def test_run_commands_invalid(self):
         helper_invalid = AddRemoveHelper(DEFAULT_BUILD_CONFIG, '__remove')
         try:
-            helper_invalid.run_commands(container=[(True, TMuxKeyword(DEFAULT_BUILD_CONFIG))], install=True)
+            helper_invalid.run_commands(
+                container=[
+                    (True, TMuxKeyword(DEFAULT_BUILD_CONFIG))], install=True)
         except AttributeError:
             pass
         else:

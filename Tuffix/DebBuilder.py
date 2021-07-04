@@ -7,6 +7,7 @@ import textwrap
 
 from Tuffix.Exceptions import ParsingError
 
+
 class DebBuilder:
     """
     Take a tar ball and convert it to a Debian installer
@@ -67,9 +68,9 @@ class DebBuilder:
     def make(
             self,
             control: pathlib.Path,
-            scripts =  [],
-            base_dir = [pathlib.Path('usr')], 
-            children = []):
+            scripts=[],
+            base_dir=[pathlib.Path('usr')],
+            children=[]):
         if not(isinstance(control, pathlib.Path) and
                isinstance(scripts, list) and
                isinstance(base_dir, list) and

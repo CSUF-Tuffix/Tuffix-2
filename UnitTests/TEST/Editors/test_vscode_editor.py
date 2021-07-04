@@ -1,8 +1,9 @@
 from Tuffix.Configuration import DEBUG_BUILD_CONFIG, read_state, State
 from Tuffix.Commands import InitCommand
-from Tuffix.Editors import VimKeyword
+from Tuffix.Editors import VscodeKeyword
 
-class VimKeywordTest(unittest.TestCase):
+
+class VscodeKeywordTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.state = State(DEBUG_BUILD_CONFIG,
@@ -11,29 +12,29 @@ class VimKeywordTest(unittest.TestCase):
         cls.Init = InitCommand(DEBUG_BUILD_CONFIG)
         cls.Init.create_state_directory()
         cls.state.write()
-        cls.Vim = VimKeyword(DEBUG_BUILD_CONFIG)
+        cls.Vscode = VscodeKeyword(DEBUG_BUILD_CONFIG)
 
     @classmethod
     def tearDownClass(cls):
         cls.state.build_config.state_path.unlink()
-    
+
     def test_add(self):
         """
-        Install vim and check the state path
+        Install vscode and check the state path
         """
 
        before_install = read_state(DEBUG_BUILD_CONFIG)
-       self.assertTrue("vim" not in before_install.editors)
-       self.Vim.add(write=True)
+       self.assertTrue("vscode" not in before_install.editors)
+       self.Vscode.add(write=True)
        after_install = read_state(DEBUG_BUILD_CONFIG)
-       self.assertTrue("vim" in after_install.editors)
+       self.assertTrue("vscode" in after_install.editors)
 
     def test_remove(self):
         """
-        Remove vim and check the state path
+        Remove vscode and check the state path
         """
 
-        self.Vim.remove(write=True)
+        self.Vscode.remove(write=True)
         after_removal = read_state(DEBUG_BUILD_CONFIG)
-        self.assertTrue("vim" not in after_removal.editors)
+        self.assertTrue("vscode" not in after_removal.editors)
 

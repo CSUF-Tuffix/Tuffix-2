@@ -47,6 +47,9 @@ def conduct_test(path: pathlib.Path, pedantic: bool):
     spec = importlib.util.spec_from_file_location("test", path)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
+    if(hasattr(module, 'IGNORE_ME')):
+        print(f'[INFO] Ignoring {path}')
+        return
     tests = [_test for _test in dir(module) if (test_re.match(_test))]
 
     for _test in tests:
@@ -68,6 +71,7 @@ def run_tests():
             for subtest, pedantic in arguments:
                 path = (base_folder / name / subtest)
                 conduct_test(path, pedantic)
+
 
 # cache this so it doesn't run all of them at once
 run_tests()

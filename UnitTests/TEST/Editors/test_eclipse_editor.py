@@ -2,6 +2,7 @@ from Tuffix.Configuration import DEBUG_BUILD_CONFIG, read_state, State
 from Tuffix.Commands import InitCommand
 from Tuffix.Editors import EclipseKeyword
 
+
 class EclipseKeywordTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -16,7 +17,7 @@ class EclipseKeywordTest(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         cls.state.build_config.state_path.unlink()
-    
+
     def test_add(self):
         """
         Install eclipse and check the state path

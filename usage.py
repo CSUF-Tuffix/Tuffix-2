@@ -27,5 +27,3 @@ new_state = State(DEBUG_BUILD_CONFIG,
                   [], [])
 init_command.create_state_directory()
 new_state.write()
-
-

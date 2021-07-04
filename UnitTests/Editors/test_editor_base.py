@@ -7,6 +7,9 @@ from Tuffix.Editors import EditorBaseKeyword
 
 import unittest
 
+IGNORE_ME = True
+
+
 class EditorBaseKeywordTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -27,7 +30,8 @@ class EditorBaseKeywordTest(unittest.TestCase):
         """
 
         try:
-            ExampleEditor = EditorBaseKeyword(DEBUG_BUILD_CONFIG, 'example', 'this is an example of the base class')
+            ExampleEditor = EditorBaseKeyword(
+                DEBUG_BUILD_CONFIG, 'example', 'this is an example of the base class')
         except ValueError:
             self.assertTrue(False)
 
@@ -36,23 +40,34 @@ class EditorBaseKeywordTest(unittest.TestCase):
         Ensure we can write to the state configuration file
         """
 
-        ExampleEditor = EditorBaseKeyword(DEBUG_BUILD_CONFIG, 'example', 'this is an example of the base class')
-        
+        ExampleEditor = EditorBaseKeyword(
+            DEBUG_BUILD_CONFIG,
+            'example',
+            'this is an example of the base class')
+
         current_state = read_state(DEBUG_BUILD_CONFIG)
 
         self.assertTrue(current_state.editors == [])
 
         # "install" the current keyword
 
-        ExampleEditor.update_state(arguments=[ExampleEditor.name], install=True)
+        ExampleEditor.update_state(
+            arguments=[
+                ExampleEditor.name],
+            install=True)
 
         installed_example_state = read_state(DEBUG_BUILD_CONFIG)
 
-        self.assertTrue(installed_example_state.editors == [ExampleEditor.name])
+        self.assertTrue(
+            installed_example_state.editors == [
+                ExampleEditor.name])
 
         # "remove" the current keword
 
-        ExampleEditor.update_state(arguments=[ExampleEditor.name], install=False)
+        ExampleEditor.update_state(
+            arguments=[
+                ExampleEditor.name],
+            install=False)
 
         removed_example_state = read_state(DEBUG_BUILD_CONFIG)
 
