@@ -3,30 +3,36 @@
 # AUTHOR: Kevin Wortman, Jared Dyreson
 ##########################################################################
 
-import apt
-import pickle
-import pathlib
+from Tuffix.Exceptions import UsageError
 from functools import partial
+
+import apt
+import dataclasses
+import pathlib
+import pickle
 import psutil
 import re
 import requests
+
+@dataclasses.dataclass
+class LinkPacket:
+    link: str
+    is_git: bool
 
 
 class LinkChecker:
     def __init__(self):
         self._re = re.compile("(?P<content>.*)\\.git")
 
-    # def link_up(self, link: str) -> tuple[bool, int]:
-
     def link_up(self, link: str):
         request = requests.head(link)
         status = ((request.status_code >= 200)
-                  and (request.status_code <= 299))
+                  and (request.status_code <= 299) or request.status_code == 302)
         return (status, request.status_code)
 
     def check_links(self, manifest: dict) -> None:
         for name, container in manifest.items():
-            link, is_git = container
+            link, is_git = dataclasses.astuple(container)
             if(is_git):
                 link = self._re.match(link).group("content")
 
