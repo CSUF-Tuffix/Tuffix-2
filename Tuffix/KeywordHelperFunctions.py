@@ -1,7 +1,7 @@
-##########################################################################
-# changing the system during keyword add/remove
-# AUTHOR: Kevin Wortman, Jared Dyreson
-##########################################################################
+"""
+Changing the system during keyword add/remove
+AUTHOR: Kevin Wortman, Jared Dyreson
+"""
 
 from Tuffix.Exceptions import UsageError
 from functools import partial
@@ -41,42 +41,6 @@ class LinkChecker:
                 raise UsageError(
                     f'[INTERNAL ERROR] Could not reach link {link}, received code: {code}')
 
-
-class ProcessHandler():
-    """
-    Get a list of PIDs running on the system
-    If we run into a EnvironmentError while installing a package, we need to remove the process holding `apt`
-    And then re-run the command
-    https://stackoverflow.com/a/64906644
-
-    NOTE: THIS IS UNTESTED
-    """
-
-    def __init__(self):
-        self.processes = self.gather_processes()
-
-    def gather_processes(self) -> dict:
-
-        container = {}
-
-        for proc in psutil.process_iter():
-            if(proc.name() not in container):
-                container[proc.name()] = [proc.pid]
-            else:
-                container[proc.name()].append(proc.pid)
-
-        return container
-
-    def remove_process(self, name: str) -> None:
-        if(not isinstance(name, str)):
-            raise ValueError(
-                f'expecting `str`, received {type(name).__name__}')
-        proc_id_container = self.container[name]  # list of PIDs
-        # ^ Above will raise KeyError if the dictionary does not contain the proper name of the process you are interested in
-        for __id in proc_id_container:
-            psutil.Process(__id).terminate()  # kill the process
-
-
 def edit_deb_packages(package_names, is_installing):
     if not (isinstance(package_names, list) and
             all(isinstance(name, str) for name in package_names) and
@@ -112,5 +76,4 @@ def edit_deb_packages(package_names, is_installing):
         cache.close()
 
 
-DEFAULT_PROCESS_HANDLER = ProcessHandler()
 DEFAULT_LINK_CHECKER = LinkChecker()
