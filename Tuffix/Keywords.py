@@ -98,27 +98,26 @@ class BaseKeyword(AbstractKeyword):
 
     def __init__(self, build_config: BuildConfig):
         super().__init__(build_config,
-                         'base',
-                         'CPSC 120-121-131-301 C++ development environment')
+                        'base',
+                        'CPSC 120-121-131-301 C++ development environment')
 
-       self.packages: list[str] = ['build-essential',
-                                   'cimg-dev',
-                                   'clang',
-                                   'clang-format',
-                                   'clang-tidy',
-                                   'cmake',
-                                   # 'code',
-                                   'gdb',
-                                   'gcc',
-                                   'git',
-                                   'g++',
-                                   'libc++-dev',
-                                   'libc++abi-dev',
-                                   'libgconf-2-4',
-                                   'libgtest-dev',
-                                   'libgmock-dev',
-                                   'lldb',
-                                   'python3']
+        self.packages: list[str] = ['build-essential',
+                                    'cimg-dev',
+                                    'clang',
+                                    'clang-format',
+                                    'clang-tidy',
+                                    'cmake',
+                                    'gdb',
+                                    'gcc',
+                                    'git',
+                                    'g++',
+                                    'libc++-dev',
+                                    'libc++abi-dev',
+                                    'libgconf-2-4',
+                                    'libgtest-dev',
+                                    'libgmock-dev',
+                                    'lldb',
+                                    'python3']
 
         self.link_dictionary = {
             "GOOGLE_TEST_URL": LinkPacket(link="https://github.com/google/googletest.git", is_git=True),
@@ -193,21 +192,31 @@ class C223JKeyword(AbstractKeyword):
 
     Point Person: Floyd Holliday
     SRC: sub-tuffix/cpsc223j.yml
+
+    - removed geany, netbeans from self.packages
+    - moved them to EditorKeyword instead
+    - we need to make a decision which editor to use, both are going to be installed
+      to appease the Gods
+    - updated from Java version 8 to 11
     """
 
     def __init__(self, build_config: BuildConfig):
         super().__init__(build_config, 'C223J', 'CPSC 223J (Java Programming)')
-       self.packages: list[str] = ['geany',
-                         'gthumb',
-                         'netbeans',
-                         'openjdk-8-jdk',
-                         'openjdk-8-jre']
+        self.packages: list[str] = ['gthumb',
+                                    'openjdk-11-jdk',
+                                    'openjdk-11-jre']
+        self.Geany = GeanyKeyword(DEFAULT_BUILD_CONFIG)
+        self.Netbeans = NetbeansKeyword(DEFAULT_BUILD_CONFIG)
 
     def add(self):
         self.edit_deb_packages(self.packages, is_installing=True)
+        self.Geany.add()
+        self.Netbeans.add()
 
     def remove(self):
         self.edit_deb_packages(self.packages, is_installing=False)
+        self.Geany.remove()
+        self.Netbeans.remove()
 
 
 class C223NKeyword(AbstractKeyword):
@@ -217,40 +226,39 @@ class C223NKeyword(AbstractKeyword):
     """
 
     def __init__(self, build_config: BuildConfig):
-        super().__init__(build_config, 'C223N', 'CPSC 223N (C# Programming)')
-       self.packages: list[str] = ['mono-complete',
-                         'netbeans']
+        super().__init__(build_config,
+                        'C223N', 'CPSC 223N (C# Programming)')
+        self.packages: list[str] = ['mono-complete']
+        self.Netbeans = NetbeansKeyword(DEFAULT_BUILD_CONFIG)
 
     def add(self):
         self.edit_deb_packages(self.packages, is_installing=True)
+        self.Netbeans.add()
 
     def remove(self):
         self.edit_deb_packages(self.packages, is_installing=False)
+        self.Netbeans.remove()
 
 
 class C223PKeyword(AbstractKeyword):
     """
-    python 2.7 and lower pip no longer exists
-    has been superseeded by python3-pip
-    also python-virtualenv no longer exists
-
-    Python 3.8.5 is latest build
-
     Point person: Michael Shafae
     SRC: sub-tuffix/cpsc223p.yml
     """
 
     def __init__(self, build_config: BuildConfig):
         super().__init__(build_config, 'C223P', 'CPSC 223P (Python Programming)')
-       self.packages: list[str] = ['python2',
-                         'python2-dev',
-                         'python3',
-                         'python3-dev',
-                         'python3-pip',
-                         'virtualenvwrapper']
+        self.packages: list[str] = ['build-essential',
+                                    'libssl-dev',
+                                    'libffi-dev',
+                                    'python3',
+                                    'python3-dev',
+                                    'python3-pip',
+                                    'virtualenvwrapper']
 
     def add(self):
         self.edit_deb_packages(self.packages, is_installing=True)
+        self.install_pip_packages(["virtualenv"])
 
     def remove(self):
         self.edit_deb_packages(self.packages, is_installing=False)
@@ -260,25 +268,26 @@ class C223WKeyword(AbstractKeyword):
 
     """
     Point person: Paul Inventado
+    - removed libpython2.7, replaced wtih libpython3.8
     """
 
     def __init__(self, build_config: BuildConfig):
         super().__init__(build_config, 'C223W', 'CPSC 223W (Swift Programming)')
-       self.packages: list[str] = ['binutils',
-                         'curl',
-                         'gnupg2',
-                         'libc6-dev',
-                         'libcurl4',
-                         'libedit2',
-                         'libgcc-9-dev',
-                         'libpython2.7',
-                         'libsqlite3-0',
-                         'libstdc++-9-dev',
-                         'libxml2',
-                         'libz3-dev',
-                         'pkg-config',
-                         'tzdata',
-                         'zlib1g-dev']
+        self.packages: list[str] = ['binutils',
+                                    'curl',
+                                    'gnupg2',
+                                    'libc6-dev',
+                                    'libcurl4',
+                                    'libedit2',
+                                    'libgcc-9-dev',
+                                    'libpython3.8',
+                                    'libsqlite3-0',
+                                    'libstdc++-9-dev',
+                                    'libxml2',
+                                    'libz3-dev',
+                                    'pkg-config',
+                                    'tzdata',
+                                    'zlib1g-dev']
 
     def add(self):
         self.edit_deb_packages(self.packages, is_installing=True)
@@ -295,8 +304,7 @@ class C240Keyword(AbstractKeyword):
 
     def __init__(self, build_config: BuildConfig):
         super().__init__(build_config, 'C240', 'CPSC 240 (Assembler)')
-       self.packages: list[str] = ['intel2gas',
-                         'nasm']
+        self.packages: list[str] = ['intel2gas', 'nasm']
 
     def add(self):
         self.edit_deb_packages(self.packages, is_installing=True)
@@ -314,11 +322,11 @@ class C474Keyword(AbstractKeyword):
     def __init__(self, build_config: BuildConfig):
         super().__init__(build_config, 'C474', 'CPSC 474 (Parallel and Distributed Computing)')
 
-       self.packages: list[str] = ['libopenmpi-dev',
-                         'mpi-default-dev',
-                         'mpich',
-                         'openmpi-bin',
-                         'openmpi-common']
+        self.packages: list[str] = ['libopenmpi-dev',
+                                    'mpi-default-dev',
+                                    'mpich',
+                                    'openmpi-bin',
+                                    'openmpi-common']
 
     def add(self):
         self.edit_deb_packages(self.packages, is_installing=True)
@@ -334,24 +342,29 @@ class C481Keyword(AbstractKeyword):
     Adding it so testing will work but needs to be addressed
     NOTE: usage of Java 8 should be discouraged
 
+    - removed openjdk-8 and replaced with openjdk-11
+    - unknown if Eclipse is needed
+
     Point person: Paul Inventado
     """
 
     def __init__(self, build_config: BuildConfig):
         super().__init__(build_config, 'C481', 'CPSC 481 (Artificial Intelligence)')
-       self.packages: list[str] = ['openjdk-8-jdk',
-                         'openjdk-8-jre',
-                         'sbcl',
-                         'swi-prolog-nox',
-                         'swi-prolog-x']
+        self.packages: list[str] = ['openjdk-11-jdk',
+                                    'openjdk-11-jre',
+                                    'sbcl',
+                                    'swi-prolog-nox',
+                                    'swi-prolog-x']
+
+        self.Eclipse = EclipseKeyword(self.build_config)
 
     def add(self):
         self.edit_deb_packages(self.packages, is_installing=True)
-        # EclipseKeyword(self.build_config).add()
+        # self.Eclipse.add()
 
     def remove(self):
         self.edit_deb_packages(packages, is_installing=False)
-        # EclipseKeyword(self.build_config).remove()
+        # self.Eclipse.remove()
 
 
 class C484Keyword(AbstractKeyword):
@@ -359,25 +372,25 @@ class C484Keyword(AbstractKeyword):
     """
     Point persons: Michael Shafae, Kevin Wortman
     Please note that python-openctm seems to not exist
-    """
 
-    # 'python-openctm']
+    - removed python-openctm
+    """
 
     def __init__(self, build_config: BuildConfig):
         super().__init__(build_config, 'C484', 'CPSC 484 (Principles of Computer Graphics)')
-       self.packages: list[str] = ['freeglut3-dev',
-                         'libfreeimage-dev',
-                         'libgl1-mesa-dev',
-                         'libglew-dev',
-                         'libglu1-mesa-dev',
-                         'libopenctm-dev',
-                         'libx11-dev',
-                         'libxi-dev',
-                         'libxrandr-dev',
-                         'mesa-utils',
-                         'mesa-utils-extra',
-                         'openctm-doc',
-                         'openctm-tools']
+        self.packages: list[str] = ['freeglut3-dev',
+                                    'libfreeimage-dev',
+                                    'libgl1-mesa-dev',
+                                    'libglew-dev',
+                                    'libglu1-mesa-dev',
+                                    'libopenctm-dev',
+                                    'libx11-dev',
+                                    'libxi-dev',
+                                    'libxrandr-dev',
+                                    'mesa-utils',
+                                    'mesa-utils-extra',
+                                    'openctm-doc',
+                                    'openctm-tools']
 
     def add(self):
         self.edit_deb_packages(self.packages, is_installing=True)
@@ -388,15 +401,18 @@ class C484Keyword(AbstractKeyword):
 
 class MediaKeyword(AbstractKeyword):
 
+    """
+    Audacity is marked for removal, there has been some privacy concerns
+     - 'audacity',
+    """
+
     def __init__(self, build_config: BuildConfig):
         super().__init__(build_config, 'media', 'Media Computation Tools')
-        # Audacity is marked for removal, there has been some privacy concerns
-        # 'audacity',
-       self.packages: list[str] = ['blender',
-                         'gimp',
-                         'imagemagick',
-                         'sox',
-                         'vlc']
+        self.packages: list[str] = ['blender',
+                                    'gimp',
+                                    'imagemagick',
+                                    'sox',
+                                    'vlc']
 
     def add(self):
         self.edit_deb_packages(self.packages, is_installing=True)
@@ -442,12 +458,12 @@ class LatexSkimKeyword(LatexKeyword):
 class VirtualBoxKeyword(AbstractKeyword):
 
     def __init__(self, build_config: BuildConfig: BuildConfig):
-        super().__init__(
-            build_config,
-            'vbox',
-            'A powerful x86 and AMD64/Intel64 virtualization product')
-       self.packages: list[str] = ['virtualbox',
-                         'virtualbox-ext-pack']
+        super().__init__(build_config,
+                        'vbox',
+                        'A powerful x86 and AMD64/Intel64 virtualization product')
+        self.packages: list[str] = ['virtualbox',
+                                    'virtualbox-ext-pack']
+
         if(in_VM()):
             raise EnvironmentError(
                 "This is a virtual enviornment, not proceeding")
@@ -463,22 +479,27 @@ class ZoomKeyword(AbstractKeyword):
 
     def __init__(self, build_config: BuildConfig: BuildConfig):
         super().__init__(build_config,
-                         'zoom',
-                         'Video conferencing software')
-       self.packages: list[str] = ['libgl1-mesa-glx',
-                         'libegl1-mesa',
-                         'libxcb-xtest0',
-                         'zoom']
-
-        self.checkable_packages =self.packages: list[str][:3]
+                        'zoom',
+                        'Video conferencing software')
+        self.packages: list[str] = ['libgl1-mesa-glx',
+                                    'libegl1-mesa',
+                                    'libxcb-xtest0',
+                                    'zoom']
+        self.checkable_packages = self.packages[:3]
+        self.link_dictionary = {
+            "ZOOM_DEB": LinkPacket(link="https://zoom.us/client/latest/zoom_amd64.deb", is_git=True)
+        }
 
     def add(self):
         self.edit_deb_packages(self.checkable_packages, is_installing=True)
 
-        url = "https://zoom.us/client/latest/zoom_amd64.deb"
+        url = self.link_dictionary["ZOOM_DEB"].link
         file_path = "/tmp/zoom"
+        print("[INFO] Downloading Zoom installer...")
+        content = requests.get(url).content
+
         with open(file_path, 'wb') as fp:
-            fp.write(requests.get(url).content)
+            fp.write(content)
         apt.debfile.DebPackage(filename=file_path).install()
 
     def remove(self):
@@ -502,12 +523,8 @@ class TMuxKeyword(AbstractKeyword):
 
     def add(self):
         self.edit_deb_packages(self.packages, is_installing=True)
-        # VimKeyword(self.build_config).add()
-        # EmacsKeyword(self.build_config).add()
 
     def remove(self):
-        # VimKeyword(self.bc).remove()
-        # EmacsKeyword(self.bc).remove()
         self.edit_deb_packages(self.packages, is_installing=False)
 
 

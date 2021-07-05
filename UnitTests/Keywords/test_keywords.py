@@ -13,9 +13,9 @@ class KeywordTest(unittest.TestCase):
                 keyword.check_candiates()
                 if(hasattr(keyword, 'link_dictionary')):
                     DEFAULT_LINK_CHECKER.check_links(keyword.link_dictionary)
-                except KeyError:
-                    print(f'[INTERNAL ERROR] {keyword.name} has failed')
-                    self.assertTrue(False)
+            except KeyError:
+                print(f'[INTERNAL ERROR] {keyword.name} has failed')
+                self.assertTrue(False)
             print(f'[INTERNAL SUCCESS] {keyword.name} has passed')
 
     def test_editors(self):

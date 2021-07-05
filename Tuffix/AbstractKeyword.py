@@ -1,6 +1,7 @@
 from Tuffix.Configuration import *
 
 import apt
+import pip
 
 
 class AbstractKeyword:
@@ -94,3 +95,9 @@ class AbstractKeyword:
             # unittest complains there is an open file but I have tried closing it in every avenue
             # NOTE : possible memory leak
             cache.close()
+
+    def install_pip_packages(self, packages: list):
+        if not(isinstance(packages, list)):
+            raise ValueError
+        for package in packages:
+            pip.main(['install', package])
