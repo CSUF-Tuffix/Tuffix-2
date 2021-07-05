@@ -29,8 +29,8 @@ class AllKeyword(AbstractKeyword):
 
     def __init__(self, build_config: BuildConfig):
         super().__init__(build_config,
-                        'all',
-                        'all keywords available (glob pattern); to be used in conjunction with remove or add respectively')
+                         'all',
+                         'all keywords available (glob pattern); to be used in conjunction with remove or add respectively')
         self.packages: list[str] = []
 
     def add(self):
@@ -97,8 +97,8 @@ class BaseKeyword(AbstractKeyword):
 
     def __init__(self, build_config: BuildConfig):
         super().__init__(build_config,
-                        'base',
-                        'CPSC 120-121-131-301 C++ development environment')
+                         'base',
+                         'CPSC 120-121-131-301 C++ development environment')
 
         self.packages: list[str] = ['build-essential',
                                     'cimg-dev',
@@ -118,6 +118,8 @@ class BaseKeyword(AbstractKeyword):
                                     'lldb',
                                     'python3']
 
+        self.Atom = AtomKeyword(self.build_config)
+
         self.link_dictionary = {
             "GOOGLE_TEST_URL": LinkPacket(link="https://github.com/google/googletest.git", is_git=True),
             "TEST_URL": LinkPacket(link="https://github.com/JaredDyreson/tuffix-google-test.git", is_git=True)
@@ -126,9 +128,11 @@ class BaseKeyword(AbstractKeyword):
     def add(self):
         self.google_test_all()
         self.edit_deb_packages(self.packages, is_installing=True)
+        # self.Atom.add()
 
     def remove(self):
         self.edit_deb_packages(self.packages, is_installing=False)
+        # self.Atom.remove()
 
     def google_test_build(self):
         """
@@ -153,7 +157,7 @@ class BaseKeyword(AbstractKeyword):
         for command in script:
             subprocess.run(command.split())
 
-    def google_test_attempt(self):
+    def google_test_attempt(self) -> bool:
         """
         Goal: small test to check if Google Test works after install
         """
@@ -173,6 +177,8 @@ class BaseKeyword(AbstractKeyword):
             print(colored("[ERROR] Google Unit test failed!", "red"))
         else:
             print(colored("[SUCCESS] Google unit test succeeded!", "green"))
+
+        return (ret_code != 0)
 
     def google_test_all(self):
         """
@@ -226,7 +232,7 @@ class C223NKeyword(AbstractKeyword):
 
     def __init__(self, build_config: BuildConfig):
         super().__init__(build_config,
-                        'C223N', 'CPSC 223N (C# Programming)')
+                         'C223N', 'CPSC 223N (C# Programming)')
         self.packages: list[str] = ['mono-complete']
         self.Netbeans = NetbeansKeyword(DEFAULT_BUILD_CONFIG)
 
@@ -427,8 +433,8 @@ class MediaKeyword(AbstractKeyword):
 
     # def __init__(self, build_config: BuildConfig):
         # super().__init__(build_config,
-                         # 'latex',
-                         # 'LaTeX typesetting environment (large)')
+        # 'latex',
+        # 'LaTeX typesetting environment (large)')
         # self.packages: list[str] = []
 
     # def add(self):
@@ -442,15 +448,15 @@ class MediaKeyword(AbstractKeyword):
 # class LatexFullKeyword(LatexKeyword):
     # def __init__(self, build_config: BuildConfig):
         # super().__init__(build_config,
-                         # 'latexf',
-                         # 'Full LaTeX typesetting environment (large)')
+        # 'latexf',
+        # 'Full LaTeX typesetting environment (large)')
         # self.packages: list[str] = ["texlive-full"]
 
 # class LatexSkimKeyword(LatexKeyword):
     # def __init__(self, build_config: BuildConfig):
         # super().__init__(build_config,
-                         # 'latexs',
-                         # 'Small LaTeX typesetting environment')
+        # 'latexs',
+        # 'Small LaTeX typesetting environment')
         # self.packages: list[str] = ["texlive"]
 
 
@@ -458,8 +464,8 @@ class VirtualBoxKeyword(AbstractKeyword):
 
     def __init__(self, build_config: BuildConfig):
         super().__init__(build_config,
-                        'vbox',
-                        'A powerful x86 and AMD64/Intel64 virtualization product')
+                         'vbox',
+                         'A powerful x86 and AMD64/Intel64 virtualization product')
         self.packages: list[str] = ['virtualbox',
                                     'virtualbox-ext-pack']
 
@@ -478,8 +484,8 @@ class ZoomKeyword(AbstractKeyword):
 
     def __init__(self, build_config: BuildConfig):
         super().__init__(build_config,
-                        'zoom',
-                        'Video conferencing software')
+                         'zoom',
+                         'Video conferencing software')
         self.packages: list[str] = ['libgl1-mesa-glx',
                                     'libegl1-mesa',
                                     'libxcb-xtest0',
@@ -515,8 +521,8 @@ class TMuxKeyword(AbstractKeyword):
 
     def __init__(self, build_config: BuildConfig):
         super().__init__(build_config,
-                        'tmux',
-                        'multi-tasking in the terminal')
+                         'tmux',
+                         'multi-tasking in the terminal')
 
         self.packages: list[str] = ['tmux']
 
