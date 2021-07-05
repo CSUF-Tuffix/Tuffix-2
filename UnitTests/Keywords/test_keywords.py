@@ -1,12 +1,13 @@
 import unittest
 
+from Tuffix.Configuration import DEFAULT_BUILD_CONFIG
 from Tuffix.Keywords import KeywordContainer
-from Tuffix.Editors import EditorKeywordContainer
 from Tuffix.LinkChecker import DEFAULT_LINK_CHECKER
 
 
 class KeywordTest(unittest.TestCase):
-    def template(self, k_container):
+    def test_keywords_and_editors(self):
+        k_container = KeywordContainer(DEFAULT_BUILD_CONFIG)
         for keyword in k_container.container:
             print(f'checking element {keyword.name}')
             try:
@@ -17,9 +18,3 @@ class KeywordTest(unittest.TestCase):
                 print(f'[INTERNAL ERROR] {keyword.name} has failed')
                 self.assertTrue(False)
             print(f'[INTERNAL SUCCESS] {keyword.name} has passed')
-
-    def test_editors(self):
-        self.template(EditorKeywordContainer)
-
-    def test_keywords(self):
-        self.template(KeywordContainer)

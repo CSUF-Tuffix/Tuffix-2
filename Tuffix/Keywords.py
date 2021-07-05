@@ -7,7 +7,7 @@ from Tuffix.AbstractKeyword import AbstractKeyword
 # this is because we want to have access to this base class across two
 # source files that import each other
 
-from Tuffix.Editors import VimKeyword, EmacsKeyword
+from Tuffix.Editors import VimKeyword, EmacsKeyword, GeanyKeyword, NetbeansKeyword, EditorKeywordContainer
 
 from Tuffix.Configuration import *
 from Tuffix.SudoRun import SudoRun
@@ -28,11 +28,10 @@ class AllKeyword(AbstractKeyword):
     # NOTE: GOOD
 
     def __init__(self, build_config: BuildConfig):
-        super().__init__(
-            build_config,
-            'all',
-            'all keywords available (glob pattern); to be used in conjunction with remove or add respectively')
-       self.packages: list[str] = []
+        super().__init__(build_config,
+                        'all',
+                        'all keywords available (glob pattern); to be used in conjunction with remove or add respectively')
+        self.packages: list[str] = []
 
     def add(self):
         self.edit_deb_packages(self.packages, is_installing=True)
@@ -356,7 +355,7 @@ class C481Keyword(AbstractKeyword):
                                     'swi-prolog-nox',
                                     'swi-prolog-x']
 
-        self.Eclipse = EclipseKeyword(self.build_config)
+        # self.Eclipse = EclipseKeyword(self.build_config)
 
     def add(self):
         self.edit_deb_packages(self.packages, is_installing=True)
@@ -421,43 +420,43 @@ class MediaKeyword(AbstractKeyword):
         self.edit_deb_packages(self.packages, is_installing=False)
 
 
-class LatexKeyword(AbstractKeyword):
-    """
-    Not for users, might have the same fate as AddRemoveHelper
-    """
+# class LatexKeyword(AbstractKeyword):
+    # """
+    # Not for users, might have the same fate as AddRemoveHelper
+    # """
 
-    def __init__(self, build_config: BuildConfig: BuildConfig):
-        super().__init__(build_config,
-                         'latex',
-                         'LaTeX typesetting environment (large)')
-        self.packages: list[str] = []
+    # def __init__(self, build_config: BuildConfig):
+        # super().__init__(build_config,
+                         # 'latex',
+                         # 'LaTeX typesetting environment (large)')
+        # self.packages: list[str] = []
 
-    def add(self):
-        self.edit_deb_packages(self.packages, is_installing=True)
+    # def add(self):
+        # self.edit_deb_packages(self.packages, is_installing=True)
 
-    def remove(self):
-        self.edit_deb_packages(self.packages, is_installing=False)
+    # def remove(self):
+        # self.edit_deb_packages(self.packages, is_installing=False)
 
-# NOTE: keyword names are kind of weird, please help
+# # NOTE: keyword names are kind of weird, please help
 
-class LatexFullKeyword(LatexKeyword):
-    def __init__(self, build_config: BuildConfig):
-        super().__init__(build_config,
-                         'latexf',
-                         'Full LaTeX typesetting environment (large)')
-        self.packages: list[str] = ["texlive-full"]
+# class LatexFullKeyword(LatexKeyword):
+    # def __init__(self, build_config: BuildConfig):
+        # super().__init__(build_config,
+                         # 'latexf',
+                         # 'Full LaTeX typesetting environment (large)')
+        # self.packages: list[str] = ["texlive-full"]
 
-class LatexSkimKeyword(LatexKeyword):
-    def __init__(self, build_config: BuildConfig):
-        super().__init__(build_config,
-                         'latexs',
-                         'Small LaTeX typesetting environment')
-        self.packages: list[str] = ["texlive"]
+# class LatexSkimKeyword(LatexKeyword):
+    # def __init__(self, build_config: BuildConfig):
+        # super().__init__(build_config,
+                         # 'latexs',
+                         # 'Small LaTeX typesetting environment')
+        # self.packages: list[str] = ["texlive"]
 
 
 class VirtualBoxKeyword(AbstractKeyword):
 
-    def __init__(self, build_config: BuildConfig: BuildConfig):
+    def __init__(self, build_config: BuildConfig):
         super().__init__(build_config,
                         'vbox',
                         'A powerful x86 and AMD64/Intel64 virtualization product')
@@ -477,7 +476,7 @@ class VirtualBoxKeyword(AbstractKeyword):
 
 class ZoomKeyword(AbstractKeyword):
 
-    def __init__(self, build_config: BuildConfig: BuildConfig):
+    def __init__(self, build_config: BuildConfig):
         super().__init__(build_config,
                         'zoom',
                         'Video conferencing software')
@@ -487,7 +486,7 @@ class ZoomKeyword(AbstractKeyword):
                                     'zoom']
         self.checkable_packages = self.packages[:3]
         self.link_dictionary = {
-            "ZOOM_DEB": LinkPacket(link="https://zoom.us/client/latest/zoom_amd64.deb", is_git=True)
+            "ZOOM_DEB": LinkPacket(link="https://zoom.us/client/latest/zoom_amd64.deb", is_git=False)
         }
 
     def add(self):
@@ -516,10 +515,10 @@ class TMuxKeyword(AbstractKeyword):
 
     def __init__(self, build_config: BuildConfig):
         super().__init__(build_config,
-                         'tmux',
-                         'multi-tasking in the terminal')
+                        'tmux',
+                        'multi-tasking in the terminal')
 
-       self.packages: list[str] = ['tmux']
+        self.packages: list[str] = ['tmux']
 
     def add(self):
         self.edit_deb_packages(self.packages, is_installing=True)
@@ -545,8 +544,8 @@ class KeywordContainer():
             C481Keyword(build_config),
             C484Keyword(build_config),
             GeneralKeyword(build_config),
-            LatexFullKeyword(build_config),
-            LatexSkimKeyword(build_config),
+            # LatexFullKeyword(build_config),
+            # LatexSkimKeyword(build_config),
             MediaKeyword(build_config),
             TMuxKeyword(build_config),
             VirtualBoxKeyword(build_config),

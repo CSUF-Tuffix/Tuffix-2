@@ -26,7 +26,10 @@ class LinkChecker:
         if not(isinstance(link, LinkPacket)):
             raise ValueError
         if(link.is_git):
-            link.link = self._re.match(link.link).group("content")
+            if((match := self._re.match(link.link))):
+                link.link = match.group("content")
+            else:
+                raise ValueError(f'could not properly parse {link.link}')
         try:
             request = requests.head(link.link)
         except requests.exceptions.ConnectionError:
