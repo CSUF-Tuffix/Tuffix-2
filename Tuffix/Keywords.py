@@ -7,7 +7,7 @@ from Tuffix.AbstractKeyword import AbstractKeyword
 # this is because we want to have access to this base class across two
 # source files that import each other
 
-from Tuffix.Editors import VimKeyword, EmacsKeyword, GeanyKeyword, NetbeansKeyword, EditorKeywordContainer
+from Tuffix.Editors import VimKeyword, EmacsKeyword, GeanyKeyword, NetbeansKeyword, EditorKeywordContainer, AtomKeyword
 
 from Tuffix.Configuration import *
 from Tuffix.SudoRun import SudoRun
@@ -113,8 +113,8 @@ class BaseKeyword(AbstractKeyword):
                                     'libc++-dev',
                                     'libc++abi-dev',
                                     'libgconf-2-4',
-                                    'libgtest-dev',
-                                    'libgmock-dev',
+                                    # 'libgtest-dev',
+                                    # 'libgmock-dev',
                                     'lldb',
                                     'python3']
 
@@ -126,7 +126,8 @@ class BaseKeyword(AbstractKeyword):
         }
 
     def add(self):
-        self.google_test_all()
+        # self.google_test_all()
+        self.google_test_build()
         self.edit_deb_packages(self.packages, is_installing=True)
         # self.Atom.add()
 

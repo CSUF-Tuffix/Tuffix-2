@@ -32,7 +32,7 @@ def construct_filesystem(pedantic):
     parent_dir = pathlib.Path("UnitTests")
 
     excluded_dirs = ["__pycache__", "TEST"]
-    excluded_files = ["SequentialTest.py", "__init__.py", "BaseTester.py"]
+    excluded_files = ["SequentialTest.py", "__init__.py", "BaseTester.py", "README.md"]
     container = []
 
     for dirpath, dirs, filepath in os.walk(parent_dir, topdown=True):
