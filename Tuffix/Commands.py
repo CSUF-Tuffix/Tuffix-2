@@ -256,7 +256,8 @@ class CustomCommand(AbstractCommand):
             if not(path.is_file()):
                 raise FileNotFoundError(f'[ERROR] Could not load {path}')
 
-            NewClass = DEFAULT_CLASS_GENERATOR.generate(path)
+            NewClass = DEFAULT_CLASS_GENERATOR.generate(
+                path, self.build_config)
 
             NewClassInstance = NewClass()
 

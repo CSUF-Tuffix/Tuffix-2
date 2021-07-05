@@ -13,15 +13,39 @@ from Tuffix.Configuration import *
 from Tuffix.SudoRun import SudoRun
 from Tuffix.Status import *
 from Tuffix.LinkChecker import LinkPacket
+from Tuffix.Constants import KEYWORD_MAX_LENGTH
 
 from apt import debfile, cache
 from zipfile import ZipFile
 
 import functools
 import json
+import pathlib
 import requests
 import sys
-import pathlib
+import dataclasses
+
+
+@dataclasses.dataclass
+class CustomPayload:
+    name: str
+    instructor: str
+    packages: list
+
+    def __init__(self, container: dict):
+        self.name, self.instructor, self.packages = list(
+            container.values())  # will raise ValueError
+
+        if((argc := len(self.name)) > KEYWORD_MAX_LENGTH):
+            self.name = self.trim_name()
+
+    def trim_name(self):
+        container = ''.join([_ for _ in self.name if(_.isupper())])
+        if not(container):
+            container = ''.join(
+                self.name[:KEYWORD_MAX_LENGTH]).replace(' ', '')
+
+        return container.lower()
 
 
 class AllKeyword(AbstractKeyword):
@@ -543,7 +567,7 @@ class KeywordContainer():
         return status
 
 
-def partial_class(information: tuple, cls):
+def partial_class(information: tuple, cls, build_config: BuildConfig):
     """
     Generate a valid function pointer to a class __init__ function
     This class is also pickle-able
@@ -600,7 +624,7 @@ class ClassKeywordGenerator():
     def __init__(self):
         pass
 
-    def generate(self, path: pathlib.PosixPath):
+    def generate(self, path: pathlib.PosixPath, build_config: BuildConfig):
         if not(isinstance(path, pathlib.PosixPath)):
             raise ValueError(f'received type {type(path).__name__}')
 
@@ -610,15 +634,14 @@ class ClassKeywordGenerator():
         with open(path, encoding="utf-8") as fp:
             content = json.loads(fp.read())
 
-        # will throw KeyError if there are missing fields
-        name, instructor, packages = content["name"].replace(
-            ' ', '').lower(), content["instructor"], content["packages"]
+        custom = CustomPayload(content)
 
         return partial_class(
-            (name,
-             f'created by {instructor} for {name}',
-             packages),
-            AbstractKeyword)
+            (custom.name,
+             f'created by {custom.instructor} for {custom.name}',
+             custom.packages),
+            AbstractKeyword,
+            build_config)
 
 
 DEFAULT_CLASS_GENERATOR = ClassKeywordGenerator()

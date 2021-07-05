@@ -5,6 +5,8 @@ from Tuffix.Commands import InitCommand
 import shutil
 import unittest
 
+IGNORE_ME = True
+
 
 class TestBaseKeywordTest(unittest.TestCase):
     @classmethod
