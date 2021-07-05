@@ -113,8 +113,6 @@ class BaseKeyword(AbstractKeyword):
                                     'libc++-dev',
                                     'libc++abi-dev',
                                     'libgconf-2-4',
-                                    # 'libgtest-dev',
-                                    # 'libgmock-dev',
                                     'lldb',
                                     'python3']
 
@@ -126,7 +124,7 @@ class BaseKeyword(AbstractKeyword):
         }
 
     def add(self):
-        self.google_test_build()
+        self.build_google_test()
         self.edit_deb_packages(self.packages, is_installing=True)
         self.Atom.add()
 
@@ -134,11 +132,9 @@ class BaseKeyword(AbstractKeyword):
         self.edit_deb_packages(self.packages, is_installing=False)
         self.Atom.remove()
 
-    def google_test_build(self):
+    def build_google_test(self):
         """
         GOAL: Get and install GoogleTest
-        NOTE: this might be superseded by libgtest-dev, libgmock-dev
-              more testing will be needed
         """
 
         GOOGLE_TEST_URL = self.link_dictionary["GOOGLE_TEST_URL"].link
@@ -156,37 +152,6 @@ class BaseKeyword(AbstractKeyword):
                   "sudo chown -v root:root /usr/lib"]
         for command in script:
             subprocess.run(command.split())
-
-    def google_test_attempt(self) -> bool:
-        """
-        Goal: small test to check if Google Test works after install
-        """
-        # TODO : change link to be under CSUF domain
-        # TEST_URL = "https://github.com/JaredDyreson/tuffix-google-test.git"
-        TEST_URL = self.link_dictionary["TEST_URL"].link
-        TEST_DEST = "test"
-
-        os.chdir("/tmp")
-        if(os.path.isdir(TEST_DEST)):
-            shutil.rmtree(TEST_DEST)
-        subprocess.run(['git', 'clone', TEST_URL, TEST_DEST])
-        os.chdir(TEST_DEST)
-        subprocess.check_output(['clang++', '-v', 'main.cpp', '-o', 'main'])
-        ret_code = subprocess.run(['make', 'all']).returncode
-        if(ret_code != 0):
-            print(colored("[ERROR] Google Unit test failed!", "red"))
-        else:
-            print(colored("[SUCCESS] Google unit test succeeded!", "green"))
-
-        return (ret_code != 0)
-
-    def google_test_all(self):
-        """
-        Goal: make and test Google Test library install
-        """
-
-        self.google_test_build()
-        self.google_test_attempt()
 
 
 class C223JKeyword(AbstractKeyword):
