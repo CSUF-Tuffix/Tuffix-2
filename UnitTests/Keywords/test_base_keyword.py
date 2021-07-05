@@ -9,8 +9,8 @@ IGNORE_ME = True
 
 
 class TestBaseKeywordTest(unittest.TestCase):
-    @classmethod
-       def setUpClass(cls):
+        @classmethod
+        def setUpClass(cls):
             cls.state = State(DEBUG_BUILD_CONFIG,
                               DEBUG_BUILD_CONFIG.version,
                               [], [])

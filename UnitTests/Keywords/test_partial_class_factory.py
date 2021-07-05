@@ -4,6 +4,7 @@ from Tuffix.Configuration import DEBUG_BUILD_CONFIG
 
 import json
 import unittest
+import pathlib
 
 """
 return partial_class(
@@ -26,7 +27,7 @@ class PartialClassTest(unittest.TestCase):
             DEBUG_BUILD_CONFIG)
 
         self.assertTrue(
-            isinstance(__custom_class, AbstractKeyword)
+            issubclass(__custom_class, AbstractKeyword)
         )
 
     def test_from_dictionary(self):
@@ -36,7 +37,7 @@ class PartialClassTest(unittest.TestCase):
             "packages": ["vim"]
         }
 
-        sef.from_dict_template(container)
+        self.from_dict_template(container)
 
     def test_from_json_container(self):
         container = {

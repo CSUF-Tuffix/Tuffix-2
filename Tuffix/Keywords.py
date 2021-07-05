@@ -596,12 +596,12 @@ def partial_class(information: tuple, cls, build_config: BuildConfig):
             name=name,
             description=description,
             packages=packages),
-        "add": partial(
-            self.edit_deb_packages,
+        "add": functools.partial(
+            cls.edit_deb_packages,
             package_names=packages,
             is_installing=True),
-        "remove": partial(
-            self.edit_deb_packages,
+        "remove": functools.partial(
+            cls.edit_deb_packages,
             package_names=packages,
             is_installing=False)}
 
