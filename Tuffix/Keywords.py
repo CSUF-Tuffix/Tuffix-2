@@ -25,6 +25,7 @@ import pathlib
 
 
 class AllKeyword(AbstractKeyword):
+    # NOTE: GOOD
 
     def __init__(self, build_config: BuildConfig):
         super().__init__(
@@ -45,51 +46,54 @@ class GeneralKeyword(AbstractKeyword):
     """
     Point person: undergraduate committee
     SRC: sub-tuffix/min-tuffix.yml (Kitchen sink)
+
+    - removed EmacsKeyword
     """
+
+    # NOTE: GOOD
 
     def __init__(self, build_config: BuildConfig):
         super().__init__(
             build_config,
             'general',
             'General configuration, not tied to any specific course')
-       self.packages: list[str] = ['autoconf',
-                                   'automake',
-                                   'a2ps',
-                                   'cscope',
-                                   'curl',
-                                   'dkms',
-                                   'enscript',
-                                   'glibc-doc',
-                                   'gpg',
-                                   'graphviz',
-                                   'gthumb',
-                                   'libreadline-dev',
-                                   'manpages-posix',
-                                   'manpages-posix-dev',
-                                   'meld',
-                                   'nfs-common',
-                                   'openssh-client',
-                                   'openssh-server',
-                                   'seahorse',
-                                   'synaptic']
+        self.packages: list[str] = ['autoconf',
+                                    'automake',
+                                    'a2ps',
+                                    'cscope',
+                                    'curl',
+                                    'dkms',
+                                    'enscript',
+                                    'glibc-doc',
+                                    'gpg',
+                                    'graphviz',
+                                    'gthumb',
+                                    'libreadline-dev',
+                                    'manpages-posix',
+                                    'manpages-posix-dev',
+                                    'meld',
+                                    'nfs-common',
+                                    'openssh-client',
+                                    'openssh-server',
+                                    'seahorse',
+                                    'synaptic']
 
     def add(self):
         self.edit_deb_packages(self.packages, is_installing=True)
         VimKeyword(self.build_config).add()
-        EmacsKeyword(self.build_config).add()
 
     def remove(self):
         self.edit_deb_packages(self.packages, is_installing=False)
         VimKeyword(self.build_config).remove()
-        EmacsKeyword(self.build_config).remove()
 
 
 class BaseKeyword(AbstractKeyword):
 
     """
     Point person: undergraduate committee
-    TODO: we need to be in agreement to only used python3.5 or greater
-    Python 2.7 is dead
+
+    - removed python2, this has been discarded in favour of python3.8
+    - removed vscode from list of packages, this keyword already installs Atom
     """
 
     def __init__(self, build_config: BuildConfig):
@@ -103,7 +107,7 @@ class BaseKeyword(AbstractKeyword):
                                    'clang-format',
                                    'clang-tidy',
                                    'cmake',
-                                   'code',
+                                   # 'code',
                                    'gdb',
                                    'gcc',
                                    'git',
@@ -114,7 +118,7 @@ class BaseKeyword(AbstractKeyword):
                                    'libgtest-dev',
                                    'libgmock-dev',
                                    'lldb',
-                                   'python2']
+                                   'python3']
 
         self.link_dictionary = {
             "GOOGLE_TEST_URL": LinkPacket(link="https://github.com/google/googletest.git", is_git=True),
@@ -131,6 +135,8 @@ class BaseKeyword(AbstractKeyword):
     def google_test_build(self):
         """
         GOAL: Get and install GoogleTest
+        NOTE: this might be superseded by libgtest-dev, libgmock-dev
+              more testing will be needed
         """
 
         GOOGLE_TEST_URL = self.link_dictionary["GOOGLE_TEST_URL"].link
