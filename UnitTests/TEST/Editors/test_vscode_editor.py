@@ -6,6 +6,7 @@ import unittest
 
 IGNORE_ME = True
 
+
 class VscodeKeywordTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -40,4 +41,3 @@ class VscodeKeywordTest(unittest.TestCase):
         self.Vscode.remove()
         after_removal = read_state(DEBUG_BUILD_CONFIG)
         self.assertTrue("code" not in after_removal.editors)
-

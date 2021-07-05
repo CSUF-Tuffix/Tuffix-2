@@ -6,6 +6,7 @@ import unittest
 
 IGNORE_ME = True
 
+
 class EclipseKeywordTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

@@ -43,13 +43,13 @@ class AbstractCommandTest(unittest.TestCase):
 
         instances = [
             partial_class((DEFAULT_BUILD_CONFIG, "TEST",
-                          "this is a test description")),  # captial name
+                           "this is a test description")),  # captial name
             partial_class((DEFAULT_BUILD_CONFIG,
                            "test_not_working",
                            "this is a test description")),
             # non-alphanumeric characters
             partial_class((DEFAULT_BUILD_CONFIG, "",
-                          "this is a test description")),  # empty name
+                           "this is a test description")),  # empty name
             # BuildConfig is a float
             partial_class((0.5, "TEST", "this is a test description")),
             # description is a float

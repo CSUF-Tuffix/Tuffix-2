@@ -32,6 +32,15 @@ class StatusError(MessageException):
         super().__init__(message)
 
 
+class LinkError(MessageException):
+    """
+    Issue reported by the `LinkChecker` class to inform if a link is unreachable
+    """
+
+    def __init__(self, message):
+        super().__init__(message)
+
+
 class StatusWarning(MessageException):
     """
     Issue reported by the `status` command, that's at the level of a nonfatal warning

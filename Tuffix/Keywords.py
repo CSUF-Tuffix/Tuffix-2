@@ -26,12 +26,12 @@ import pathlib
 
 class AllKeyword(AbstractKeyword):
 
-    def __init__(self, build_config):
+    def __init__(self, build_config: BuildConfig):
         super().__init__(
             build_config,
             'all',
             'all keywords available (glob pattern); to be used in conjunction with remove or add respectively')
-        self.packages = []
+       self.packages: list[str] = []
 
     def add(self):
         self.edit_deb_packages(self.packages, is_installing=True)
@@ -47,31 +47,31 @@ class GeneralKeyword(AbstractKeyword):
     SRC: sub-tuffix/min-tuffix.yml (Kitchen sink)
     """
 
-    def __init__(self, build_config):
+    def __init__(self, build_config: BuildConfig):
         super().__init__(
             build_config,
             'general',
             'General configuration, not tied to any specific course')
-        self.packages = ['autoconf',
-                         'automake',
-                         'a2ps',
-                         'cscope',
-                         'curl',
-                         'dkms',
-                         'enscript',
-                         'glibc-doc',
-                         'gpg',
-                         'graphviz',
-                         'gthumb',
-                         'libreadline-dev',
-                         'manpages-posix',
-                         'manpages-posix-dev',
-                         'meld',
-                         'nfs-common',
-                         'openssh-client',
-                         'openssh-server',
-                         'seahorse',
-                         'synaptic']
+       self.packages: list[str] = ['autoconf',
+                                   'automake',
+                                   'a2ps',
+                                   'cscope',
+                                   'curl',
+                                   'dkms',
+                                   'enscript',
+                                   'glibc-doc',
+                                   'gpg',
+                                   'graphviz',
+                                   'gthumb',
+                                   'libreadline-dev',
+                                   'manpages-posix',
+                                   'manpages-posix-dev',
+                                   'meld',
+                                   'nfs-common',
+                                   'openssh-client',
+                                   'openssh-server',
+                                   'seahorse',
+                                   'synaptic']
 
     def add(self):
         self.edit_deb_packages(self.packages, is_installing=True)
@@ -92,29 +92,29 @@ class BaseKeyword(AbstractKeyword):
     Python 2.7 is dead
     """
 
-    def __init__(self, build_config):
+    def __init__(self, build_config: BuildConfig):
         super().__init__(build_config,
                          'base',
                          'CPSC 120-121-131-301 C++ development environment')
 
-        self.packages = ['build-essential',
-                         'cimg-dev',
-                         'clang',
-                         'clang-format',
-                         'clang-tidy',
-                         'cmake',
-                         'code',
-                         'gdb',
-                         'gcc',
-                         'git',
-                         'g++',
-                         'libc++-dev',
-                         'libc++abi-dev',
-                         'libgconf-2-4',
-                         'libgtest-dev',
-                         'libgmock-dev',
-                         'lldb',
-                         'python2']
+       self.packages: list[str] = ['build-essential',
+                                   'cimg-dev',
+                                   'clang',
+                                   'clang-format',
+                                   'clang-tidy',
+                                   'cmake',
+                                   'code',
+                                   'gdb',
+                                   'gcc',
+                                   'git',
+                                   'g++',
+                                   'libc++-dev',
+                                   'libc++abi-dev',
+                                   'libgconf-2-4',
+                                   'libgtest-dev',
+                                   'libgmock-dev',
+                                   'lldb',
+                                   'python2']
 
         self.link_dictionary = {
             "GOOGLE_TEST_URL": LinkPacket(link="https://github.com/google/googletest.git", is_git=True),
@@ -132,6 +132,7 @@ class BaseKeyword(AbstractKeyword):
         """
         GOAL: Get and install GoogleTest
         """
+
         GOOGLE_TEST_URL = self.link_dictionary["GOOGLE_TEST_URL"].link
         GOOGLE_DEST = "google"
 
@@ -188,9 +189,9 @@ class C223JKeyword(AbstractKeyword):
     SRC: sub-tuffix/cpsc223j.yml
     """
 
-    def __init__(self, build_config):
+    def __init__(self, build_config: BuildConfig):
         super().__init__(build_config, 'C223J', 'CPSC 223J (Java Programming)')
-        self.packages = ['geany',
+       self.packages: list[str] = ['geany',
                          'gthumb',
                          'netbeans',
                          'openjdk-8-jdk',
@@ -209,9 +210,9 @@ class C223NKeyword(AbstractKeyword):
     SRC: sub-tuffix/cpsc223n.yml
     """
 
-    def __init__(self, build_config):
+    def __init__(self, build_config: BuildConfig):
         super().__init__(build_config, 'C223N', 'CPSC 223N (C# Programming)')
-        self.packages = ['mono-complete',
+       self.packages: list[str] = ['mono-complete',
                          'netbeans']
 
     def add(self):
@@ -233,9 +234,9 @@ class C223PKeyword(AbstractKeyword):
     SRC: sub-tuffix/cpsc223p.yml
     """
 
-    def __init__(self, build_config):
+    def __init__(self, build_config: BuildConfig):
         super().__init__(build_config, 'C223P', 'CPSC 223P (Python Programming)')
-        self.packages = ['python2',
+       self.packages: list[str] = ['python2',
                          'python2-dev',
                          'python3',
                          'python3-dev',
@@ -255,9 +256,9 @@ class C223WKeyword(AbstractKeyword):
     Point person: Paul Inventado
     """
 
-    def __init__(self, build_config):
+    def __init__(self, build_config: BuildConfig):
         super().__init__(build_config, 'C223W', 'CPSC 223W (Swift Programming)')
-        self.packages = ['binutils',
+       self.packages: list[str] = ['binutils',
                          'curl',
                          'gnupg2',
                          'libc6-dev',
@@ -286,9 +287,9 @@ class C240Keyword(AbstractKeyword):
     Point person: Floyd Holliday
     """
 
-    def __init__(self, build_config):
+    def __init__(self, build_config: BuildConfig):
         super().__init__(build_config, 'C240', 'CPSC 240 (Assembler)')
-        self.packages = ['intel2gas',
+       self.packages: list[str] = ['intel2gas',
                          'nasm']
 
     def add(self):
@@ -304,10 +305,10 @@ class C474Keyword(AbstractKeyword):
     Point person: <++>
     """
 
-    def __init__(self, build_config):
+    def __init__(self, build_config: BuildConfig):
         super().__init__(build_config, 'C474', 'CPSC 474 (Parallel and Distributed Computing)')
 
-        self.packages = ['libopenmpi-dev',
+       self.packages: list[str] = ['libopenmpi-dev',
                          'mpi-default-dev',
                          'mpich',
                          'openmpi-bin',
@@ -330,9 +331,9 @@ class C481Keyword(AbstractKeyword):
     Point person: Paul Inventado
     """
 
-    def __init__(self, build_config):
+    def __init__(self, build_config: BuildConfig):
         super().__init__(build_config, 'C481', 'CPSC 481 (Artificial Intelligence)')
-        self.packages = ['openjdk-8-jdk',
+       self.packages: list[str] = ['openjdk-8-jdk',
                          'openjdk-8-jre',
                          'sbcl',
                          'swi-prolog-nox',
@@ -356,9 +357,9 @@ class C484Keyword(AbstractKeyword):
 
     # 'python-openctm']
 
-    def __init__(self, build_config):
+    def __init__(self, build_config: BuildConfig):
         super().__init__(build_config, 'C484', 'CPSC 484 (Principles of Computer Graphics)')
-        self.packages = ['freeglut3-dev',
+       self.packages: list[str] = ['freeglut3-dev',
                          'libfreeimage-dev',
                          'libgl1-mesa-dev',
                          'libglew-dev',
@@ -381,11 +382,11 @@ class C484Keyword(AbstractKeyword):
 
 class MediaKeyword(AbstractKeyword):
 
-    def __init__(self, build_config):
+    def __init__(self, build_config: BuildConfig):
         super().__init__(build_config, 'media', 'Media Computation Tools')
         # Audacity is marked for removal, there has been some privacy concerns
         # 'audacity',
-        self.packages = ['blender',
+       self.packages: list[str] = ['blender',
                          'gimp',
                          'imagemagick',
                          'sox',
@@ -399,41 +400,47 @@ class MediaKeyword(AbstractKeyword):
 
 
 class LatexKeyword(AbstractKeyword):
-    # NOTE: we would need to make some weird exceptions for this to work
+    """
+    Not for users, might have the same fate as AddRemoveHelper
+    """
 
-    def __init__(self, build_config: BuildConfig):
+    def __init__(self, build_config: BuildConfig: BuildConfig):
         super().__init__(build_config,
                          'latex',
                          'LaTeX typesetting environment (large)')
-        # self.packages = ['texlive-full']
+        self.packages: list[str] = []
 
-        self.packages = {
-            "full": ["texlive-full"],
-            "skim": ["texlive"]
-        }
-
-    def add(self, version=None):  # NOTE this can be unit tested!
-        # TODO : note which version was installed?
-        version = input(
-            "[INFO] Do you want the full or skim version of LaTeX?: ") if not version else version
-        if((_match := re.compile("full|skim", flags=re.IGNORECASE).match(version)) is not None):
-            print(_match)
-
-        # self.edit_deb_packages(self.packages, is_installing=True)
+    def add(self):
+        self.edit_deb_packages(self.packages, is_installing=True)
 
     def remove(self):
-        pass
-        # self.edit_deb_packages(self.packages, is_installing=False)
+        self.edit_deb_packages(self.packages, is_installing=False)
+
+# NOTE: keyword names are kind of weird, please help
+
+class LatexFullKeyword(LatexKeyword):
+    def __init__(self, build_config: BuildConfig):
+        super().__init__(build_config,
+                         'latexf',
+                         'Full LaTeX typesetting environment (large)')
+        self.packages: list[str] = ["texlive-full"]
+
+class LatexSkimKeyword(LatexKeyword):
+    def __init__(self, build_config: BuildConfig):
+        super().__init__(build_config,
+                         'latexs',
+                         'Small LaTeX typesetting environment')
+        self.packages: list[str] = ["texlive"]
 
 
 class VirtualBoxKeyword(AbstractKeyword):
 
-    def __init__(self, build_config):
+    def __init__(self, build_config: BuildConfig: BuildConfig):
         super().__init__(
             build_config,
             'vbox',
             'A powerful x86 and AMD64/Intel64 virtualization product')
-        self.packages = ['virtualbox',
+       self.packages: list[str] = ['virtualbox',
                          'virtualbox-ext-pack']
         if(in_VM()):
             raise EnvironmentError(
@@ -448,19 +455,18 @@ class VirtualBoxKeyword(AbstractKeyword):
 
 class ZoomKeyword(AbstractKeyword):
 
-    def __init__(self, build_config):
+    def __init__(self, build_config: BuildConfig: BuildConfig):
         super().__init__(build_config,
                          'zoom',
                          'Video conferencing software')
-        self.packages = ['libgl1-mesa-glx',
+       self.packages: list[str] = ['libgl1-mesa-glx',
                          'libegl1-mesa',
                          'libxcb-xtest0',
                          'zoom']
 
-        self.checkable_packages = self.packages[:3]
+        self.checkable_packages =self.packages: list[str][:3]
 
     def add(self):
-        # print("[WARNING] Zoom is not an open source piece of software")
         self.edit_deb_packages(self.checkable_packages, is_installing=True)
 
         url = "https://zoom.us/client/latest/zoom_amd64.deb"
@@ -481,12 +487,12 @@ class TMuxKeyword(AbstractKeyword):
     Please use for debugging
     """
 
-    def __init__(self, build_config):
+    def __init__(self, build_config: BuildConfig):
         super().__init__(build_config,
                          'tmux',
                          'multi-tasking in the terminal')
 
-        self.packages = ['tmux']
+       self.packages: list[str] = ['tmux']
 
     def add(self):
         self.edit_deb_packages(self.packages, is_installing=True)
@@ -516,7 +522,8 @@ class KeywordContainer():
             C481Keyword(build_config),
             C484Keyword(build_config),
             GeneralKeyword(build_config),
-            LatexKeyword(build_config),
+            LatexFullKeyword(build_config),
+            LatexSkimKeyword(build_config),
             MediaKeyword(build_config),
             TMuxKeyword(build_config),
             VirtualBoxKeyword(build_config),
