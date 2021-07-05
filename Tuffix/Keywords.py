@@ -634,12 +634,12 @@ class ClassKeywordGenerator():
         with open(path, encoding="utf-8") as fp:
             content = json.loads(fp.read())
 
-        custom = CustomPayload(content)
+        __custom = CustomPayload(content)
 
         return partial_class(
-            (custom.name,
-             f'created by {custom.instructor} for {custom.name}',
-             custom.packages),
+            (__custom.name,
+             f'created by {__custom.instructor} for {__custom.name}',
+             __custom.packages),
             AbstractKeyword,
             build_config)
 
