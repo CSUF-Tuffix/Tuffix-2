@@ -126,14 +126,13 @@ class BaseKeyword(AbstractKeyword):
         }
 
     def add(self):
-        # self.google_test_all()
         self.google_test_build()
         self.edit_deb_packages(self.packages, is_installing=True)
-        # self.Atom.add()
+        self.Atom.add()
 
     def remove(self):
         self.edit_deb_packages(self.packages, is_installing=False)
-        # self.Atom.remove()
+        self.Atom.remove()
 
     def google_test_build(self):
         """
