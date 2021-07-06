@@ -3,12 +3,19 @@
 from Tuffix.Quieter import quiet
 from UnitTests.SequentialTest import SequentialTestLoader
 
-import unittest
+import dataclasses
+import enum
 import importlib.util
 import os
 import pathlib
 import re
-import pickle
+import termcolor
+import unittest
+
+
+class Indexer(enum.Enum):
+    TOTAL, FAILURE = 0, 1
+
 
 runner = unittest.TextTestRunner()
 
@@ -32,7 +39,8 @@ def construct_filesystem(pedantic):
     parent_dir = pathlib.Path("UnitTests")
 
     excluded_dirs = ["__pycache__", "TEST"]
-    excluded_files = ["SequentialTest.py", "__init__.py", "BaseTester.py", "README.md"]
+    excluded_files = ["SequentialTest.py",
+                      "__init__.py", "BaseTester.py", "README.md"]
     container = []
 
     for dirpath, dirs, filepath in os.walk(parent_dir, topdown=True):
@@ -76,6 +84,7 @@ def conduct_test(path: pathlib.Path, pedantic: bool):
     # not working example: SomethingOrAnother
 
     tests = [_test for _test in dir(module) if (test_re.match(_test))]
+    counter = [0, 0]
 
     for _test in tests:
         print(f'[INFO] Conducting {_test}')
@@ -83,26 +92,47 @@ def conduct_test(path: pathlib.Path, pedantic: bool):
         test_instance = getattr(module, _test, None)
         # load the current test into a testloader for unittest
         test_suite = SequentialTestLoader().loadTestsFromTestCase(test_instance)
+
+        total_test_count = test_suite.countTestCases()
+
+        counter[Indexer.TOTAL.value] += total_test_count
+
         # send all output from functions to /dev/null if specified
+
         if(pedantic):
-            runner.run(test_suite)
+            result = runner.run(test_suite)
         else:
             with quiet():
-                runner.run(test_suite)
+                result = runner.run(test_suite)
+        counter[Indexer.FAILURE.value] += (len(result.failures))
+
+    return counter
 
 
 def run_tests():
     """
     Driver code for the two functions above
     """
-
+    total_counter = [0, 0]
     tests = construct_filesystem(pedantic=True)
     base_folder = pathlib.Path("UnitTests")
     for test in tests:
         for name, arguments in test.items():
             for subtest, pedantic in arguments:
                 path = (base_folder / name / subtest)
-                conduct_test(path, pedantic)
+                result = conduct_test(path, pedantic)
+                total_counter[Indexer.TOTAL.value] += result[Indexer.TOTAL.value]
+                total_counter[Indexer.FAILURE.value] += result[Indexer.FAILURE.value]
+
+    total, failures = total_counter
+    if(failures == 0):
+        print(termcolor.colored(
+            f'All {total} test(s) have all passed', 'green'
+        ))
+    else:
+        print(termcolor.colored(
+            f'{total - failures}/{total} test(s) have passed', 'red'
+        ))
 
 
 # cache this so it doesn't run all of them at once
