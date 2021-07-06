@@ -8,7 +8,6 @@ from Tuffix.Constants import *
 from Tuffix.Exceptions import *
 from Tuffix.Keywords import *
 from Tuffix.Status import status, ensure_root_access
-from Tuffix.UtilityFunctions import *
 from Tuffix.Editors import AtomKeyword
 from Tuffix.SudoRun import SudoRun
 
@@ -99,7 +98,8 @@ class AddRemoveHelper():
                     # If the JSON file is found, we need to now dynamically
                     # create a class
                     path = pathlib.Path(f'{dirpath}/{_file}')
-                    NewClass = DEFAULT_CLASS_GENERATOR.generate(path.resolve(), self.build_config)
+                    NewClass = DEFAULT_CLASS_GENERATOR.generate(
+                        path.resolve(), self.build_config)
                     return (True, NewClass())
         return (False, None)
 
