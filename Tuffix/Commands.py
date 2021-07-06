@@ -99,7 +99,7 @@ class AddRemoveHelper():
                     # If the JSON file is found, we need to now dynamically
                     # create a class
                     path = pathlib.Path(f'{dirpath}/{_file}')
-                    NewClass = DEFAULT_CLASS_GENERATOR.generate(path.resolve())
+                    NewClass = DEFAULT_CLASS_GENERATOR.generate(path.resolve(), self.build_config)
                     return (True, NewClass())
         return (False, None)
 

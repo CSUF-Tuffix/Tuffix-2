@@ -89,7 +89,7 @@ class CustomCommandTest(unittest.TestCase):
                 json.dump(payload, fp)
             try:
                 custom.execute(arguments=[path])
-            except KeyError:
+            except (KeyError, ValueError):
                 pass
             else:
                 self.assertTrue(False)
