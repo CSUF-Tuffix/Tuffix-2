@@ -153,7 +153,7 @@ class BaseKeyword(AbstractKeyword):
         self.Atom.add()
 
     def remove(self):
-        self.edit_deb_packages(self.packages, is_installing=False)
+        # self.edit_deb_packages(self.packages, is_installing=False)
         self.Atom.remove()
 
     def build_google_test(self):
