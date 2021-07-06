@@ -15,6 +15,8 @@ from Tuffix.Status import *
 from Tuffix.LinkChecker import LinkPacket
 from Tuffix.Constants import KEYWORD_MAX_LENGTH
 
+from Tuffix.CustomPayload import CustomPayload
+
 from apt import debfile, cache
 from zipfile import ZipFile
 
@@ -24,28 +26,6 @@ import pathlib
 import requests
 import sys
 import dataclasses
-
-
-@dataclasses.dataclass
-class CustomPayload:
-    name: str
-    instructor: str
-    packages: list
-
-    def __init__(self, container: dict):
-        self.name, self.instructor, self.packages = list(
-            container.values())  # will raise ValueError
-
-        if((argc := len(self.name)) > KEYWORD_MAX_LENGTH):
-            self.name = self.trim_name()
-
-    def trim_name(self):
-        container = ''.join([_ for _ in self.name if(_.isupper())])
-        if not(container):
-            container = ''.join(
-                self.name[:KEYWORD_MAX_LENGTH]).replace(' ', '')
-
-        return container.lower()
 
 
 class AllKeyword(AbstractKeyword):
@@ -575,7 +555,7 @@ def partial_class(information: tuple, cls, build_config: BuildConfig):
     body = {
         "__init__": functools.partialmethod(
             cls.__init__,
-            build_config=DEFAULT_BUILD_CONFIG,
+            build_config=build_config,
             name=name,
             description=description,
             packages=packages),
@@ -616,7 +596,7 @@ class ClassKeywordGenerator():
 
         with open(path, encoding="utf-8") as fp:
             content = json.loads(fp.read())
-
+        
         __custom = CustomPayload(content)
 
         return partial_class(
