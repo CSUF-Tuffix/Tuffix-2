@@ -133,7 +133,7 @@ class AbstractKeywordTest(unittest.TestCase):
             DEFAULT_BUILD_CONFIG,
             'test',
             "this is an example AbstractKeyword",
-            ["linux-headers-5.4.0-26-generic"])
+            ["unicorn"])
         for package in AbstractKeywordTest.packages:
             try:
                 status = AbstractKeywordTest.is_deb_package_installed(package)
