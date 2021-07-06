@@ -16,13 +16,14 @@ from Tuffix.SudoRun import SudoRun
 from Tuffix.Configuration import read_state, DEFAULT_BUILD_CONFIG
 from Tuffix.Exceptions import *
 
-import re
-import subprocess
 from termcolor import colored
-import os
-import socket
 import datetime
+import os
+import pathlib
+import re
 import shutil
+import socket
+import subprocess
 import sys
 
 
@@ -46,17 +47,6 @@ def ensure_root_access(self):
             'you do not have root access; run this command like $ sudo tuffix ...')
 
 
-def is_tool(command: str) -> bool:
-    """
-    Goal: Check if command exists
-    Source: https://stackoverflow.com/questions/11210104/check-if-a-program-exists-from-a-python-script#34177358
-    """
-
-    if not(isinstance(command, str)):
-        raise ValueError
-    return shutil.which(command) is not None
-
-
 def in_VM() -> bool:
     """
     Goal: check if we're in a VM
@@ -71,25 +61,20 @@ def cpu_information() -> str:
     Goal: get current CPU model name and the amount of cores
     """
 
-    path = "/proc/cpuinfo"
-    _r_cpu_core_count = re.compile("cpu cores.*(?P<count>[0-9].*)")
-    _r_general_model_name = re.compile("model name.*\\:(?P<name>.*)")
+    path = pathlib.Path("/proc/cpuinfo")
+    regexes: list[re.Pattern] = [
+        re.compile("cpu cores\s*\:\s*(?P<cores>[\d]+)"),
+        re.compile("model name\s*\:\s*(?P<cpuname>.*)")
+    ]
+
     with open(path, "r") as fp:
-        contents = fp.readlines()
+        contents = ''.join(fp.readlines())
 
-    cores, name = None, None
+    cores, name = [
+        match.group(1) for regex in regexes if((match := regex.search(contents)))
+    ]
 
-    for line in contents:
-        core_match = _r_cpu_core_count.match(line)
-        model_match = _r_general_model_name.match(line)
-        if(core_match and cores is None):
-            cores = core_match.group("count")
-        elif(model_match and name is None):
-            name = model_match.group("name")
-        elif(cores and name):
-            return f"{' '.join(name.split())} ({cores} cores)"
-
-    return (cores, name)
+    return f'{name} ({cores} core(s))'
 
 
 def host() -> str:
@@ -105,17 +90,20 @@ def current_operating_system() -> str:
     Goal: get current Linux distribution name
     """
 
-    path = "/etc/os-release"
-    if not(os.path.exists(path)):
-        raise EnvironmentError(
-            f'could not get release information, {path} does not exist')
-    _r_OS = re.compile('NAME\\=\"(?P<release>[a-zA-Z].*)\"')
+    path = pathlib.Path("/etc/os-release")
+
+    if not(path.is_file()):
+        raise EnvironmentError(f'Could not find {path}; is this Unix?')
+
+    _re = re.compile("NAME\\=\"(?P<release>[a-zA-Z].*)\"")
+
     with open(path, "r") as fp:
-        line = fp.readline()
-    _match = _r_OS.match(line)
-    if(not _match):
-        raise EnvironmentError(f'could not parse release information')
-    return _match.group("release")
+        contents = ''.join(fp.readlines())
+
+    if not((match := _re.search(contents))):
+        raise ParsingError(f'Failed to parse {path}')
+
+    return match.group("release")
 
 
 def current_kernel_revision() -> str:
@@ -207,72 +195,53 @@ def graphics_information() -> tuple:
     Source: https://stackoverflow.com/questions/13867696/python-in-linux-obtain-vga-specifications-via-lspci-or-hal
     """
 
-    primary, secondary = None, None
-    vga_regex, controller_regex = re.compile(
-        "VGA.*\\:(?P<model>(?:(?!\\s\\().)*)"), re.compile("3D.*\\:(?P<model>(?:(?!\\s\\().)*)")
+    regexes: list[re.Pattern] = [
+        re.compile(
+            "VGA.*\\:\s*(?P<model>(?:(?!\\s\\().)*)"),
+        re.compile("3D.*\\:\s*(?P<accelerator>(?:(?!\\s\\().)*)")
+    ]
 
-    _default_shell_path, _lspci_path = shutil.which(
-        "bash"), shutil.which("lspci")
-
-    if(not _default_shell_path):
-        raise EnvironmentError(f'could not find bash')
-    if(not _lspci_path):
-        raise EnvironmentError(f'could not find lspci')
-
-    _lspci_output = subprocess.check_output(
-        _lspci_path,
-        shell=True,
-        executable=_default_shell_path,
-        encoding="utf-8",
-        universal_newlines="\n").splitlines()
-
-    for line in _lspci_output:
-        primary_match, secondary_match = vga_regex.search(
-            line), controller_regex.search(line)
-        if(primary_match and not primary):
-            primary = primary_match.group("model").strip()
-        elif(secondary_match and not secondary):
-            secondary = secondary_match.group("model").strip()
-        elif(primary and secondary):
-            break
-
-    if(not primary and
-       not secondary):
+    if not((bash := shutil.which("bash")) and
+           (lspci := shutil.which("lspci"))):
         raise EnvironmentError(
-            'could not identify primary or secondary video out source')
+            f'could not find bash ({bash}) or lspci ({lspci})')
 
-    primary, secondary = colored(
-        primary, 'green'), colored(
-        "None" if not secondary else secondary, 'red')
-    return (primary, secondary)
+    output = '\n'.join(subprocess.check_output(
+        lspci,
+        shell=True,
+        executable=bash,
+        encoding="utf-8",
+        universal_newlines="\n").splitlines())
+
+    primary, secondary = [
+        match.group(1) for regex in regexes if ((match := regex.search(output)))
+    ]
+
+    return (termcolor.colored(primary, 'green'),
+            termcolor.colored("None" if not secondary else secondary, 'red'))
 
 
-def list_git_configuration() -> tuple:
+def list_git_configuration() -> list:
     """
     Retrieve Git configuration information about the current user
     """
     keeper = SudoRun()
-    _git_path = shutil.which("git")
-    if not(_git_path):
-        raise EnvironmentError('could not find git')
 
-    username_regex = re.compile("user.name\\=(?P<user>.*$)")
-    email_regex = re.compile("user.email\\=(?P<email>.*$)")
+    if not((git := shutil.which("git"))):
+        raise EnvironmentError(f'could not find git path')
 
-    out = keeper.run(
-        command=f"{_git_path} --no-pager config --list",
+    regexes: list[re.Pattern] = [
+        re.compile("user\.email\=(?P<email>.*)"),
+        re.compile("user\.name\=(?P<name>.*)")
+    ]
+
+    output = keeper.run(
+        command=f"{git} --no-pager config --list",
         desired_user=keeper.whoami)
-    user, email = None, None
 
-    for line in out:
-        user_match = username_regex.match(line)
-        email_match = email_regex.match(line)
-        if(user_match):
-            user = user_match.group("user")
-        elif(email_match):
-            email = email_match.group("email")
-
-    return (user, email) if(user and email) else ("None", "None")
+    return [
+        match.group(1) if ((match := regex.search(output))) else "None" for regex in regexes
+    ]
 
 
 def has_internet() -> bool:

@@ -1,11 +1,5 @@
 #!/usr/bin/env python3.9
 
-"""
-pure Python equivalent of lsb_release
-inspiration from this: https://chromium.googlesource.com/chromiumos/docs/+/HEAD/lsb-release.md
-AUTHOR: Jared Dyreson
-"""
-
 from Tuffix.LSBParser import lsb_parser
 import unittest
 
@@ -17,7 +11,7 @@ class LSBTest(unittest.TestCase):
         try:
             cls._lsb_parser = lsb_parser()
         except EnvironmentError as error:
-            raise AssertionError(f'{error}')
+            self.assertTrue(False)
 
     def test_load(self):
         self.assertTrue(
@@ -29,8 +23,6 @@ class LSBTest(unittest.TestCase):
             _version = self._lsb_parser.lsb_codename()
         except KeyError:
             self.assertTrue(False)
-        else:
-            self.assertTrue(True)
 
         self.assertTrue(
             isinstance(_version, str)
@@ -56,7 +48,3 @@ class LSBTest(unittest.TestCase):
         self.assertTrue(
             isinstance(_description, str)
         )
-
-
-# if __name__ == '__main__':
-    # unittest.main()

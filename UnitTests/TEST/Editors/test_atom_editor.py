@@ -104,11 +104,10 @@ class AtomKeywordTest(unittest.TestCase):
             self.assertTrue(False)
 
     def test_remove(self):
-        pass
-        # self.Atom.remove(write=False)
-        # for _, artifcat in self.Atom.file_footprint.items():
-        # self.assertFalse(artifcat.is_file())
-        # try:
-        # self.assertFalse(self.Atom.is_deb_package_installed('atom'))
-        # except EnvironmentError:
-        # self.assertTrue(False)
+        self.Atom.remove(write=False)
+        for _, artifcat in self.Atom.file_footprint.items():
+            self.assertFalse(artifcat.is_file())
+        try:
+            self.assertFalse(self.Atom.is_deb_package_installed('atom'))
+        except EnvironmentError:
+            self.assertTrue(False)

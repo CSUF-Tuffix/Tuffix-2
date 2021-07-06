@@ -415,38 +415,22 @@ class MediaKeyword(AbstractKeyword):
         self.edit_deb_packages(self.packages, is_installing=False)
 
 
-# class LatexKeyword(AbstractKeyword):
-    # """
-    # Not for users, might have the same fate as AddRemoveHelper
-    # """
+class LatexKeyword(AbstractKeyword):
+    """
+    Not for users, might have the same fate as AddRemoveHelper
+    """
 
-    # def __init__(self, build_config: BuildConfig):
-        # super().__init__(build_config,
-        # 'latex',
-        # 'LaTeX typesetting environment (large)')
-        # self.packages: list[str] = []
+    def __init__(self, build_config: BuildConfig):
+        super().__init__(build_config,
+                         'latex',
+                         'LaTeX typesetting environment (large)')
+        self.packages: list[str] = ["texlive-full"]
 
-    # def add(self):
-        # self.edit_deb_packages(self.packages, is_installing=True)
+    def add(self):
+        self.edit_deb_packages(self.packages, is_installing=True)
 
-    # def remove(self):
-        # self.edit_deb_packages(self.packages, is_installing=False)
-
-# # NOTE: keyword names are kind of weird, please help
-
-# class LatexFullKeyword(LatexKeyword):
-    # def __init__(self, build_config: BuildConfig):
-        # super().__init__(build_config,
-        # 'latexf',
-        # 'Full LaTeX typesetting environment (large)')
-        # self.packages: list[str] = ["texlive-full"]
-
-# class LatexSkimKeyword(LatexKeyword):
-    # def __init__(self, build_config: BuildConfig):
-        # super().__init__(build_config,
-        # 'latexs',
-        # 'Small LaTeX typesetting environment')
-        # self.packages: list[str] = ["texlive"]
+    def remove(self):
+        self.edit_deb_packages(self.packages, is_installing=False)
 
 
 class VirtualBoxKeyword(AbstractKeyword):
@@ -539,8 +523,7 @@ class KeywordContainer():
             C481Keyword(build_config),
             C484Keyword(build_config),
             GeneralKeyword(build_config),
-            # LatexFullKeyword(build_config),
-            # LatexSkimKeyword(build_config),
+            LatexKeyword(build_config),
             MediaKeyword(build_config),
             TMuxKeyword(build_config),
             VirtualBoxKeyword(build_config),
