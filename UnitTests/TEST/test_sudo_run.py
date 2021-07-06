@@ -77,7 +77,3 @@ class TestSudoRun(unittest.TestCase):
             # (_current_uid == 0)
         # )
 
-
-if __name__ == '__main__':
-    print('[INFO] Please run as root')
-    unittest.main()

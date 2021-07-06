@@ -25,9 +25,9 @@ import shutil
 import socket
 import subprocess
 import sys
+import termcolor
 
-
-def ensure_ubuntu(self):
+def ensure_ubuntu():
     """
     /etc/debian_release -> /etc/debian_version
     """
@@ -37,7 +37,7 @@ def ensure_ubuntu(self):
             'this is not an Debian derivative, please try again')
 
 
-def ensure_root_access(self):
+def ensure_root_access():
     """
     Raises UsageError if we do not have root access.
     """
@@ -197,8 +197,7 @@ def graphics_information() -> tuple:
 
     regexes: list[re.Pattern] = [
         re.compile(
-            "VGA.*\\:\s*(?P<model>(?:(?!\\s\\().)*)"),
-        re.compile("3D.*\\:\s*(?P<accelerator>(?:(?!\\s\\().)*)")
+            "VGA.*\\:\s*(?P<model>(?:(?!\\s\\().)*)")
     ]
 
     if not((bash := shutil.which("bash")) and
@@ -213,9 +212,10 @@ def graphics_information() -> tuple:
         encoding="utf-8",
         universal_newlines="\n").splitlines())
 
-    primary, secondary = [
+    primary = [
         match.group(1) for regex in regexes if ((match := regex.search(output)))
     ]
+    secondary = None # this is currently here because sometimes users might not have 3D accelerated graphics
 
     return (termcolor.colored(primary, 'green'),
             termcolor.colored("None" if not secondary else secondary, 'red'))
@@ -235,9 +235,9 @@ def list_git_configuration() -> list:
         re.compile("user\.name\=(?P<name>.*)")
     ]
 
-    output = keeper.run(
+    output = '\n'.join(keeper.run(
         command=f"{git} --no-pager config --list",
-        desired_user=keeper.whoami)
+        desired_user=keeper.whoami))
 
     return [
         match.group(1) if ((match := regex.search(output))) else "None" for regex in regexes

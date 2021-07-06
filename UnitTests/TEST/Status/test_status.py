@@ -35,7 +35,7 @@ class StatusTest(unittest.TestCase):
         """
 
         self.assertTrue(
-            (output := in_VM()) and
+            not (output := in_VM()) and
             isinstance(output, bool)
         )
 
@@ -110,7 +110,7 @@ class StatusTest(unittest.TestCase):
         try:
             self.assertTrue(
                 (graphics := graphics_information()) and
-                ((argc := graphics) == 2) and
+                ((argc := len(graphics)) == 2) and
                 isinstance(graphics, tuple) and
                 all([isinstance(_, str) for _ in graphics])
             )
@@ -121,8 +121,8 @@ class StatusTest(unittest.TestCase):
     def test_git_configuration(self):
         try:
             self.assertTrue(
-                (output := list_git_configuration()) and
-                ((argc := output) == 2) and
+                (output := list_git_configuration())and
+                ((argc := len(output)) == 2) and
                 isinstance(output, list) and
                 all([isinstance(_, str) for _ in output])
             )
@@ -143,8 +143,8 @@ class StatusTest(unittest.TestCase):
 
     def test_currently_installed_targets(self):
         try:
+            targets = currently_installed_targets()
             self.assertTrue(
-                (targets := currently_installed_targets()) and
                 isinstance(targets, list) and
                 all([isinstance(_, str) for _ in targets])
             )
@@ -157,7 +157,7 @@ class StatusTest(unittest.TestCase):
             self.assertTrue(
                 (_status := status()) and
                 isinstance(_status, tuple) and
-                all([isinstance(_. str) for _ in _status])
+                all([isinstance(_, str) for _ in _status])
             )
         except EnvironmentError:
             # general exception, too much can go wrong here
