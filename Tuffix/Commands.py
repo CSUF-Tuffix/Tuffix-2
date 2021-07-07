@@ -10,6 +10,7 @@ from Tuffix.Keywords import *
 from Tuffix.Status import status, ensure_root_access
 from Tuffix.Editors import AtomKeyword
 from Tuffix.SudoRun import SudoRun
+from Tuffix.AbstractKeyword import AbstractKeyword
 
 import os
 import json
@@ -19,6 +20,7 @@ from termcolor import colored
 from functools import partial
 import shutil
 import apt
+import inspect
 
 
 class AbstractCommand:
@@ -152,7 +154,9 @@ class AddRemoveHelper():
             print(f'[INFO] Tuffix: {verb} {command.name}')
 
             try:
-                getattr(command, self.command)()
+                attr = getattr(command, self.command)
+                print(inspect.signature(attr))
+                attr()
             except AttributeError:
                 raise UsageError(
                     f'[INTERNAL ERROR] {command.__name__} does not have the function {self.command}')
@@ -256,10 +260,18 @@ class CustomCommand(AbstractCommand):
             if not(path.is_file()):
                 raise FileNotFoundError(f'[ERROR] Could not load {path}')
 
-            NewClass = DEFAULT_CLASS_GENERATOR.generate(
-                path, self.build_config)
+            with open(path, "r") as fp:
+                contents = json.load(fp)
 
-            NewClassInstance = NewClass()
+            __custom = CustomPayload(contents)
+            __custom_class = partial_class(
+                (__custom.name,
+                 f'created by {__custom.instructor} for {__custom.name}',
+                 __custom.packages),
+                AbstractKeyword,
+                self.build_config)
+
+            NewClassInstance = __custom_class()
 
             self.mark = AddRemoveHelper(self.build_config, "add")
             self.mark.execute([NewClassInstance.name],

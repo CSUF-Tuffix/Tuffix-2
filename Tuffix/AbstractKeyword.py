@@ -62,6 +62,7 @@ class AbstractKeyword:
             raise EnvironmentError(
                 f'[ERROR] No such package "{package_name}"; is this Ubuntu?')
 
+    @classmethod
     def edit_deb_packages(self, package_names: list, is_installing: bool):
         if not (isinstance(package_names, list) and
                 all(isinstance(name, str) for name in package_names) and
