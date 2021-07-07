@@ -154,9 +154,7 @@ class AddRemoveHelper():
             print(f'[INFO] Tuffix: {verb} {command.name}')
 
             try:
-                attr = getattr(command, self.command)
-                print(inspect.signature(attr))
-                attr()
+                getattr(command, self.command)()
             except AttributeError:
                 raise UsageError(
                     f'[INTERNAL ERROR] {command.__name__} does not have the function {self.command}')
@@ -260,18 +258,10 @@ class CustomCommand(AbstractCommand):
             if not(path.is_file()):
                 raise FileNotFoundError(f'[ERROR] Could not load {path}')
 
-            with open(path, "r") as fp:
-                contents = json.load(fp)
+            NewClass = DEFAULT_CLASS_GENERATOR.generate(
+                path, self.build_config)
 
-            __custom = CustomPayload(contents)
-            __custom_class = partial_class(
-                (__custom.name,
-                 f'created by {__custom.instructor} for {__custom.name}',
-                 __custom.packages),
-                AbstractKeyword,
-                self.build_config)
-
-            NewClassInstance = __custom_class()
+            NewClassInstance = NewClass()
 
             self.mark = AddRemoveHelper(self.build_config, "add")
             self.mark.execute([NewClassInstance.name],
