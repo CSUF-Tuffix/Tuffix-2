@@ -328,7 +328,7 @@ class VscodeKeyword(EditorBaseKeyword):
     """
 
     def __init__(self, build_config: BuildConfig):
-        super().__init__(build_config, 'vscode', 'Microsoft\'s text editor')
+        super().__init__(build_config, 'code', 'Microsoft\'s text editor')
         self.packages: list[str] = ['code']
         self.checkable_packages = []
         self.link_dictionary = {
@@ -340,9 +340,9 @@ class VscodeKeyword(EditorBaseKeyword):
         url = self.link_dictionary["VSCODE_DEB"].link
         deb_path = "/tmp/vscode.deb"
         print("[INFO] Downloading installer...")
-        content = requests.get(url).content
-        with open(deb_path, "wb") as fp:
-            fp.write(content)
+        # content = requests.get(url).content
+        # with open(deb_path, "wb") as fp:
+            # fp.write(content)
         apt.debfile.DebPackage(filename=deb_path).install()
         self.update_state(self.packages, True)
 

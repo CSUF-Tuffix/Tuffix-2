@@ -77,7 +77,7 @@ def conduct_test(path: pathlib.Path, pedantic: bool):
         # please remove `IGNORE_ME = True` from all instances
 
         print(f'[INFO] Ignoring {path}')
-        return
+        return [0, 0]
 
     # these tests names must conform to a certain format
     # for example: ExampleTest
@@ -136,8 +136,8 @@ def run_tests():
 
 
 # cache this so it doesn't run all of them at once
-# run_tests()
-conduct_test(
-    pathlib.Path("UnitTests/TEST/Editors/test_emacs_editor.py"),
-    True
-)
+run_tests()
+# conduct_test(
+    # pathlib.Path("UnitTests/TEST/Editors/test_atom_editor.py"),
+    # True
+# )
