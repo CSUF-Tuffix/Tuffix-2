@@ -340,9 +340,9 @@ class VscodeKeyword(EditorBaseKeyword):
         url = self.link_dictionary["VSCODE_DEB"].link
         deb_path = "/tmp/vscode.deb"
         print("[INFO] Downloading installer...")
-        # content = requests.get(url).content
-        # with open(deb_path, "wb") as fp:
-            # fp.write(content)
+        content = requests.get(url).content
+        with open(deb_path, "wb") as fp:
+            fp.write(content)
         apt.debfile.DebPackage(filename=deb_path).install()
         self.update_state(self.packages, True)
 

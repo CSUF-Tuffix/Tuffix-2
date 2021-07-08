@@ -3,7 +3,7 @@ from UnitTests.BaseEditorTest import TestEditorGeneric
 from Tuffix.Configuration import DEBUG_BUILD_CONFIG
 from Tuffix.Editors import NetbeansKeyword
 
-class EmacsKeywordTest(TestEditorGeneric):
+class NetbeansKeywordTest(TestEditorGeneric):
     @classmethod
     def setUpClass(cls):
         super().setUpClass(NetbeansKeyword(DEBUG_BUILD_CONFIG))
