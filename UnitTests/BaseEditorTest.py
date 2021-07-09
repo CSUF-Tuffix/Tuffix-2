@@ -64,12 +64,10 @@ class TestEditorGeneric(unittest.TestCase):
         """
 
         before_install = read_state(self.keyword.build_config)
-        # self.assertTrue(self.keyword.name not in before_install.editors)
         self.assertTrue(
             self.keyword.name not in self.obtain_correct_attribute(before_install))
         self.keyword.add()
         after_install = read_state(self.keyword.build_config)
-        # self.assertTrue(self.keyword.name in after_install.editors)
         self.assertTrue(
             self.keyword.name in self.obtain_correct_attribute(after_install))
 
@@ -86,7 +84,6 @@ class TestEditorGeneric(unittest.TestCase):
 
         self.keyword.remove()
         after_removal = read_state(self.keyword.build_config)
-        # self.assertTrue(self.keyword.name not in after_removal.editors)
         self.assertTrue(
             self.keyword.name not in self.obtain_correct_attribute(after_removal))
 
