@@ -17,6 +17,7 @@ import subprocess
 
 IGNORE_ME = True
 
+
 class keywordKeywordTest(TestEditorGeneric):
     @classmethod
     def setUpClass(cls):
@@ -25,6 +26,9 @@ class keywordKeywordTest(TestEditorGeneric):
     @classmethod
     def tearDownClass(cls):
         super().tearDownClass()
+
+    def test_candidates(self):
+        self.generic_check_available_candidates()
 
     def test_available_links(self):
         self.generic_check_links()
@@ -78,7 +82,7 @@ class keywordKeywordTest(TestEditorGeneric):
             (email == "support@packagecloud.io")
         )
         # for _, artifcat in self.keyword.file_footprint.items():
-            # self.assertTrue(artifcat.is_file())
+        # self.assertTrue(artifcat.is_file())
 
     def test_add(self):
         self.keyword.add(write=False)

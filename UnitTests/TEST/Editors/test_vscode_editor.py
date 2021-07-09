@@ -1,27 +1,31 @@
 from UnitTests.BaseEditorTest import TestEditorGeneric
 
 from Tuffix.Configuration import DEBUG_BUILD_CONFIG
-from Tuffix.Editors import EmacsKeyword
+from Tuffix.Editors import VscodeKeyword
 
-class EmacsKeywordTest(TestEditorGeneric):
+
+class VscodeKeywordTest(TestEditorGeneric):
     @classmethod
     def setUpClass(cls):
-        super().setUpClass(EmacsKeyword(DEBUG_BUILD_CONFIG))
+        super().setUpClass(VscodeKeyword(DEBUG_BUILD_CONFIG))
 
     @classmethod
     def tearDownClass(cls):
         super().tearDownClass()
 
+    def test_candidates(self):
+        self.generic_check_available_candidates()
+
     def test_add(self):
         """
-        Install emacs and check the state path
+        Install vscode and check the state path
         """
 
         self.generic_check_add()
 
     def test_remove(self):
         """
-        Remove emacs and check the state path
+        Remove vscode and check the state path
         """
 
         self.generic_check_remove()

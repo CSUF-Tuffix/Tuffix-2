@@ -12,12 +12,14 @@ Unit test desgined to encapsulate all EditorKeywords
 This is the parent classes of all tests in UnitTests/Editors
 """
 
+
 class TestEditorGeneric(unittest.TestCase):
     @classmethod
     def setUpClass(cls, instance: EditorBaseKeyword):
-        if not(issubclass(type(instance), EditorBaseKeyword) and
+        if not(issubclass(type(instance), EditorBaseKeyword) or
                issubclass(type(instance), AbstractKeyword)):
-            raise ValueError(f'expecting subclass of `EditorBaseKeyword`')
+            raise ValueError(
+                f'expecting subclass of `EditorBaseKeyword` or `AbstractKeyword`')
 
         cls.state = State(instance.build_config,
                           instance.build_config.version,
@@ -28,9 +30,33 @@ class TestEditorGeneric(unittest.TestCase):
 
         cls.keyword = instance
 
+        _type = type(cls.keyword)
+        if(issubclass(_type, AbstractKeyword) and
+           not issubclass(_type, EditorBaseKeyword)):
+            cls.correct_attr = (True, False)
+        else:
+            cls.correct_attr = (False, True)
+
     @classmethod
     def tearDownClass(cls):
         cls.state.build_config.state_path.unlink()
+
+    def generic_check_available_candidates(self):
+        """
+        See if all of the checkable packages can be installed
+        """
+
+        if(hasattr(self.keyword, 'checkable_packages')):
+            try:
+                self.keyword.check_candiates()
+            except KeyError:
+                self.assertTrue(False)
+
+    def obtain_correct_attribute(self, state: State):
+        regular_keyword, editor = self.correct_attr
+        if(regular_keyword):
+            return getattr(state, 'installed')
+        return getattr(state, 'editors')
 
     def generic_check_add(self):
         """
@@ -38,13 +64,18 @@ class TestEditorGeneric(unittest.TestCase):
         """
 
         before_install = read_state(self.keyword.build_config)
-        self.assertTrue(self.keyword.name not in before_install.editors)
+        # self.assertTrue(self.keyword.name not in before_install.editors)
+        self.assertTrue(
+            self.keyword.name not in self.obtain_correct_attribute(before_install))
         self.keyword.add()
         after_install = read_state(self.keyword.build_config)
-        self.assertTrue(self.keyword.name in after_install.editors)
+        # self.assertTrue(self.keyword.name in after_install.editors)
+        self.assertTrue(
+            self.keyword.name in self.obtain_correct_attribute(after_install))
 
         try:
-            self.assertTrue(self.keyword.is_deb_package_installed(self.keyword.name))
+            self.assertTrue(
+                self.keyword.is_deb_package_installed(self.keyword.name))
         except EnvironmentError:
             self.assertTrue(False)
 
@@ -55,10 +86,13 @@ class TestEditorGeneric(unittest.TestCase):
 
         self.keyword.remove()
         after_removal = read_state(self.keyword.build_config)
-        self.assertTrue(self.keyword.name not in after_removal.editors)
+        # self.assertTrue(self.keyword.name not in after_removal.editors)
+        self.assertTrue(
+            self.keyword.name not in self.obtain_correct_attribute(after_removal))
 
         try:
-            self.assertFalse(self.keyword.is_deb_package_installed(self.keyword.name))
+            self.assertFalse(
+                self.keyword.is_deb_package_installed(self.keyword.name))
         except EnvironmentError:
             self.assertTrue(False)
 

@@ -3,6 +3,7 @@ from UnitTests.BaseEditorTest import TestEditorGeneric
 from Tuffix.Configuration import DEBUG_BUILD_CONFIG
 from Tuffix.Editors import EclipseKeyword
 
+
 class EclipseKeywordTest(TestEditorGeneric):
     @classmethod
     def setUpClass(cls):
@@ -11,6 +12,9 @@ class EclipseKeywordTest(TestEditorGeneric):
     @classmethod
     def tearDownClass(cls):
         super().tearDownClass()
+
+    def test_candidates(self):
+        self.generic_check_available_candidates()
 
     def test_add(self):
         """

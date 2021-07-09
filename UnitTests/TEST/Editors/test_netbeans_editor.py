@@ -1,27 +1,31 @@
 from UnitTests.BaseEditorTest import TestEditorGeneric
 
 from Tuffix.Configuration import DEBUG_BUILD_CONFIG
-from Tuffix.Editors import GeanyKeyword
+from Tuffix.Editors import NetbeansKeyword
 
-class GeanyKeywordTest(TestEditorGeneric):
+
+class NetbeansKeywordTest(TestEditorGeneric):
     @classmethod
     def setUpClass(cls):
-        super().setUpClass(GeanyKeyword(DEBUG_BUILD_CONFIG))
+        super().setUpClass(NetbeansKeyword(DEBUG_BUILD_CONFIG))
 
     @classmethod
     def tearDownClass(cls):
         super().tearDownClass()
 
+    def test_candidates(self):
+        self.generic_check_available_candidates()
+
     def test_add(self):
         """
-        Install geany and check the state path
+        Install netbeans and check the state path
         """
 
         self.generic_check_add()
 
     def test_remove(self):
         """
-        Remove geany and check the state path
+        Remove netbeans and check the state path
         """
 
         self.generic_check_remove()
