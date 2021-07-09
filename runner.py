@@ -27,19 +27,11 @@ R = TuffixTestRunner(
     pedantic=True
 )
 
-choices = [x for x in os.listdir(
-    parent_dir) if (os.path.isdir(f'{parent_dir}{x}') and x not in R.excluded_dirs)]
-
 pedantic = arguments.pedantic
 
 if((test := arguments.test)):
-    if(test not in choices):
-        print("hey this test was not valid")
-    else:
-        valid_tests = test.split(",")
-        for valid_test in valid_test:
-            # R.test_certain_class(valid_test)
+    for valid_test in test.split(","):
+        R.test_certain_class(valid_test)
 
 if(arguments.all):
-    print("conducting all tests")
-    # R.run_all_tests()
+    R.run_all_tests()
