@@ -17,7 +17,7 @@ class Indexer(enum.Enum):
     TOTAL, FAILURE = 0, 1
 
 
-class TuffixTestRunner():
+class TuffixTestRunner:
     def __init__(self, parent_dir: pathlib.Path, pedantic: bool,
                  excluded_files: list = [
                      "SequentialTest.py", "__init__.py", "BaseTester.py", "README.md"],
@@ -31,15 +31,16 @@ class TuffixTestRunner():
                all([isinstance(_, str) for _ in excluded_dirs])):
             raise ValueError
 
+        self.parent_dir = parent_dir
         self.runner = unittest.TextTestRunner()
         self.pedantic = pedantic
-        self.indexer = Indexer()
+        self.indexer = Indexer
         self.score = [0, 0]
         self.excluded_files = excluded_files
         self.excluded_dirs = excluded_dirs
         self.file_system = self.construct_filesystem()
 
-    def construct_filesystem(self, pedantic: bool = self.pedantic):
+    def construct_filesystem(self):
         """
         Read the contents of `UnitTests` and attempt to construct
         a working structure to load all valid tests
@@ -51,9 +52,6 @@ class TuffixTestRunner():
             False to allow for less output.
 
         """
-
-        if not(isinstance(pedantic, bool)):
-            raise ValueError(f'{pedantic=} is not a `bool`')
 
         container = []
 
@@ -68,7 +66,7 @@ class TuffixTestRunner():
                 container.append(
                     {test_name: filepath}
                 )
-        self.file_system = container
+        return container
 
     def test_certain_class(self, name: str):
         """
@@ -82,6 +80,7 @@ class TuffixTestRunner():
             test_suite = self.file_system[name]
         except KeyError:
             print(f'[ERROR] Could not find test {test_suite}')
+        print(f"[INFO] Testing all of {name}")
         for __test in test_suite:
             self.conduct_test(__test)
 
@@ -173,3 +172,5 @@ R = TuffixTestRunner(
     parent_dir=pathlib.Path("UnitTests/"),
     pedantic=True
 )
+print(R.file_system)
+# print(R.test_certain_class("Editors"))
