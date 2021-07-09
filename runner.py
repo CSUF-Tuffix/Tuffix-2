@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from Tuffix.Quieter import quiet
-from UnitTests.SequentialTest import SequentialTestLoader
+# from UnitTests.SequentialTest import SequentialTestLoader
 
 import dataclasses
 import enum
@@ -11,6 +11,7 @@ import pathlib
 import re
 import termcolor
 import unittest
+from pprint import pprint as pp
 
 
 class Indexer(enum.Enum):
@@ -31,13 +32,13 @@ class TuffixTestRunner:
                all([isinstance(_, str) for _ in excluded_dirs])):
             raise ValueError
 
-        self.parent_dir = parent_dir
-        self.runner = unittest.TextTestRunner()
-        self.pedantic = pedantic
-        self.indexer = Indexer
-        self.score = [0, 0]
-        self.excluded_files = excluded_files
         self.excluded_dirs = excluded_dirs
+        self.excluded_files = excluded_files
+        self.indexer = Indexer
+        self.parent_dir = parent_dir
+        self.pedantic = pedantic
+        self.runner = unittest.TextTestRunner()
+        self.score = [0, 0]
         self.file_system = self.construct_filesystem()
 
     def construct_filesystem(self):
@@ -53,7 +54,7 @@ class TuffixTestRunner:
 
         """
 
-        container = []
+        container = {"UnitTests": {}}
 
         for dirpath, dirs, filepath in os.walk(self.parent_dir, topdown=True):
             dirs.sort()
@@ -61,11 +62,11 @@ class TuffixTestRunner:
             filepath[:] = [f for f in filepath if f not in self.excluded_files]
             test_name = os.path.basename(dirpath)
             if not(test_name == str(self.parent_dir)):
-                filepath = [(pathlib.Path(self.parent_dir / path),
-                             self.pedantic) for path in filepath]
-                container.append(
-                    {test_name: filepath}
-                )
+                container[str(self.parent_dir)] = {
+                    test_name: [(pathlib.Path(self.parent_dir / test_name / path),
+                                 self.pedantic) for path in filepath]
+
+                }
         return container
 
     def test_certain_class(self, name: str):
@@ -76,13 +77,15 @@ class TuffixTestRunner:
 
         if not(isinstance(name, str)):
             raise ValueError
+        test_suite = None
         try:
-            test_suite = self.file_system[name]
+            test_suite = self.file_system[str(self.parent_dir)][name]
         except KeyError:
-            print(f'[ERROR] Could not find test {test_suite}')
+            print(f'[ERROR] Could not find test {name}')
         print(f"[INFO] Testing all of {name}")
         for __test in test_suite:
-            self.conduct_test(__test)
+            test, _ = __test
+            self.conduct_test(test)
 
     def conduct_test(self, path: pathlib.Path):
         """
@@ -172,5 +175,5 @@ R = TuffixTestRunner(
     parent_dir=pathlib.Path("UnitTests/"),
     pedantic=True
 )
-print(R.file_system)
-# print(R.test_certain_class("Editors"))
+pp(R.file_system)
+print(R.test_certain_class("Keywords"))
