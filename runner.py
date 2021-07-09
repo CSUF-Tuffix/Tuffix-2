@@ -20,6 +20,8 @@ parser.add_argument("-p", "--pedantic",
 parser.add_argument("-t", "--test",
                     help="test certain components, comma separated", type=str)
 
+parser.add_argument("-s", "--sub-component",
+                    help="test certain sub-component, given the direct path", type=str)
 arguments = parser.parse_args()
 
 R = TuffixTestRunner(
@@ -35,3 +37,11 @@ if((test := arguments.test)):
 
 if(arguments.all):
     R.run_all_tests()
+
+if(arguments.sub_component):
+    path = pathlib.Path(arguments.sub_component)
+    if(path.is_file()):
+        result = R.conduct_test(path)
+        R.print_resultant_message(result)
+    else:
+        print(f'[ERROR] Could not load test at pah {path}, no such file')

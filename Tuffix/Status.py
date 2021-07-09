@@ -217,7 +217,7 @@ def graphics_information() -> tuple:
     ]
     secondary = None # this is currently here because sometimes users might not have 3D accelerated graphics
 
-    return (termcolor.colored(primary, 'green'),
+    return (termcolor.colored(*primary, 'green'),
             termcolor.colored("None" if not secondary else secondary, 'red'))
 
 

@@ -17,7 +17,7 @@ from Tuffix.Constants import KEYWORD_MAX_LENGTH
 
 from Tuffix.CustomPayload import CustomPayload
 
-from apt import debfile, cache
+import apt
 from zipfile import ZipFile
 
 import functools

@@ -1,30 +1,31 @@
 from Tuffix.Keywords import ZoomKeyword
-from Tuffix.Configuration import DEBUG_BUILD_CONFIG, State, read_state
-from Tuffix.Commands import InitCommand
+from Tuffix.Configuration import DEBUG_BUILD_CONFIG
+from UnitTests.BaseEditorTest import TestEditorGeneric as TestKeywordGeneric
 
 import unittest
 
-
-class ZoomKeywordTest(unittest.TestCase):
+class ZoomKeywordTest(TestKeywordGeneric):
     @classmethod
     def setUpClass(cls):
-        cls.state = State(DEBUG_BUILD_CONFIG,
-                          DEBUG_BUILD_CONFIG.version,
-                          [], [])
-        cls.Init = InitCommand(DEBUG_BUILD_CONFIG)
-        cls.Init.create_state_directory()
-        cls.state.write()
-
-        cls.Zoom = ZoomKeyword(DEBUG_BUILD_CONFIG)
+        super().setUpClass(ZoomKeyword(DEBUG_BUILD_CONFIG))
 
     @classmethod
     def tearDownClass(cls):
-        cls.state.build_config.state_path.unlink()
+        super().tearDownClass()
+
+    def test_candidates(self):
+        self.generic_check_available_candidates()
 
     def test_add(self):
-        self.Zoom.add()
-        self.assertTrue(self.Zoom.is_deb_package_installed('zoom'))
+        """
+        Install zoom and check the state path
+        """
+
+        self.generic_check_add()
 
     def test_remove(self):
-        self.Zoom.remove()
-        self.assertFalse(self.Zoom.is_deb_package_installed('zoom'))
+        """
+        Remove zoom and check the state path
+        """
+
+        self.generic_check_remove()

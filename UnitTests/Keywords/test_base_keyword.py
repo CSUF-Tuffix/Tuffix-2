@@ -1,6 +1,6 @@
 from Tuffix.Keywords import BaseKeyword
 from Tuffix.Commands import InitCommand
-from UnitTests.BaseEditorTest import TestBaseKeywordTest
+from UnitTests.BaseEditorTest import TestEditorGeneric
 
 import shutil
 import unittest

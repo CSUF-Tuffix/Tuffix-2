@@ -68,6 +68,7 @@ class TestEditorGeneric(unittest.TestCase):
             self.keyword.name not in self.obtain_correct_attribute(before_install))
         self.keyword.add()
         after_install = read_state(self.keyword.build_config)
+        print(after_install.installed)
         self.assertTrue(
             self.keyword.name in self.obtain_correct_attribute(after_install))
 

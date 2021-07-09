@@ -20,7 +20,7 @@ from Tuffix.Exceptions import *
 from Tuffix.Configuration import *
 from Tuffix.DebBuilder import DebBuilder
 
-import apt
+from apt import debfile
 import os
 import pathlib
 import requests
@@ -238,7 +238,7 @@ class EclipseKeyword(EditorBaseKeyword):
                            "sudo ln -s /usr/eclipse/eclipse /usr/bin/eclipse"])
         _DebTheBuilder.make(control=control, scripts=[postinst, postrm])
 
-        apt.debfile.DebPackage(filename="eclipsetuffix.deb").install()
+        debfile.DebPackage(filename="eclipsetuffix.deb").install()
 
         launcher = """
         [Desktop Entry]
@@ -343,7 +343,7 @@ class VscodeKeyword(EditorBaseKeyword):
         content = requests.get(url).content
         with open(deb_path, "wb") as fp:
             fp.write(content)
-        apt.debfile.DebPackage(filename=deb_path).install()
+        debfile.DebPackage(filename=deb_path).install()
         self.update_state(self.packages, True)
 
     def remove(self):

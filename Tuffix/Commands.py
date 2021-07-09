@@ -105,6 +105,13 @@ class AddRemoveHelper():
                     return (True, NewClass())
         return (False, None)
 
+    def obtain_correct_attribute(self, state: State):
+        # same code in UnitTests/BaseEditorTest
+        regular_keyword, editor = self.correct_attr
+        if(regular_keyword):
+            return getattr(state, 'installed')
+        return getattr(state, 'editors')
+
     def rewrite_state(self, keyword: AbstractKeyword, install: bool):
         """
         Goal: update the state file

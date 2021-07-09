@@ -68,6 +68,21 @@ class TuffixTestRunner:
                     }
                 )
 
+    def print_resultant_message(self, container: list):
+        if not(isinstance(container, list) and
+               all([isinstance(_, int) for _ in container])):
+               raise ValueError
+
+        total, failures = container
+        if(failures == 0):
+            print(termcolor.colored(
+                f'All {total} test(s) have all passed', 'green'
+            ))
+        else:
+            print(termcolor.colored(
+                f'{total - failures}/{total} test(s) have passed', 'red'
+            ))
+
     def test_certain_class(self, name: str):
         """
         Test certain module from Tuffix:
@@ -83,8 +98,8 @@ class TuffixTestRunner:
             test_suite = self.file_system[str(self.parent_dir)][name]
         except KeyError:
             print(f'[ERROR] Could not find test {name}')
-            print(self.file_system)
             quit()
+
         print(f"[INFO] Testing all of {name}")
         for __test in test_suite:
             test, _ = __test
@@ -92,15 +107,8 @@ class TuffixTestRunner:
             total_counter[self.indexer.TOTAL.value] += result[self.indexer.TOTAL.value]
             total_counter[self.indexer.FAILURE.value] += result[self.indexer.FAILURE.value]
 
-        total, failures = total_counter
-        if(failures == 0):
-            print(termcolor.colored(
-                f'All {total} test(s) have all passed', 'green'
-            ))
-        else:
-            print(termcolor.colored(
-                f'{total - failures}/{total} test(s) have passed', 'red'
-            ))
+        self.print_resultant_message(total_counter)
+
 
     def conduct_test(self, path: pathlib.Path):
         """
