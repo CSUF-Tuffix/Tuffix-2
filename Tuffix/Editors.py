@@ -173,7 +173,7 @@ class EmacsKeyword(EditorBaseKeyword):
         self.update_state(self.packages, False)
 
 
-class EclipseKeyword(AbstractKeyword):
+class EclipseKeyword(EditorBaseKeyword):
     """
     Attempts to grab a tar ball of the Eclipse installer
     and convert it into a Debian installer

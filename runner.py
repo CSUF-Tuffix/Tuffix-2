@@ -136,8 +136,8 @@ def run_tests():
 
 
 # cache this so it doesn't run all of them at once
-run_tests()
-# conduct_test(
-    # pathlib.Path("UnitTests/TEST/Editors/test_atom_editor.py"),
-    # True
-# )
+# run_tests()
+conduct_test(
+    pathlib.Path("UnitTests/Editors/test_eclipse_editor.py"),
+    True
+)
