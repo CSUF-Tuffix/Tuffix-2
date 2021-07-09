@@ -37,7 +37,8 @@ class TuffixTestRunner:
         self.pedantic = pedantic
         self.runner = unittest.TextTestRunner()
         self.score = [0, 0]
-        self.file_system = self.construct_filesystem()
+        self.file_system = {"UnitTests": {}}
+        self.construct_filesystem()
 
     def construct_filesystem(self):
         """
@@ -52,7 +53,6 @@ class TuffixTestRunner:
 
         """
 
-        container = {"UnitTests": {}}
 
         for dirpath, dirs, filepath in os.walk(self.parent_dir, topdown=True):
             dirs.sort()
@@ -60,12 +60,13 @@ class TuffixTestRunner:
             filepath[:] = [f for f in filepath if f not in self.excluded_files]
             test_name = os.path.basename(dirpath)
             if not(test_name == str(self.parent_dir)):
-                container[str(self.parent_dir)] = {
-                    test_name: [(pathlib.Path(self.parent_dir / test_name / path),
-                                 self.pedantic) for path in filepath]
+                self.file_system["UnitTests"].update(
+                    {
+                        test_name: [(pathlib.Path(self.parent_dir / test_name / path),
+                                     self.pedantic) for path in filepath]
 
-                }
-        return container
+                    }
+                )
 
     def test_certain_class(self, name: str):
         """
@@ -82,6 +83,8 @@ class TuffixTestRunner:
             test_suite = self.file_system[str(self.parent_dir)][name]
         except KeyError:
             print(f'[ERROR] Could not find test {name}')
+            print(self.file_system)
+            quit()
         print(f"[INFO] Testing all of {name}")
         for __test in test_suite:
             test, _ = __test

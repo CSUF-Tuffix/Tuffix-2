@@ -1,6 +1,6 @@
 #!/usr/bin/env python3.9
 
-from Tuffix.Exceptions import UsageError
+from Tuffix.Exceptions import LinkError
 from Tuffix.LinkChecker import LinkPacket, LinkChecker
 
 from Tuffix.Editors import AtomKeyword
@@ -100,11 +100,11 @@ class LinkCheckerTest(unittest.TestCase):
         self.assertTrue(hasattr(Base, 'link_dictionary'))
 
         try:
-            self.Linker(Atom.link_dictionary)
+            self.Linker.check_links(Atom.link_dictionary)
         except LinkError:
             self.assertTrue(False)
 
         try:
-            self.Linker(Base.link_dictionary)
+            self.Linker.check_links(Base.link_dictionary)
         except LinkError:
             self.assertTrue(False)
