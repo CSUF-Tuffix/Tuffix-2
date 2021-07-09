@@ -105,23 +105,32 @@ class AddRemoveHelper():
                     return (True, NewClass())
         return (False, None)
 
-    def obtain_correct_attribute(self, state: State):
+    def obtain_correct_attribute(self, keyword: AbstractKeyword, state: State):
         # same code in UnitTests/BaseEditorTest
-        regular_keyword, editor = self.correct_attr
+
+        _type = type(keyword)
+        if(issubclass(_type, AbstractKeyword) and
+           not issubclass(_type, EditorBaseKeyword)):
+            correct_attr = (True, False, "AbstractKeyword")
+        else:
+            correct_attr = (False, True, "EditorBaseKeyword")
+
+        regular_keyword, editor, __name = correct_attr
         if(regular_keyword):
-            return getattr(state, 'installed')
-        return getattr(state, 'editors')
+            return (__name, getattr(state, 'installed'))
+        return (__name, getattr(state, 'editors'))
 
     def rewrite_state(self, keyword: AbstractKeyword, install: bool):
         """
         Goal: update the state file
         """
-        if not(isinstance(keyword, AbstractKeyword) and
+        if not(issubclass(keyword, AbstractKeyword) and
                isinstance(install, bool)):
             raise ValueError
 
         current_state = read_state(self.build_config)
-        new_action = current_state.installed
+        _type, attribute = self.obtain_correct_attribute(
+            keyword, current_state)
 
         if(not install):
             new_action.remove(keyword.name)
@@ -130,8 +139,9 @@ class AddRemoveHelper():
 
         new_state = State(self.build_config,
                           self.build_config.version,
-                          new_action,
-                          current_state.editors)
+                          new_action if (
+                              _type == "AbstractKeyword") else current_state.installed,
+                          new_action if (_type == "EditorBaseKeyword") else current_state.editors)
         new_state.write()
 
     def run_commands(self, container: list, install: bool):

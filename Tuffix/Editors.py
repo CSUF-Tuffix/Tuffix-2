@@ -36,31 +36,6 @@ class EditorBaseKeyword(AbstractKeyword):
         self.build_config = build_config
         self.executor = SudoRun()
 
-    def update_state(self, arguments: list, install=True):
-        """
-        Goal: update the state file
-        """
-
-        if not(isinstance(arguments, list) and
-               isinstance(install, bool)):
-            raise ValueError
-
-        current_state = read_state(self.build_config)
-
-        new_action = current_state.editors
-
-        for argument in arguments:
-            if(not install):
-                new_action.remove(argument)
-            else:
-                new_action.append(argument)
-
-        new_state = State(self.build_config,
-                          self.build_config.version,
-                          current_state.installed,
-                          new_action)
-        new_state.write()
-
 
 class AtomKeyword(EditorBaseKeyword):
 
@@ -146,13 +121,13 @@ class AtomKeyword(EditorBaseKeyword):
         print("[INFO] Finished installing Atom")
 
         if(write):
-            self.update_state(self.packages, True)
+            self.rewrite_state(self.packages, True)
 
     def remove(self, write=False):
         # self.edit_deb_packages(self.packages, is_installing=False)
         self.file_footprint["ATOM_SOURCE"].unlink()
         if(write):
-            self.update_state(self.packages, False)
+            self.rewrite_state(self.packages, False)
 
 
 class EmacsKeyword(EditorBaseKeyword):
@@ -166,11 +141,11 @@ class EmacsKeyword(EditorBaseKeyword):
 
     def add(self):
         self.edit_deb_packages(self.packages, is_installing=True)
-        self.update_state(self.packages, True)
+        self.rewrite_state(self.packages, True)
 
     def remove(self):
         self.edit_deb_packages(self.packages, is_installing=False)
-        self.update_state(self.packages, False)
+        self.rewrite_state(self.packages, False)
 
 
 class EclipseKeyword(EditorBaseKeyword):
@@ -256,12 +231,12 @@ class EclipseKeyword(EditorBaseKeyword):
         with open(launcher_path, "w") as fp:
             fp.write(launcher)
 
-        self.update_state(self.packages, True)
+        self.rewrite_state(self.packages, True)
 
     def remove(self):
         self.file_footprint["ECLIPSE_LAUNCHER"].unlink()
         self.edit_deb_packages(self.packages, is_installing=False)
-        self.update_state(self.packages, False)
+        self.rewrite_state(self.packages, False)
 
 
 class GeanyKeyword(EditorBaseKeyword):
@@ -272,11 +247,11 @@ class GeanyKeyword(EditorBaseKeyword):
 
     def add(self):
         self.edit_deb_packages(self.packages, is_installing=True)
-        self.update_state(self.packages, True)
+        self.rewrite_state(self.packages, True)
 
     def remove(self):
         self.edit_deb_packages(self.packages, is_installing=False)
-        self.update_state(self.packages, False)
+        self.rewrite_state(self.packages, False)
 
 
 class NetbeansKeyword(EditorBaseKeyword):
@@ -286,11 +261,11 @@ class NetbeansKeyword(EditorBaseKeyword):
 
     def add(self):
         self.edit_deb_packages(self.packages, is_installing=True)
-        self.update_state(self.packages, True)
+        self.rewrite_state(self.packages, True)
 
     def remove(self):
         self.edit_deb_packages(self.packages, is_installing=False)
-        self.update_state(self.packages, False)
+        self.rewrite_state(self.packages, False)
 
 
 class VimKeyword(EditorBaseKeyword):
@@ -313,13 +288,13 @@ class VimKeyword(EditorBaseKeyword):
             with open(vrc, "wb") as fp:
                 fp.write(content)
         self.edit_deb_packages(self.packages, is_installing=True)
-        self.update_state(self.packages[:1], True)
+        self.rewrite_state(self.packages[:1], True)
         if(vimrc_path):
             self.executor.run(f'vim +silent +PluginInstall +qall')
 
     def remove(self):
         self.edit_deb_packages(self.packages, is_installing=False)
-        self.update_state(self.packages[:1], False)
+        self.rewrite_state(self.packages[:1], False)
 
 
 class VscodeKeyword(EditorBaseKeyword):
@@ -344,11 +319,11 @@ class VscodeKeyword(EditorBaseKeyword):
         with open(deb_path, "wb") as fp:
             fp.write(content)
         debfile.DebPackage(filename=deb_path).install()
-        self.update_state(self.packages, True)
+        self.rewrite_state(self.packages, True)
 
     def remove(self):
         self.edit_deb_packages(self.packages, is_installing=False)
-        self.update_state(self.packages, False)
+        self.rewrite_state(self.packages, False)
 
 
 class EditorKeywordContainer():
