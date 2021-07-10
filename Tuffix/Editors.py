@@ -67,14 +67,12 @@ class AtomKeyword(EditorBaseKeyword):
         super().__init__(build_config, 'atom', 'Github\'s own editor')
         self.packages: list[str] = ['atom']
         self.checkable_packages = []
+        self.repo_payload = "deb [arch=amd64] https://packagecloud.io/AtomEditor/atom/any/ any main"
 
         self.link_dictionary = {
             "ATOM_GPG_URL": LinkPacket(
                 link="https://packagecloud.io/AtomEditor/atom/gpgkey",
-                is_git=False)}
-
-        self.file_footprint = {
-            "ATOM_SOURCE": pathlib.Path("/etc/apt/sources.list.d/atom.list")
+                is_git=False)
         }
 
     def check_apm_candiate(self, package: str) -> bool:
@@ -103,14 +101,9 @@ class AtomKeyword(EditorBaseKeyword):
         """
 
         gpg_url = self.link_dictionary["ATOM_GPG_URL"].link
-        atom_list = self.file_footprint["ATOM_SOURCE"]
 
         gpg_dest = pathlib.Path("/tmp/gpgkey")
         content = requests.get(gpg_url).content
-
-        with open(atom_list, "w") as fp:
-            fp.write(
-                "deb [arch=amd64] https://packagecloud.io/AtomEditor/atom/any/ any main")
 
         with open(gpg_dest, "wb") as fp:
             fp.write(content)
@@ -118,6 +111,8 @@ class AtomKeyword(EditorBaseKeyword):
         self.executor.run(
             f'sudo apt-key add {gpg_dest.resolve()}',
             self.executor.whoami)
+
+        self.write_to_sources(payload=self.repo_payload, appending=True)
 
     def add(self, plugins=['dbg-gdb', 'dbg', 'output-panel'], write=True):
         """
@@ -130,7 +125,7 @@ class AtomKeyword(EditorBaseKeyword):
 
         atom_conf_dir = pathlib.Path(f'/home/{self.executor.whoami}/.atom')
 
-        self.install_ppa()
+        # self.install_ppa()
 
         self.edit_deb_packages(self.packages, is_installing=True)
 
@@ -149,8 +144,9 @@ class AtomKeyword(EditorBaseKeyword):
 
     def remove(self, write=False):
         self.edit_deb_packages(self.packages, is_installing=False)
-        if(self.file_footprint["ATOM_SOURCE"].is_file()):
-            self.file_footprint["ATOM_SOURCE"].unlink()
+
+        self.write_to_sources(payload=self.repo_payload, appending=True)
+
         if(write):
             self.rewrite_state(self.packages, False)
 

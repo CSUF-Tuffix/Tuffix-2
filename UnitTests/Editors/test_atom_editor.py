@@ -67,8 +67,6 @@ class AtomKeywordTest(TestEditorGeneric):
             (link == "https://packagecloud.io/AtomEditor/atom") and
             (email == "support@packagecloud.io")
         )
-        # for _, artifcat in self.keyword.file_footprint.items():
-        # self.assertTrue(artifcat.is_file())
 
     def test_add(self):
         self.keyword.add(write=True)

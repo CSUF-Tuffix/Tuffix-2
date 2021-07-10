@@ -29,6 +29,30 @@ class AbstractKeyword:
     def remove(self):
         raise NotImplementedError
 
+    def write_to_sources(payload: str, appending: bool = True):
+        """
+        Emulate `sudo apt-add-repository` with Python
+
+        appending: mimicks the `--remove` flag
+        Not the most efficient solution
+        """
+
+        if not(isinstance(payload, str)):
+            raise ValueError
+        path = pathlib.Path("/etc/sources/sources.list", "r")
+
+        with open(path, "r") as fp:
+            contents = ''.join(fp.readlines())
+        if(appending):
+            contents += payload
+        else:
+            contents.replace(payload, "")
+
+        contents = contents.strip()
+
+        with open(path, "w") as fp:
+            fp.write(contents)
+
     def check_candiates(self):
         """
         Check all package candiates to see if they can be installed
