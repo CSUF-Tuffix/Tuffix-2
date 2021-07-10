@@ -15,10 +15,9 @@ import textwrap
 import shutil
 import subprocess
 
-IGNORE_ME = True
+import unittest
 
-
-class keywordKeywordTest(TestEditorGeneric):
+class AtomKeywordTest(TestEditorGeneric):
     @classmethod
     def setUpClass(cls):
         super().setUpClass(AtomKeyword(DEBUG_BUILD_CONFIG))
@@ -33,19 +32,6 @@ class keywordKeywordTest(TestEditorGeneric):
     def test_available_links(self):
         self.generic_check_links()
 
-    def test_check_apm_candidates(self):
-        """
-        Check if APM can install any of the following plugins
-        """
-
-        uninstallable_packages = ["taco bell", "baco tell", "chipotle"]
-        installable_packages = ["dbg-gdb", "dbg", "output-panel"]
-
-        with CapturingStderr() as _:
-            self.assertFalse(all([self.keyword.check_apm_candiate(_)
-                                  for _ in uninstallable_packages]))
-            self.assertTrue(all([self.keyword.check_apm_candiate(_)
-                                 for _ in installable_packages]))
 
     def test_ppa_installation(self):
         """
@@ -78,16 +64,30 @@ class keywordKeywordTest(TestEditorGeneric):
         self._id = _id
 
         self.assertTrue(
-            (link == "https://packagecloud.io/keywordEditor/atom") and
+            (link == "https://packagecloud.io/AtomEditor/atom") and
             (email == "support@packagecloud.io")
         )
         # for _, artifcat in self.keyword.file_footprint.items():
         # self.assertTrue(artifcat.is_file())
 
     def test_add(self):
-        self.keyword.add(write=False)
+        self.keyword.add(write=True)
         self.generic_check_add()
 
     def test_remove(self):
         self.keyword.remove(write=False)
-        # self.generic_check_remove()
+        self.generic_check_remove()
+
+    def test_check_apm_candidates(self):
+        """
+        Check if APM can install any of the following plugins
+        """
+
+        uninstallable_packages = ["taco bell", "baco tell", "chipotle"]
+        installable_packages = ["dbg-gdb", "dbg", "output-panel"]
+
+        with CapturingStderr() as _:
+            self.assertFalse(all([self.keyword.check_apm_candiate(_)
+                                  for _ in uninstallable_packages]))
+            self.assertTrue(all([self.keyword.check_apm_candiate(_)
+                                 for _ in installable_packages]))

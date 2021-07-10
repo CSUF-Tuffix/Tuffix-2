@@ -36,6 +36,30 @@ class EditorBaseKeyword(AbstractKeyword):
         self.build_config = build_config
         self.executor = SudoRun()
 
+    def rewrite_state(self, arguments: list, install=True):
+        """
+        Goal: update the state file
+        """
+
+        if not(isinstance(arguments, list) and
+               isinstance(install, bool)):
+            raise ValueError
+
+        current_state = read_state(self.build_config)
+
+        new_action = current_state.editors
+
+        for argument in arguments:
+            if(not install):
+                new_action.remove(argument)
+            else:
+                new_action.append(argument)
+
+        new_state = State(self.build_config,
+                          self.build_config.version,
+                          current_state.installed,
+                          new_action)
+        new_state.write()
 
 class AtomKeyword(EditorBaseKeyword):
 
@@ -108,7 +132,7 @@ class AtomKeyword(EditorBaseKeyword):
 
         self.install_ppa()
 
-        # self.edit_deb_packages(self.packages, is_installing=True)
+        self.edit_deb_packages(self.packages, is_installing=True)
 
         for plugin in plugins:
             print(f'[INFO] Installing {plugin}...')
@@ -124,8 +148,9 @@ class AtomKeyword(EditorBaseKeyword):
             self.rewrite_state(self.packages, True)
 
     def remove(self, write=False):
-        # self.edit_deb_packages(self.packages, is_installing=False)
-        self.file_footprint["ATOM_SOURCE"].unlink()
+        self.edit_deb_packages(self.packages, is_installing=False)
+        if(self.file_footprint["ATOM_SOURCE"].is_file()):
+            self.file_footprint["ATOM_SOURCE"].unlink()
         if(write):
             self.rewrite_state(self.packages, False)
 
