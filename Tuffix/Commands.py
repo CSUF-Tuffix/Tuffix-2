@@ -11,6 +11,7 @@ from Tuffix.Status import status, ensure_root_access
 from Tuffix.Editors import AtomKeyword
 from Tuffix.SudoRun import SudoRun
 from Tuffix.AbstractKeyword import AbstractKeyword
+from Tuffix.Editors import EditorBaseKeyword
 
 import os
 import json
@@ -124,7 +125,7 @@ class AddRemoveHelper():
         """
         Goal: update the state file
         """
-        if not(issubclass(keyword, AbstractKeyword) and
+        if not(issubclass(type(keyword), AbstractKeyword) and
                isinstance(install, bool)):
             raise ValueError
 
@@ -133,15 +134,15 @@ class AddRemoveHelper():
             keyword, current_state)
 
         if(not install):
-            new_action.remove(keyword.name)
+            attribute.remove(keyword.name)
         else:
-            new_action.append(keyword.name)
+            attribute.append(keyword.name)
 
         new_state = State(self.build_config,
                           self.build_config.version,
-                          new_action if (
+                          attribute if (
                               _type == "AbstractKeyword") else current_state.installed,
-                          new_action if (_type == "EditorBaseKeyword") else current_state.editors)
+                          attribute if (_type == "EditorBaseKeyword") else current_state.editors)
         new_state.write()
 
     def run_commands(self, container: list, install: bool):
