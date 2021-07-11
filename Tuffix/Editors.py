@@ -336,18 +336,38 @@ class VscodeKeyword(EditorBaseKeyword):
         self.packages: list[str] = ['code']
         self.checkable_packages = []
         self.link_dictionary = {
-            "VSCODE_DEB": LinkPacket(
-                link="https://code.visualstudio.com/sha/download?build=stable&os=linux-deb-x64",
+            "VSCODE_GPG": LinkPacket(
+                link="https://packages.microsoft.com/keys/microsoft.asc",
                 is_git=False)}
+        self.repo_payload = "deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main"
 
-    def add(self):
-        url = self.link_dictionary["VSCODE_DEB"].link
-        deb_path = "/tmp/vscode.deb"
-        print("[INFO] Downloading installer...")
-        content = requests.get(url).content
-        with open(deb_path, "wb") as fp:
+    def install_ppa(self):
+        """
+        GOAL: install the PPA
+        """
+
+        gpg_url = self.link_dictionary["VSCODE_GPG"].link
+
+        gpg_dest = pathlib.Path("/tmp/gpgkey")
+        content = requests.get(gpg_url).content
+
+        with open(gpg_dest, "wb") as fp:
             fp.write(content)
-        debfile.DebPackage(filename=deb_path).install()
+
+        self.executor.run(
+            f'sudo apt-key add {gpg_dest.resolve()}',
+            self.executor.whoami)
+
+        self.write_to_sources(self.repo_payload, True)
+
+    def add(self, can_install_ppa: bool = True):
+        if(can_install_ppa):
+            self.install_ppa()
+
+        self.edit_deb_packages(self.packages, is_installing=True)
+
+        print("[INFO] Finished installing vscode")
+
         self.rewrite_state(self.packages, True)
 
     def remove(self):
