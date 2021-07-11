@@ -18,7 +18,6 @@ from Tuffix.LinkChecker import LinkPacket
 from Tuffix.SudoRun import SudoRun
 from Tuffix.Exceptions import *
 from Tuffix.Configuration import *
-from Tuffix.DebBuilder import DebBuilder
 
 from apt import debfile
 import os
@@ -188,29 +187,32 @@ class EclipseKeyword(EditorBaseKeyword):
         self.packages: list[str] = ['openjdk-11-jdk']
         self.checkable_packages: list[str] = self.packages
 
-        if not((self.snap := shutil.which("snap"))):
+        if not((snap := shutil.which("snap"))):
             raise EnvironmentError(f'could not find snap')
+
+        self.snap = snap
 
     def add(self):
         """
         Install the Eclipse launcher
         """
+        os.system(f'sudo {self.snap} install --classic eclipse')
+        # self.executor.run(
+            # f'sudo {self.snap} install --classic eclipse',
+            # self.executor.whoami)
 
-        self.executor.run(
-            f'{self.snap} install --classic eclipse',
-            self.executor.whoami)
-
-        self.rewrite_state(self.packages, True)
+        self.rewrite_state([self.name], True)
 
     def remove(self):
         """
         Install the Eclipse launcher
         """
 
-        self.executor.run(
-            f'{self.snap} remove eclipse',
-            self.executor.whoami)
-        self.rewrite_state(self.packages, False)
+        os.system(f'sudo {self.snap} remove eclipse')
+        # self.executor.run(
+            # f'sudo {self.snap} remove eclipse',
+            # self.executor.whoami)
+        self.rewrite_state([self.name], False)
 
 
 class GeanyKeyword(EditorBaseKeyword):

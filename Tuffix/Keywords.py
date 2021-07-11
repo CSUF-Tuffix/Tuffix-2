@@ -113,7 +113,7 @@ class BaseKeyword(AbstractKeyword):
                                     'gdb',
                                     'gcc',
                                     'git',
-                                    'googltest',
+                                    'googletest',
                                     'g++',
                                     'libc++-dev',
                                     'libc++abi-dev',
@@ -333,15 +333,15 @@ class C481Keyword(AbstractKeyword):
                                     'swi-prolog-nox',
                                     'swi-prolog-x']
 
-        # self.Eclipse = EclipseKeyword(self.build_config)
+        self.Eclipse = EclipseKeyword(self.build_config)
 
     def add(self):
         self.edit_deb_packages(self.packages, is_installing=True)
-        # self.Eclipse.add()
+        self.Eclipse.add()
 
     def remove(self):
         self.edit_deb_packages(packages, is_installing=False)
-        # self.Eclipse.remove()
+        self.Eclipse.remove()
 
 
 class C484Keyword(AbstractKeyword):
