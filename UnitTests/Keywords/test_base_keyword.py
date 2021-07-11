@@ -1,30 +1,21 @@
 from Tuffix.Keywords import BaseKeyword
 from Tuffix.Commands import InitCommand
-from UnitTests.BaseEditorTest import TestEditorGeneric
+from Tuffix.Configuration import DEBUG_BUILD_CONFIG
+from UnitTests.BaseEditorTest import TestEditorGeneric as TestKeywordGeneric
 
 import shutil
 import unittest
 
-IGNORE_ME = True
-
-
-class TestBaseKeywordTest(unittest.TestCase):
+class TestBaseKeywordTest(TestKeywordGeneric):
     @classmethod
     def setUpClass(cls):
-        cls.state = State(DEBUG_BUILD_CONFIG,
-                          DEBUG_BUILD_CONFIG.version,
-                          [], [])
-        cls.Init = InitCommand(DEBUG_BUILD_CONFIG)
-        cls.Init.create_state_directory()
-        cls.state.write()
-
-        cls.Base = BaseKeyword(DEBUG_BUILD_CONFIG)
+        super().setUpClass(BaseKeyword(DEBUG_BUILD_CONFIG))
 
     @classmethod
     def tearDownClass(cls):
-        cls.state.build_config.state_path.unlink()
+        super().tearDownClass()
 
-    def google_test_attempt(self) -> bool:
+    def google_generic(self) -> bool:
         """
         Goal: small test to check if Google Test works after install
         TODO: change link to be under CSUF domain
@@ -40,27 +31,16 @@ class TestBaseKeywordTest(unittest.TestCase):
         subprocess.run(['git', 'clone', TEST_URL, TEST_DEST])
         os.chdir(TEST_DEST)
         subprocess.check_output(['clang++', '-v', 'main.cpp', '-o', 'main'])
-        ret_code = subprocess.run(['make', 'all']).returncode
-        if(ret_code != 0):
-            print(colored("[ERROR] Google Unit test failed!", "red"))
-        else:
-            print(colored("[SUCCESS] Google unit test succeeded!", "green"))
-
-        return (ret_code != 0)
+        self.assertTrue(
+            (output := subprocess.run(['make', 'all']).returncode) != 0
+        )
 
     def test_add(self):
         """
         Test to see if we can install all dependencies
         """
-
-        self.Base.add()
-        self.assertTrue(self.google_test_attempt())  # did it build correctly
-        current_state = read_state(DEBUG_BUILD_CONFIG)
-        # is atom currently installed in the state
-        self.assertTrue(
-            "atom" in current_state.editors
-        )
-        self.assertTrue((atom := shutil.which("atom")))
+        self.generic_check_add()
+        self.google_generic()
 
     def test_remove(self):
         """
@@ -68,10 +48,4 @@ class TestBaseKeywordTest(unittest.TestCase):
         NOTE: we have no way of removing the manually compiled googletest
         """
 
-        self.Base.remove()
-        current_state = read_state(DEBUG_BUILD_CONFIG)
-        # is atom currently installed in the state
-        self.assertTrue(
-            "atom" not in current_state.editors
-        )
-        self.assertFalse((atom := shutil.which("atom")))
+        self.generic_check_remove()
