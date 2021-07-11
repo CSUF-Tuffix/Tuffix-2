@@ -13,9 +13,6 @@ class NetbeansKeywordTest(TestEditorGeneric):
     def tearDownClass(cls):
         super().tearDownClass()
 
-    def test_candidates(self):
-        self.generic_check_available_candidates()
-
     def test_add(self):
         """
         Install netbeans and check the state path

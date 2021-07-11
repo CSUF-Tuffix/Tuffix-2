@@ -13,9 +13,6 @@ class EclipseKeywordTest(TestEditorGeneric):
     def tearDownClass(cls):
         super().tearDownClass()
 
-    def test_candidates(self):
-        self.generic_check_available_candidates()
-
     def test_add(self):
         """
         Install eclipse and check the state path
@@ -29,6 +26,3 @@ class EclipseKeywordTest(TestEditorGeneric):
         """
 
         self.generic_check_remove()
-
-    def test_links(self):
-        self.generic_check_links()

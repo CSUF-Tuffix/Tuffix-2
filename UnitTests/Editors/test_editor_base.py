@@ -7,8 +7,6 @@ from Tuffix.Editors import EditorBaseKeyword
 
 import unittest
 
-IGNORE_ME = True
-
 
 class EditorBaseKeywordTest(unittest.TestCase):
     @classmethod
@@ -51,7 +49,7 @@ class EditorBaseKeywordTest(unittest.TestCase):
 
         # "install" the current keyword
 
-        ExampleEditor.update_state(
+        ExampleEditor.rewrite_state(
             arguments=[
                 ExampleEditor.name],
             install=True)
@@ -64,7 +62,7 @@ class EditorBaseKeywordTest(unittest.TestCase):
 
         # "remove" the current keword
 
-        ExampleEditor.update_state(
+        ExampleEditor.rewrite_state(
             arguments=[
                 ExampleEditor.name],
             install=False)

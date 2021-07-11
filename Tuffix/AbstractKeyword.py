@@ -44,7 +44,7 @@ class AbstractKeyword:
         with open(path, "r") as fp:
             contents = ''.join(fp.readlines())
         if(appending):
-            contents += payload
+            contents = f'{contents}\n{payload}\n'
         else:
             contents.replace(payload, "")
 

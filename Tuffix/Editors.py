@@ -140,10 +140,6 @@ class AtomKeyword(EditorBaseKeyword):
         GOAL: Get and install Atom with predefined plugins
         """
 
-        if not(isinstance(plugins, list)):
-            raise ValueError(f'expecting list, received {type(plugins)}')
-
-
         if(can_install_ppa):
             self.install_ppa()
 
@@ -156,10 +152,8 @@ class AtomKeyword(EditorBaseKeyword):
         if(write):
             self.rewrite_state(self.packages, True)
 
-    def remove(self, write=False):
+    def remove(self, write=True):
         self.edit_deb_packages(self.packages, is_installing=False)
-
-        self.write_to_sources(self.repo_payload, False)
 
         if(write):
             self.rewrite_state(self.packages, False)

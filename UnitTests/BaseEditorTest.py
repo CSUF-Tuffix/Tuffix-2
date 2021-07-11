@@ -37,10 +37,14 @@ class TestEditorGeneric(unittest.TestCase):
         else:
             cls.correct_attr = (False, True)
 
+        cls.generic_check_available_candidates()
+        cls.generic_check_links()
+
     @classmethod
     def tearDownClass(cls):
         cls.state.build_config.state_path.unlink()
 
+    @classmethod
     def generic_check_available_candidates(self):
         """
         See if all of the checkable packages can be installed
@@ -97,6 +101,7 @@ class TestEditorGeneric(unittest.TestCase):
             for _, artifcat in self.keywords.file_footprint.items():
                 self.assertFalse(artifcat.is_file())
 
+    @classmethod
     def generic_check_links(self):
         """
         Check if the links associated with

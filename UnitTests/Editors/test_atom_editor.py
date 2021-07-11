@@ -25,14 +25,9 @@ class AtomKeywordTest(TestEditorGeneric):
     @classmethod
     def tearDownClass(cls):
         super().tearDownClass()
+        cls.keyword.write_to_sources(cls.keyword.repo_payload, False)
 
-    def test_candidates(self):
-        self.generic_check_available_candidates()
-
-    def test_available_links(self):
-        self.generic_check_links()
-
-    def test_ppa_installation(self):
+    def ppa_installation_generic(self):
         """
         Ensure the PPA and GPG key have been
         properly installed
@@ -67,16 +62,14 @@ class AtomKeywordTest(TestEditorGeneric):
             (email == "support@packagecloud.io")
         )
 
-    @unittest.skip("")
     def test_add(self):
-        self.keyword.add(write=True)
         self.generic_check_add()
+        self.ppa_installation_generic()
 
     def test_remove(self):
-        self.keyword.remove(write=False)
         self.generic_check_remove()
 
-    @unittest.skip("")
+    @unittest.skip("started breaking?")
     def test_check_apm_candidates(self):
         """
         Check if APM can install any of the following plugins
