@@ -61,6 +61,7 @@ class EditorBaseKeyword(AbstractKeyword):
                           new_action)
         new_state.write()
 
+
 class AtomKeyword(EditorBaseKeyword):
 
     def __init__(self, build_config: BuildConfig):
@@ -122,7 +123,7 @@ class AtomKeyword(EditorBaseKeyword):
 
         if not(isinstance(plugins, list) and
                all([isinstance(_, str) for _ in plugins])):
-           raise ValueError
+            raise ValueError
 
         atom_conf_dir = pathlib.Path(f'/home/{self.executor.whoami}/.atom')
 
@@ -179,92 +180,36 @@ class EmacsKeyword(EditorBaseKeyword):
 
 class EclipseKeyword(EditorBaseKeyword):
     """
-    Attempts to grab a tar ball of the Eclipse installer
-    and convert it into a Debian installer
-    `eclipsetuffix` is the package name, so there is no conflict if Oracle
-    rolls out an official way to install Eclipse
+    This uses `snap` to do the installation
     """
 
     def __init__(self, build_config: BuildConfig):
         super().__init__(build_config, 'eclipse', 'a Java IDE')
-        self.packages: list[str] = ['eclipsetuffix', 'openjdk-11-jdk']
-        self.checkable_packages: list[str] = self.packages[0:]
+        self.packages: list[str] = ['openjdk-11-jdk']
+        self.checkable_packages: list[str] = self.packages
 
-        self.link_dictionary = {
-            "ECLIPSE_URL": LinkPacket(
-                link="http://mirror.umd.edu/eclipse/technology/epp/downloads/release/2020-06/R/eclipse-java-2020-06-R-linux-gtk-x86_64.tar.gz",
-                is_git=False)}
-        self.file_footprint = {"ECLIPSE_LAUNCHER": pathlib.Path(
-            '/usr/share/applications/eclipse.desktop')}
+        if not((self.snap := shutil.which("snap"))):
+            raise EnvironmentError(f'could not find snap')
 
     def add(self):
         """
         Install the Eclipse launcher
-        If any issues arise post installation, please let the developers know ASAP
         """
 
-        self.edit_deb_packages(self.packages[1:], is_installing=True)
-        url = self.link_dictionary["ECLIPSE_URL"].link
-
-        content = requests.get(url).content
-        path = pathlib.Path("/tmp/installer.tar.gz")
-
-        with open(path, "wb") as fp:
-            fp.write(content)
-
-        _DebTheBuilder = DebBuilder("eclipse", path)
-
-        control = pathlib.Path("/tmp/control")
-
-        with open(control, "w") as fp:
-            contents = """
-            Package: eclipsetuffix
-            Version: 1.2021-06
-            Section: editors
-            Priority: optional
-            Architecture: amd64
-            Maintainer: Oracle
-            Description: Java IDE created by Oracle
-            Depends: openjdk-11-jdk
-            """
-            fp.write(textwrap.dedent(contents).strip())
-
-        # scripts
-        postrm = pathlib.Path("/tmp/postrm")
-        postinst = pathlib.Path("/tmp/postinst")
-
-        with open(postrm, "w") as fp:
-            fp.writelines(
-                ["#!/usr/bin/env bash", "sudo rm -i /usr/bin/eclipse"])
-
-        with open(postinst, "w") as fp:
-            fp.writelines(["#!/usr/bin/env bash",
-                           "sudo ln -s /usr/eclipse/eclipse /usr/bin/eclipse"])
-        _DebTheBuilder.make(control=control, scripts=[postinst, postrm])
-
-        debfile.DebPackage(filename="eclipsetuffix.deb").install()
-
-        launcher = """
-        [Desktop Entry]
-        Encoding=UTF-8
-        Name=Eclipse IDE
-        Comment=Eclipse IDE
-        Exec=/usr/bin/eclipse
-        Icon=/usr/eclipse/icon.xpm
-        Terminal=false
-        Type=Application
-        StartupNotify=false
-        """
-
-        launcher_path = self.file_footprint["ECLIPSE_LAUNCHER"]
-        with open(launcher_path, "w") as fp:
-            fp.write(launcher)
+        self.executor.run(
+            f'{self.snap} install --classic eclipse',
+            self.executor.whoami)
 
         self.rewrite_state(self.packages, True)
 
     def remove(self):
-        self.file_footprint["ECLIPSE_LAUNCHER"].unlink()
-        self.edit_deb_packages(self.packages, is_installing=False)
+        """
+        Install the Eclipse launcher
+        """
+
+        self.executor.run(
+            f'{self.snap} remove eclipse',
+            self.executor.whoami)
         self.rewrite_state(self.packages, False)
 
 
