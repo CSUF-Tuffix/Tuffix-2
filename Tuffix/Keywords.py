@@ -113,6 +113,7 @@ class BaseKeyword(AbstractKeyword):
                                     'gdb',
                                     'gcc',
                                     'git',
+                                    'googltest',
                                     'g++',
                                     'libc++-dev',
                                     'libc++abi-dev',
@@ -139,6 +140,8 @@ class BaseKeyword(AbstractKeyword):
     def build_google_test(self):
         """
         GOAL: Get and install GoogleTest
+        NOTE: does this need to be done? <- can `googletest` from Ubuntu repos do this for us?
+        Test with clean version of Ubuntu
         """
 
         GOOGLE_TEST_URL = self.link_dictionary["GOOGLE_TEST_URL"].link
@@ -596,7 +599,7 @@ class ClassKeywordGenerator():
 
         with open(path, encoding="utf-8") as fp:
             content = json.loads(fp.read())
-        
+
         __custom = CustomPayload(content)
 
         return partial_class(
