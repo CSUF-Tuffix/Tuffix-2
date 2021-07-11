@@ -42,7 +42,10 @@ class AbstractKeyword:
         path = pathlib.Path("/etc/apt/sources.list")
 
         with open(path, "r") as fp:
-            contents = ''.join(fp.readlines())
+            _ = fp.readlines()
+            if(payload in _):
+                return
+            contents = ''.join(_)
         if(appending):
             contents = f'{contents}\n{payload}\n'
         else:
