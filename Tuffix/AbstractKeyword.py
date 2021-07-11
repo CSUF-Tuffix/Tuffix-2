@@ -29,7 +29,7 @@ class AbstractKeyword:
     def remove(self):
         raise NotImplementedError
 
-    def write_to_sources(payload: str, appending: bool = True):
+    def write_to_sources(self, payload: str, appending: bool = True):
         """
         Emulate `sudo apt-add-repository` with Python
 
@@ -39,7 +39,7 @@ class AbstractKeyword:
 
         if not(isinstance(payload, str)):
             raise ValueError
-        path = pathlib.Path("/etc/sources/sources.list", "r")
+        path = pathlib.Path("/etc/apt/sources.list")
 
         with open(path, "r") as fp:
             contents = ''.join(fp.readlines())

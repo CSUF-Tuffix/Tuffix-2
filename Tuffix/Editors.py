@@ -112,22 +112,19 @@ class AtomKeyword(EditorBaseKeyword):
             f'sudo apt-key add {gpg_dest.resolve()}',
             self.executor.whoami)
 
-        self.write_to_sources(payload=self.repo_payload, appending=True)
+        self.write_to_sources(self.repo_payload, True)
 
-    def add(self, plugins=['dbg-gdb', 'dbg', 'output-panel'], write=True):
+    def install_plugins(self, plugins: list = ['dbg-gdb', 'dbg', 'output-panel']):
         """
-        GOAL: Get and install Atom with predefined plugins
+        Install pre-approved Atom packages
         API usage: supply custom plugins list
         """
 
-        if not(isinstance(plugins, list)):
-            raise ValueError(f'expecting list, received {type(plugins)}')
+        if not(isinstance(plugins, list) and
+               all([isinstance(_, str) for _ in plugins])):
+           raise ValueError
 
         atom_conf_dir = pathlib.Path(f'/home/{self.executor.whoami}/.atom')
-
-        # self.install_ppa()
-
-        self.edit_deb_packages(self.packages, is_installing=True)
 
         for plugin in plugins:
             print(f'[INFO] Installing {plugin}...')
@@ -137,6 +134,23 @@ class AtomKeyword(EditorBaseKeyword):
             self.executor.run(
                 f'chown {self.executor.whoami} -R {atom_conf_dir}',
                 self.executor.whoami)
+
+    def add(self, write=True, can_install_ppa=True):
+        """
+        GOAL: Get and install Atom with predefined plugins
+        """
+
+        if not(isinstance(plugins, list)):
+            raise ValueError(f'expecting list, received {type(plugins)}')
+
+
+        if(can_install_ppa):
+            self.install_ppa()
+
+        self.edit_deb_packages(self.packages, is_installing=True)
+
+        self.install_plugins()
+
         print("[INFO] Finished installing Atom")
 
         if(write):
@@ -145,7 +159,7 @@ class AtomKeyword(EditorBaseKeyword):
     def remove(self, write=False):
         self.edit_deb_packages(self.packages, is_installing=False)
 
-        self.write_to_sources(payload=self.repo_payload, appending=True)
+        self.write_to_sources(self.repo_payload, False)
 
         if(write):
             self.rewrite_state(self.packages, False)
