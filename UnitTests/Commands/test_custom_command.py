@@ -2,7 +2,7 @@
 
 from Tuffix.Commands import CustomCommand, InitCommand
 
-from Tuffix.Configuration import DEBUG_BUILD_CONFIG
+from Tuffix.Configuration import DEBUG_BUILD_CONFIG, State
 from Tuffix.CustomPayload import CustomPayload
 
 import unittest
@@ -15,9 +15,13 @@ import shutil
 class CustomCommandTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
+        cls.state = State(DEBUG_BUILD_CONFIG
+                          DEBUG_BUILD_CONFIG.version,
+                          [], [])
         cls.custom = CustomCommand(DEBUG_BUILD_CONFIG)
-        init = InitCommand(DEBUG_BUILD_CONFIG)
-        init.create_state_directory()
+        cls.init = InitCommand(DEBUG_BUILD_CONFIG)
+        cls.init.create_state_directory()
+        cls.state.write()
 
     @classmethod
     def tearDownClass(cls):
