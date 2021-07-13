@@ -46,12 +46,12 @@ class CustomCommandTest(unittest.TestCase):
         """
 
         payload = {
-            "name": "python",
+            "name": "ruby",
             "instructor": "Jared Dyreson",
-            "packages": ["python3", "python3-pip", "python3-virtualenv"]
+            "packages": ["ruby-full"]
         }
 
-        payload_path = pathlib.Path("/tmp/python.json")
+        payload_path = pathlib.Path("/tmp/ruby.json")
 
         with open(payload_path, "w") as fp:
             json.dump(payload, fp)
@@ -108,10 +108,10 @@ class CustomCommandTest(unittest.TestCase):
 
     def test_remove_custom(self):
         helper_remove = AddRemoveHelper(DEBUG_BUILD_CONFIG, 'remove')
-        __search = helper_remove.search("python")
+        __search = helper_remove.search("ruby")
         print(__search)
         # Test Remove
         helper_remove.run_commands(
             container=[__search], install=False)
         updated_state = read_state(DEBUG_BUILD_CONFIG)
-        self.assertTrue("python" not in updated_state.installed)
+        self.assertTrue("ruby" not in updated_state.installed)
