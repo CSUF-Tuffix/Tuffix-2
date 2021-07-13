@@ -167,39 +167,6 @@ class BaseKeyword(AbstractKeyword):
             subprocess.run(command.split())
 
 
-class BazelKeyword(AbstractKeyword):
-    def __init__(self, build_config: BuildConfig):
-        super().__init__(build_config, 'bazel',
-                         'software tool that allows for the automation of building and testing of software')
-        self.packages: list[str] = ['curl',
-                                    'gnupg',
-                                    'bazel']
-        self.checkable_packages = self.packages[:-1]
-        self.link_dictionary = {
-            "BAZEL_GPG": LinkPacket(link="https://bazel.build/bazel-release.pub.gpg", is_git=False)
-        }
-        self.repo_payload = "deb [arch=amd64] https://storage.googleapis.com/bazel-apt stable jdk1.8"
-
-    def add(self):
-        gpg_url = self.link_dictionary["BAZEL_GPG"].link
-        gpg_dest = pathlib.Path("/tmp/gpgkey")
-
-        content = requests.get(gpg_url).content
-
-        with open(gpg_dest, "wb") as fp:
-            fp.write(content)
-
-        self.executor.run(
-            f'sudo apt-key add {gpg_dest.resolve()}',
-            self.executor.whoami)
-
-        self.write_to_sources(self.repo_payload, True)  # please depreciate
-        self.edit_deb_packages(self.packages, is_installing=True)
-
-    def remove(self):
-        self.edit_deb_packages(self.packages, is_installing=False)
-
-
 class C223JKeyword(AbstractKeyword):
 
     """
@@ -449,31 +416,6 @@ class LatexKeyword(AbstractKeyword):
         self.packages: list[str] = ["texlive-full"]
 
     def add(self):
-        self.edit_deb_packages(self.packages, is_installing=True)
-
-    def remove(self):
-        self.edit_deb_packages(self.packages, is_installing=False)
-
-
-class GithubCLIKeyword(AbstractKeyword):
-    def __init__(self, build_config: BuildConfig):
-        super().__init__(build_config,
-                         'gh',
-                         'Github CLI utility')
-        self.packages: list[str] = ["dirmngr",
-                                    "software-properties-common",
-                                    "gh"]
-        self.checkable_packages: list[str] = self.packages[:-1]
-        self.repo_payload = "https://cli.github.com/packages"
-
-    def add(self):
-        if not((apt_key := shutil.which("apt-key"))):
-            raise EnvironmentError(f'could not find  {apt_key=}')
-        self.executor.run(
-            f'{apt_key} adv --keyserver keyserver.ubuntu.com --recv-key C99B11DEB97541F0',
-            self.executor.whoami)  # please depreciate
-
-        self.write_to_sources(self.repo_payload, True)  # please depreciate
         self.edit_deb_packages(self.packages, is_installing=True)
 
     def remove(self):
