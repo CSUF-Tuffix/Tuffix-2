@@ -5,7 +5,7 @@
 
 
 LOG_DIR="tuffix_logs"
-TEST_DIR="/home/jared/Projects/TuffixConglomerate/Tuffix-Lib/UnitTests"
+TEST_DIR="UnitTests"
 
 function __test_dne() {
     echo "[ERROR] Unable to conduct test $1, does not exist"
