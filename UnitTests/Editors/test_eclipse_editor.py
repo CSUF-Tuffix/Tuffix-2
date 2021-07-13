@@ -5,6 +5,7 @@ from Tuffix.Editors import EclipseKeyword
 
 import unittest
 
+
 class EclipseKeywordTest(TestEditorGeneric):
     @classmethod
     def setUpClass(cls):

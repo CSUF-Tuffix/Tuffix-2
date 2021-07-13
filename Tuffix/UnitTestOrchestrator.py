@@ -17,10 +17,18 @@ class Indexer(enum.Enum):
 
 
 class TuffixTestRunner:
-    def __init__(self, parent_dir: pathlib.Path, pedantic: bool,
-                 excluded_files: list = [
-                     "SequentialTest.py", "__init__.py", "BaseTester.py", "README.md"],
-                 excluded_dirs: list = ["__pycache__", "TEST"]):
+    def __init__(
+        self,
+        parent_dir: pathlib.Path,
+        pedantic: bool,
+        excluded_files: list = [
+            "SequentialTest.py",
+            "__init__.py",
+            "BaseTester.py",
+            "README.md"],
+        excluded_dirs: list = [
+            "__pycache__",
+            "TEST"]):
         if not(isinstance(parent_dir, pathlib.Path) and
                parent_dir.is_dir() and
                isinstance(pedantic, bool) and
@@ -53,7 +61,6 @@ class TuffixTestRunner:
 
         """
 
-
         for dirpath, dirs, filepath in os.walk(self.parent_dir, topdown=True):
             dirs.sort()
             dirs[:] = [d for d in dirs if d not in self.excluded_dirs]
@@ -71,7 +78,7 @@ class TuffixTestRunner:
     def print_resultant_message(self, container: list):
         if not(isinstance(container, list) and
                all([isinstance(_, int) for _ in container])):
-               raise ValueError
+            raise ValueError
 
         total, failures = container
         if(failures == 0):
@@ -108,7 +115,6 @@ class TuffixTestRunner:
             total_counter[self.indexer.FAILURE.value] += result[self.indexer.FAILURE.value]
 
         self.print_resultant_message(total_counter)
-
 
     def conduct_test(self, path: pathlib.Path):
         """
@@ -168,6 +174,5 @@ class TuffixTestRunner:
 
         total_counter = [0, 0]
         tests = self.construct_filesystem()
-        for name, _  in tests[str(self.parent_dir)].items():
+        for name, _ in tests[str(self.parent_dir)].items():
             self.test_certain_class(name)
-

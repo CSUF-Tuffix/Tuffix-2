@@ -40,7 +40,7 @@ class StatusTest(unittest.TestCase):
         )
 
     def test_cpu_information(self):
-        _re = re.compile(".*\([\d]+ core\(s\)\)")
+        _re = re.compile(".*\\([\\d]+ core\\(s\\)\\)")
         self.assertTrue(
             (output := cpu_information()) and
             isinstance(output, str) and
@@ -83,7 +83,7 @@ class StatusTest(unittest.TestCase):
 
     def test_current_uptime(self):
         _re = re.compile(
-            "[\d]+ day\(s\)\, [\d]+ hour\(s\)\, [\d]+ minute\(s\), [\d]+ second\(s\)")
+            "[\\d]+ day\\(s\\)\\, [\\d]+ hour\\(s\\)\\, [\\d]+ minute\\(s\\), [\\d]+ second\\(s\\)")
         try:
             self.assertTrue(
                 (output := current_uptime()) and
@@ -121,7 +121,7 @@ class StatusTest(unittest.TestCase):
     def test_git_configuration(self):
         try:
             self.assertTrue(
-                (output := list_git_configuration())and
+                (output := list_git_configuration()) and
                 ((argc := len(output)) == 2) and
                 isinstance(output, list) and
                 all([isinstance(_, str) for _ in output])

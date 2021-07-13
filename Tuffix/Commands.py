@@ -138,11 +138,10 @@ class AddRemoveHelper():
         else:
             attribute.append(keyword.name)
 
-        new_state = State(self.build_config,
-                          self.build_config.version,
-                          attribute if (
-                              _type == "AbstractKeyword") else current_state.installed,
-                          attribute if (_type == "EditorBaseKeyword") else current_state.editors)
+        new_state = State(
+            self.build_config, self.build_config.version, attribute if (
+                _type == "AbstractKeyword") else current_state.installed, attribute if (
+                _type == "EditorBaseKeyword") else current_state.editors)
         new_state.write()
 
     def run_commands(self, container: list, install: bool):

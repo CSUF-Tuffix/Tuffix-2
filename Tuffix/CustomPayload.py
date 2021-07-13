@@ -2,6 +2,7 @@ import dataclasses
 
 from Tuffix.Constants import KEYWORD_MAX_LENGTH
 
+
 @dataclasses.dataclass
 class CustomPayload:
     name: str
@@ -22,4 +23,3 @@ class CustomPayload:
                 self.name[:KEYWORD_MAX_LENGTH]).replace(' ', '')
 
         return container.lower()
-

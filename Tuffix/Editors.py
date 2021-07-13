@@ -114,7 +114,12 @@ class AtomKeyword(EditorBaseKeyword):
 
         self.write_to_sources(self.repo_payload, True)
 
-    def install_plugins(self, plugins: list = ['dbg-gdb', 'dbg', 'output-panel']):
+    def install_plugins(
+        self,
+        plugins: list = [
+            'dbg-gdb',
+            'dbg',
+            'output-panel']):
         """
         Install pre-approved Atom packages
         API usage: supply custom plugins list

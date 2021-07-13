@@ -32,9 +32,10 @@ class AllKeyword(AbstractKeyword):
     # NOTE: GOOD
 
     def __init__(self, build_config: BuildConfig):
-        super().__init__(build_config,
-                         'all',
-                         'all keywords available (glob pattern); to be used in conjunction with remove or add respectively')
+        super().__init__(
+            build_config,
+            'all',
+            'all keywords available (glob pattern); to be used in conjunction with remove or add respectively')
         self.packages: list[str] = []
 
     def add(self):
@@ -130,9 +131,12 @@ class BaseKeyword(AbstractKeyword):
         self.Atom = AtomKeyword(self.build_config)
 
         self.link_dictionary = {
-            "GOOGLE_TEST_URL": LinkPacket(link="https://github.com/google/googletest.git", is_git=True),
-            "TEST_URL": LinkPacket(link="https://github.com/JaredDyreson/tuffix-google-test.git", is_git=True)
-        }
+            "GOOGLE_TEST_URL": LinkPacket(
+                link="https://github.com/google/googletest.git",
+                is_git=True),
+            "TEST_URL": LinkPacket(
+                link="https://github.com/JaredDyreson/tuffix-google-test.git",
+                is_git=True)}
 
     def add(self):
         self.build_google_test()
@@ -169,15 +173,18 @@ class BaseKeyword(AbstractKeyword):
 
 class BazelKeyword(AbstractKeyword):
     def __init__(self, build_config: BuildConfig):
-        super().__init__(build_config, 'bazel',
-                         'software tool that allows for the automation of building and testing of software')
+        super().__init__(
+            build_config,
+            'bazel',
+            'software tool that allows for the automation of building and testing of software')
         self.packages: list[str] = ['curl',
                                     'gnupg',
                                     'bazel']
         self.checkable_packages = self.packages[:-1]
         self.link_dictionary = {
-            "BAZEL_GPG": LinkPacket(link="https://bazel.build/bazel-release.pub.gpg", is_git=False)
-        }
+            "BAZEL_GPG": LinkPacket(
+                link="https://bazel.build/bazel-release.pub.gpg",
+                is_git=False)}
         self.repo_payload = "deb [arch=amd64] https://storage.googleapis.com/bazel-apt stable jdk1.8"
 
     def add(self):
@@ -483,9 +490,10 @@ class GithubCLIKeyword(AbstractKeyword):
 class VirtualBoxKeyword(AbstractKeyword):
 
     def __init__(self, build_config: BuildConfig):
-        super().__init__(build_config,
-                         'vbox',
-                         'A powerful x86 and AMD64/Intel64 virtualization product')
+        super().__init__(
+            build_config,
+            'vbox',
+            'A powerful x86 and AMD64/Intel64 virtualization product')
         self.packages: list[str] = ['virtualbox',
                                     'virtualbox-ext-pack']
 
@@ -531,8 +539,9 @@ class ZoomKeyword(AbstractKeyword):
                                     'zoom']
         self.checkable_packages = self.packages[:-1]
         self.link_dictionary = {
-            "ZOOM_DEB": LinkPacket(link="https://zoom.us/client/latest/zoom_amd64.deb", is_git=False)
-        }
+            "ZOOM_DEB": LinkPacket(
+                link="https://zoom.us/client/latest/zoom_amd64.deb",
+                is_git=False)}
 
     def add(self):
         self.edit_deb_packages(self.checkable_packages, is_installing=True)

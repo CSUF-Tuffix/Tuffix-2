@@ -4,15 +4,16 @@ from aptsources import sourceslist
 import apt_pkg
 
 apt_pkg.config.set("Dir::Etc::sourcelist", "/etc/apt"
-        "sources.list")
+                   "sources.list")
 
 
 def func():
     sources = sourceslist.SourcesList(True, "/etc/apt")
 
     sources.add("deb", "http://de.archive.ubuntu.com/ubuntu/",
-            "focal",
-            ["main"]) \
+                "focal",
+                ["main"]) \
         sources.save()
+
 
 func()

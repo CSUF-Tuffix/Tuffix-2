@@ -30,7 +30,7 @@ def partial_class(container: tuple):
 class AddRemoveHelperTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.state = State(DEBUG_BUILD_CONFIG
+        cls.state = State(DEBUG_BUILD_CONFIG,
                           DEBUG_BUILD_CONFIG.version,
                           [], [])
         cls.Init = InitCommand(DEBUG_BUILD_CONFIG)
@@ -79,7 +79,7 @@ class AddRemoveHelperTest(unittest.TestCase):
             "packages": ["cowsay", "vim"]
         }
 
-        payload_path = pathlib.Path("/var/lib/tuffix/json_payloads/osc.json")
+        payload_path = pathlib.Path("/tmp/tuffix/json_payloads/osc.json")
 
         with open(payload_path, "w") as fp:
             json.dump(payload, fp)

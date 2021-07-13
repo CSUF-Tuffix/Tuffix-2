@@ -6,6 +6,7 @@ from UnitTests.BaseEditorTest import TestEditorGeneric as TestKeywordGeneric
 import shutil
 import unittest
 
+
 class TestBaseKeywordTest(TestKeywordGeneric):
     @classmethod
     def setUpClass(cls):

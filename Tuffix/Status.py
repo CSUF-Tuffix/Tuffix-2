@@ -27,6 +27,7 @@ import subprocess
 import sys
 import termcolor
 
+
 def ensure_ubuntu():
     """
     /etc/debian_release -> /etc/debian_version
@@ -63,16 +64,16 @@ def cpu_information() -> str:
 
     path = pathlib.Path("/proc/cpuinfo")
     regexes: list[re.Pattern] = [
-        re.compile("cpu cores\s*\:\s*(?P<cores>[\d]+)"),
-        re.compile("model name\s*\:\s*(?P<cpuname>.*)")
+        re.compile("cpu cores\\s*\\:\\s*(?P<cores>[\\d]+)"),
+        re.compile("model name\\s*\\:\\s*(?P<cpuname>.*)")
     ]
 
     with open(path, "r") as fp:
         contents = ''.join(fp.readlines())
 
     cores, name = [
-        match.group(1) for regex in regexes if((match := regex.search(contents)))
-    ]
+        match.group(1) for regex in regexes if(
+            (match := regex.search(contents)))]
 
     return f'{name} ({cores} core(s))'
 
@@ -197,7 +198,7 @@ def graphics_information() -> tuple:
 
     regexes: list[re.Pattern] = [
         re.compile(
-            "VGA.*\\:\s*(?P<model>(?:(?!\\s\\().)*)")
+            "VGA.*\\:\\s*(?P<model>(?:(?!\\s\\().)*)")
     ]
 
     if not((bash := shutil.which("bash")) and
@@ -213,9 +214,11 @@ def graphics_information() -> tuple:
         universal_newlines="\n").splitlines())
 
     primary = [
-        match.group(1) for regex in regexes if ((match := regex.search(output)))
-    ]
-    secondary = None # this is currently here because sometimes users might not have 3D accelerated graphics
+        match.group(1) for regex in regexes if (
+            (match := regex.search(output)))]
+    # this is currently here because sometimes users might not have 3D
+    # accelerated graphics
+    secondary = None
 
     return (termcolor.colored(*primary, 'green'),
             termcolor.colored("None" if not secondary else secondary, 'red'))
@@ -231,17 +234,16 @@ def list_git_configuration() -> list:
         raise EnvironmentError(f'could not find git path')
 
     regexes: list[re.Pattern] = [
-        re.compile("user\.email\=(?P<email>.*)"),
-        re.compile("user\.name\=(?P<name>.*)")
+        re.compile("user\\.email\\=(?P<email>.*)"),
+        re.compile("user\\.name\\=(?P<name>.*)")
     ]
 
     output = '\n'.join(keeper.run(
         command=f"{git} --no-pager config --list",
         desired_user=keeper.whoami))
 
-    return [
-        match.group(1) if ((match := regex.search(output))) else "None" for regex in regexes
-    ]
+    return [match.group(1) if ((match := regex.search(output)))
+            else "None" for regex in regexes]
 
 
 def has_internet() -> bool:
