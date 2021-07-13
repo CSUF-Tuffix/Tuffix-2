@@ -197,10 +197,6 @@ class EclipseKeyword(EditorBaseKeyword):
         Install the Eclipse launcher
         """
         os.system(f'sudo {self.snap} install --classic eclipse')
-        # self.executor.run(
-            # f'sudo {self.snap} install --classic eclipse',
-            # self.executor.whoami)
-
         self.rewrite_state([self.name], True)
 
     def remove(self):
@@ -209,9 +205,6 @@ class EclipseKeyword(EditorBaseKeyword):
         """
 
         os.system(f'sudo {self.snap} remove eclipse')
-        # self.executor.run(
-            # f'sudo {self.snap} remove eclipse',
-            # self.executor.whoami)
         self.rewrite_state([self.name], False)
 
 
@@ -274,14 +267,18 @@ class VimKeyword(EditorBaseKeyword):
 
 
 class VscodeKeyword(EditorBaseKeyword):
-    """
-    Not using the `apt` module, please be warned
-    """
 
     def __init__(self, build_config: BuildConfig):
         super().__init__(build_config, 'code', 'Microsoft\'s text editor')
-        self.packages: list[str] = ['code']
-        self.checkable_packages = []
+        self.packages: list[str] = ['gnupg',
+                                    'libgbm1',
+                                    'libgtk-3-0',
+                                    'libnss3',
+                                    'libsecret-1-0',
+                                    'libxkbfile1',
+                                    'libxss1',
+                                    'code']
+        self.checkable_packages = self.packages[:-1]
         self.link_dictionary = {
             "VSCODE_GPG": LinkPacket(
                 link="https://packages.microsoft.com/keys/microsoft.asc",
