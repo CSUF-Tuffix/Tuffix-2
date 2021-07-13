@@ -13,7 +13,7 @@ NOTE: update this section with https://github.com/JaredDyreson/SudoRun/
 """
 
 from Tuffix.SudoRun import SudoRun
-from Tuffix.Configuration import read_state, DEFAULT_BUILD_CONFIG
+from Tuffix.Configuration import read_state, BuildConfig
 from Tuffix.Exceptions import *
 
 from termcolor import colored
@@ -272,23 +272,23 @@ def has_internet() -> bool:
     return False
 
 
-def currently_installed_targets() -> list:
+def currently_installed_targets(build_config: BuildConfig) -> list:
     """
     GOAL: list all installed codewords in a formatted list
     """
 
     return [
-        f'{"- ": >4} {element}' for element in read_state(DEFAULT_BUILD_CONFIG).installed]
+        f'{"- ": >4} {element}' for element in read_state(build_config).installed]
 
 
-def status() -> tuple:
+def status(build_config: BuildConfig) -> tuple:
     """
     GOAL: Driver code for all the components defined above
     """
 
     git_email, git_username = list_git_configuration()
     primary, secondary = graphics_information()
-    installed_targets = currently_installed_targets()
+    installed_targets = currently_installed_targets(build_config)
     installed_targets = '\n'.join(installed_targets).strip() if (
         installed_targets) else "None"
 

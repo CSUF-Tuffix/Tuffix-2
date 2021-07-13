@@ -30,7 +30,6 @@ class CustomCommandTest(unittest.TestCase):
         # parent = cls.custom.build_config.state_path.parent
         # shutil.rmtree(parent)
 
-    @unittest.skip("")
     def test_init(self):
         """
         Test the __init__ function
@@ -62,7 +61,6 @@ class CustomCommandTest(unittest.TestCase):
 
         payload_path.unlink()
 
-    @unittest.skip("")
     def test_execute_invalid_path(self):
         """
         Test execute with invalid payload
@@ -76,7 +74,6 @@ class CustomCommandTest(unittest.TestCase):
         else:
             self.assertTrue(False)
 
-    @unittest.skip("")
     def test_execute_malformed_data(self):
         payloads = [
             {  # missing name

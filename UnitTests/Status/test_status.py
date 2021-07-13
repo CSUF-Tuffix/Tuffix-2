@@ -7,9 +7,20 @@ import unittest
 from Tuffix.Status import *
 from Tuffix.Exceptions import *
 from subprocess import CalledProcessError
+from Tuffix.Configuration import DEBUG_BUILD_CONFIG
+from Tuffix.Commands import InitCommand
 
 
 class StatusTest(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.init = InitCommand(DEBUG_BUILD_CONFIG)
+        cls.init.create_state_directory()
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.init.remove_state_directory()
+
     def test_is_ubuntu(self):
         """
         Is the platform Ubuntu?
@@ -143,7 +154,7 @@ class StatusTest(unittest.TestCase):
 
     def test_currently_installed_targets(self):
         try:
-            targets = currently_installed_targets()
+            targets = currently_installed_targets(DEBUG_BUILD_CONFIG)
             self.assertTrue(
                 isinstance(targets, list) and
                 all([isinstance(_, str) for _ in targets])
@@ -155,7 +166,7 @@ class StatusTest(unittest.TestCase):
     def test_status(self):
         try:
             self.assertTrue(
-                (_status := status()) and
+                (_status := status(DEBUG_BUILD_CONFIG)) and
                 isinstance(_status, tuple) and
                 all([isinstance(_, str) for _ in _status])
             )

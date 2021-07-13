@@ -96,7 +96,6 @@ class AddRemoveHelper():
         _re = re.compile(f'{pattern}.json', flags=re.IGNORECASE)
         # NOTE: check if this works
         for dirpath, _, filepath in os.walk(self.build_config.json_state_path):
-            print(filepath)
             for _file in filepath:
                 if((match := _re.match(_file))):
                     # If the JSON file is found, we need to now dynamically
@@ -459,7 +458,7 @@ class StatusCommand(AbstractCommand):
 
         messsage = (None, None)
         try:
-            for line in status():
+            for line in status(self.build_config):
                 print(line)
         except EnvironmentError as error:
             message = (
