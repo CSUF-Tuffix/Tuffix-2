@@ -7,7 +7,7 @@ from Tuffix.AbstractKeyword import AbstractKeyword
 # this is because we want to have access to this base class across two
 # source files that import each other
 
-from Tuffix.Editors import VimKeyword, EmacsKeyword, GeanyKeyword, NetbeansKeyword, EditorKeywordContainer, AtomKeyword
+from Tuffix.Editors import VimKeyword, EmacsKeyword, GeanyKeyword, NetbeansKeyword, EditorKeywordContainer, AtomKeyword, EclipseKeyword
 
 from Tuffix.Configuration import *
 from Tuffix.SudoRun import SudoRun
