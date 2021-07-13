@@ -2,7 +2,7 @@
 
 from Tuffix.Commands import CustomCommand, InitCommand, RemoveCommand, AddRemoveHelper
 
-from Tuffix.Configuration import DEBUG_BUILD_CONFIG, State
+from Tuffix.Configuration import DEBUG_BUILD_CONFIG, State, read_state
 from Tuffix.CustomPayload import CustomPayload
 
 import unittest
@@ -59,7 +59,6 @@ class CustomCommandTest(unittest.TestCase):
         custom = CustomCommand(DEBUG_BUILD_CONFIG)
         custom.execute(arguments=[str(payload_path.resolve())])
 
-        print(os.listdir("/tmp/tuffix/json_payloads"))
 
         payload_path.unlink()
 
@@ -109,7 +108,6 @@ class CustomCommandTest(unittest.TestCase):
     def test_remove_custom(self):
         helper_remove = AddRemoveHelper(DEBUG_BUILD_CONFIG, 'remove')
         __search = helper_remove.search("ruby")
-        print(__search)
         # Test Remove
         helper_remove.run_commands(
             container=[__search], install=False)
