@@ -326,8 +326,7 @@ class EditorKeywordContainer():
 
         self.container: list[EditorBaseKeyword] = [
             AtomKeyword(build_config),
-            # EclipseKeyword(build_config), NOTE : needs to undergo more
-            # testing
+            EclipseKeyword(build_config),
             EmacsKeyword(build_config),
             GeanyKeyword(build_config),
             NetbeansKeyword(build_config),
