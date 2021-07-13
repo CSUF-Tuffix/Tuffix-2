@@ -104,7 +104,9 @@ class BaseKeyword(AbstractKeyword):
                          'base',
                          'CPSC 120-121-131-301 C++ development environment')
 
-        self.packages: list[str] = ['build-essential',
+        self.packages: list[str] = ['autoconf',
+                                    'automake',
+                                    'build-essential',
                                     'cimg-dev',
                                     'clang',
                                     'clang-format',
@@ -118,7 +120,11 @@ class BaseKeyword(AbstractKeyword):
                                     'libc++-dev',
                                     'libc++abi-dev',
                                     'libgconf-2-4',
+                                    'libgtest-dev',
+                                    'libgmock-dev',
                                     'lldb',
+                                    'nlohmann-json3-dev',
+                                    'subversion',
                                     'python3']
 
         self.Atom = AtomKeyword(self.build_config)
@@ -437,16 +443,35 @@ class VirtualBoxKeyword(AbstractKeyword):
 
 
 class ZoomKeyword(AbstractKeyword):
+    """
+    Note: imported deps from tuffix.yml @ https://github.com/mshafe/tuffix
+    """
 
     def __init__(self, build_config: BuildConfig):
         super().__init__(build_config,
                          'zoom',
                          'Video conferencing software')
-        self.packages: list[str] = ['libgl1-mesa-glx',
-                                    'libegl1-mesa',
+        self.packages: list[str] = ['libglib2.0-0',
+                                    'libgstreamer-plugins-base0.10-0',
+                                    'libxcb-shape0',
+                                    'libxcb-shm0',
+                                    'libxcb-xfixes0',
+                                    'libxcb-randr0',
+                                    'libxcb-image0',
+                                    'libfontconfig1',
+                                    'libgl1-mesa-glx',
+                                    'libxi6',
+                                    'libsm6',
+                                    'libxrender1',
+                                    'libpulse0',
+                                    'libxcomposite1',
+                                    'libxslt1.1',
+                                    'libsqlite3-0',
+                                    'libxcb-keysyms1',
                                     'libxcb-xtest0',
+                                    'ibus',
                                     'zoom']
-        self.checkable_packages = self.packages[:3]
+        self.checkable_packages = self.packages[:-1]
         self.link_dictionary = {
             "ZOOM_DEB": LinkPacket(link="https://zoom.us/client/latest/zoom_amd64.deb", is_git=False)
         }
