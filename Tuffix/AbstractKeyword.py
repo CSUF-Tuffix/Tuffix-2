@@ -129,3 +129,30 @@ class AbstractKeyword:
             raise ValueError
         for package in packages:
             pip.main(['install', package])
+
+    def rewrite_state(self, arguments: list, install=True):
+        """
+        Goal: update the state file
+        NOTE: THIS IS DUPLICATED
+        THIS IS AN ISSUE, PLEASE FIX ME WHEN BETA IS ROLLED OUT!
+        """
+
+        if not(isinstance(arguments, list) and
+               isinstance(install, bool)):
+            raise ValueError
+
+        current_state = read_state(self.build_config)
+
+        new_action = current_state.installed
+
+        for argument in arguments:
+            if(not install):
+                new_action.remove(argument)
+            else:
+                new_action.append(argument)
+
+        new_state = State(self.build_config,
+                          self.build_config.version,
+                          new_action,
+                          current_state.editors)
+        new_state.write()

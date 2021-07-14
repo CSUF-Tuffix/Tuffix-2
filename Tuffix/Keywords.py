@@ -139,37 +139,12 @@ class BaseKeyword(AbstractKeyword):
                 is_git=True)}
 
     def add(self):
-        self.build_google_test()
         self.edit_deb_packages(self.packages, is_installing=True)
         self.Atom.add()
-
+        self.rewrite_state([self.name], True)
     def remove(self):
-        # self.edit_deb_packages(self.packages, is_installing=False)
-        self.Atom.remove()
-
-    def build_google_test(self):
-        """
-        GOAL: Get and install GoogleTest
-        NOTE: does this need to be done? <- can `googletest` from Ubuntu repos do this for us?
-        Test with clean version of Ubuntu
-        """
-
-        GOOGLE_TEST_URL = self.link_dictionary["GOOGLE_TEST_URL"].link
-        GOOGLE_DEST = "google"
-
-        os.chdir("/tmp")
-        if(os.path.isdir(GOOGLE_DEST)):
-            shutil.rmtree(GOOGLE_DEST)
-        subprocess.run(['git', 'clone', GOOGLE_TEST_URL, GOOGLE_DEST])
-        os.chdir(GOOGLE_DEST)
-        script = ["cmake CMakeLists.txt",
-                  "make -j8",
-                  "sudo cp -r -v googletest/include/. /usr/include",
-                  "sudo cp -r -v googlemock/include/. /usr/include",
-                  "sudo chown -v root:root /usr/lib"]
-        for command in script:
-            subprocess.run(command.split())
-
+        # We are not interested in removing these dependencies, they are critical for system use 
+        self.rewrite_state([self.name], False)
 
 class BazelKeyword(AbstractKeyword):
     def __init__(self, build_config: BuildConfig):

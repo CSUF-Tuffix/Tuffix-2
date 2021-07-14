@@ -33,7 +33,7 @@ class TestEditorGeneric(unittest.TestCase):
         _type = type(cls.keyword)
         if(issubclass(_type, AbstractKeyword) and
            not issubclass(_type, EditorBaseKeyword)):
-            cls.correct_attr = (True, False)
+            cls.correct_attr = (True, False) # 0: regular keyword, 1: editorkeyword
         else:
             cls.correct_attr = (False, True)
 
@@ -77,9 +77,9 @@ class TestEditorGeneric(unittest.TestCase):
 
         try:
             self.assertTrue(
-                self.keyword.is_deb_package_installed(self.keyword.name))
+                all([self.keyword.is_deb_package_installed(pkg) for pkg in self.keyword.packages]))
         except EnvironmentError:
-            self.assertTrue(False)
+                self.assertTrue(False)
 
     def generic_check_remove(self):
         """
@@ -92,8 +92,9 @@ class TestEditorGeneric(unittest.TestCase):
             self.keyword.name not in self.obtain_correct_attribute(after_removal))
 
         try:
-            self.assertFalse(
-                self.keyword.is_deb_package_installed(self.keyword.name))
+            self.assertTrue(
+                self.keyword.is_deb_package_installed(self.keyword.name) or
+                all([self.keyword.is_deb_package_installed(pkg) for pkg in self.keyword.packages]))
         except EnvironmentError:
             self.assertTrue(False)
 
