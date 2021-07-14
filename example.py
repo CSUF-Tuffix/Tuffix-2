@@ -1,19 +1,8 @@
 #!/usr/bin/env python3.9
 
-from aptsources import sourceslist
-import apt_pkg
+from Tuffix.TuffixPackageManager import TuffixPackageManager
+from Tuffix.Keywords import C240Keyword
+from Tuffix.Configuration import DEBUG_BUILD_CONFIG
 
-apt_pkg.config.set("Dir::Etc::sourcelist", "/etc/apt"
-                   "sources.list")
-
-
-def func():
-    sources = sourceslist.SourcesList(True, "/etc/apt")
-
-    sources.add("deb", "http://de.archive.ubuntu.com/ubuntu/",
-                "focal",
-                ["main"]) \
-        sources.save()
-
-
-func()
+__T = TuffixPackageManager(None, C240Keyword(DEBUG_BUILD_CONFIG))
+__T.install("cowsay")
