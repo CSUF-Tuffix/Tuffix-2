@@ -85,7 +85,7 @@ class BasePackageManager:
 
         raise NotImplementedError
 
-    def install_source(self, string: str):
+    def install_source(self, string: tuple):
         """
         Install a repository on the target machine
         """

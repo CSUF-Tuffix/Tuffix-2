@@ -1,14 +1,23 @@
 import pathlib
 import apt
+from apt import auth
+from aptsources import sourceslist
+from aptsources.sourceslist import SourceEntry
+import urllib.request
+import re
 
 from Tuffix.AbstractKeyword import AbstractKeyword
 from Tuffix.PackageManager import BasePackageManager
+from Tuffix.LinkChecker import LinkPacket
+from Tuffix.SudoRun import SudoRun
 
 class TuffixPackageManager(BasePackageManager):
-    def __init__(self, path: pathlib.Path, managed_object: AbstractKeyword):
+    def __init__(self, path: pathlib.Path, managed_object):
         if not(issubclass(type(managed_object), AbstractKeyword)):
             raise ValueError(f'{type(managed_object).__name__}')
         super().__init__(path, managed_object)
+        self.sources = sourceslist.SourcesList(True, "/etc/apt")
+        self.valid_architectures = ["amd64", "arm64"]
 
     def _edit_package_state(self, packages: list, is_installing: bool):
         """
@@ -78,3 +87,67 @@ class TuffixPackageManager(BasePackageManager):
         super().install_from_file(path)
         apt.debfile.DebPackage(filename=str(path)).install()
 
+    def _parse_source(self, line: str) -> tuple:
+        """
+        This is an undocumeted feature and I need to read the source code
+        of this project get this to work. Debian...WRITE BETTER DOCS!
+        """
+
+        _entry = SourceEntry(line)
+        _entry.parse(line)
+        return (_entry.type,
+                _entry.uri,
+                _entry.dist,
+                _entry.comps,
+                _entry.architectures)
+
+    def install_source(self, source: str):
+        """
+        Given repo source, as defined here:
+        https://manpages.ubuntu.com/manpages/xenial/man5/sources.list.5.html
+        """
+
+        __type, uri, distrib, arguments, arch = self._parse_source(source)
+        self.sources.add(__type, uri, distrib, arguments, architectures=arch)
+        self.sources.save()
+
+    def install_gpg_key(self, path: str):
+        """
+        Given either a link or direct path on disk,
+        this function will read the contents and install the GPG key
+        """
+
+        _re = re.compile("(?P<link>((http|https)\:\/\/)?[a-zA-Z0-9\.\/\?\:@\-_=#]+\.([a-zA-Z]){2,6}([a-zA-Z0-9\.\&\/\?\:@\-_=#])*)")
+        contents = None
+        if((match := _re.match(path))):
+            contents = urllib.request.urlopen(match.group("link")).read()
+        else:
+            with open(path, "wb") as fp:
+                contents = ''.join(fp.readlines())
+
+        auth.add_key(contents.decode('utf-8'))
+
+    # def _install_third_party(self, gpg_packet: LinkPacket, deb_source: str):
+        # if not(isinstance(gpg_packet, LinkPacket) and
+               # isinstance(deb_source, str)):
+            # raise ValueError
+
+        # """
+        # This is a combination of the two functions below for easier use
+        # """
+
+        # self.install_source(deb_source)
+        # self.install_gpg_key(gpg_packet.link)
+
+    def install_third_party(self):
+        _re  = re.compile(".*GPG.*")
+        gpg_objects = []
+        if(hasattr(self.managed_object, 'link_dictionary')):
+            container = list(self.managed_object.link_dictionary.keys())
+            _keys = list(filter(_re.match, container))
+            gpg_objects = [self.managed_object.link_dictionary.get(_) for _ in _keys]
+
+        for gpg in gpg_objects:
+            self.install_gpg_key(gpg.link)
+        if(hasattr(self.managed_object, 'repo_payload')):
+            self.install_source(self.managed_object.repo_payload)
