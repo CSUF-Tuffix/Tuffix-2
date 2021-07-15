@@ -111,6 +111,11 @@ class TuffixPackageManager(BasePackageManager):
         self.sources.add(__type, uri, distrib, arguments, architectures=arch)
         self.sources.save()
 
+    def remove_source(self, source: str):
+        source_entry = SourceEntry(source)
+        self.sources.remove(source_entry)
+        self.sources.save()
+
     def install_gpg_key(self, path: str):
         """
         Given either a link or direct path on disk,

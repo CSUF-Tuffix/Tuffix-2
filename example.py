@@ -5,4 +5,4 @@ from Tuffix.Keywords import BazelKeyword
 from Tuffix.Configuration import DEBUG_BUILD_CONFIG
 
 __T = TuffixPackageManager(None, BazelKeyword(DEBUG_BUILD_CONFIG))
-__T.install_third_party()
+__T.remove_source("deb [arch=amd64] https://storage.googleapis.com/bazel-apt stable jdk1.8")
