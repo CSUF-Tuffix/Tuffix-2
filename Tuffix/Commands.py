@@ -404,9 +404,7 @@ class InitCommand(AbstractCommand):
 
         self.create_state_directory()
 
-        self.configure_ppa()
         self.configure_git()
-        self.install_atom(write=True)
 
         state = State(self.build_config,
                       self.build_config.version, [], ["atom"])
