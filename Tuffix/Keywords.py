@@ -17,7 +17,6 @@ from Tuffix.Constants import KEYWORD_MAX_LENGTH
 
 from Tuffix.CustomPayload import CustomPayload
 
-import apt
 from zipfile import ZipFile
 
 import functools
@@ -188,20 +187,21 @@ class BazelKeyword(AbstractKeyword):
         self.repo_payload = "deb [arch=amd64] https://storage.googleapis.com/bazel-apt stable jdk1.8"
 
     def add(self):
-        gpg_url = self.link_dictionary["BAZEL_GPG"].link
-        gpg_dest = pathlib.Path("/tmp/gpgkey")
+        pass
+        # gpg_url = self.link_dictionary["BAZEL_GPG"].link
+        # gpg_dest = pathlib.Path("/tmp/gpgkey")
 
-        content = requests.get(gpg_url).content
+        # content = requests.get(gpg_url).content
 
-        with open(gpg_dest, "wb") as fp:
-            fp.write(content)
+        # with open(gpg_dest, "wb") as fp:
+        # fp.write(content)
 
-        self.executor.run(
-            f'sudo apt-key add {gpg_dest.resolve()}',
-            self.executor.whoami)
+        # self.executor.run(
+        # f'sudo apt-key add {gpg_dest.resolve()}',
+        # self.executor.whoami)
 
-        self.write_to_sources(self.repo_payload, True)  # please depreciate
-        self.edit_deb_packages(self.packages, is_installing=True)
+        # self.write_to_sources(self.repo_payload, True)  # please depreciate
+        # self.edit_deb_packages(self.packages, is_installing=True)
 
     def remove(self):
         self.edit_deb_packages(self.packages, is_installing=False)
@@ -240,7 +240,6 @@ class C223JKeyword(AbstractKeyword):
         self.edit_deb_packages(self.packages, is_installing=False)
         self.Geany.remove()
         self.Netbeans.remove()
-
 
 
 class C223NKeyword(AbstractKeyword):
@@ -475,14 +474,15 @@ class GithubCLIKeyword(AbstractKeyword):
         self.repo_payload = "https://cli.github.com/packages"
 
     def add(self):
-        if not((apt_key := shutil.which("apt-key"))):
-            raise EnvironmentError(f'could not find  {apt_key=}')
-        self.executor.run(
-            f'{apt_key} adv --keyserver keyserver.ubuntu.com --recv-key C99B11DEB97541F0',
-            self.executor.whoami)  # please depreciate
+        pass
+        # if not((apt_key := shutil.which("apt-key"))):
+        # raise EnvironmentError(f'could not find  {apt_key=}')
+        # self.executor.run(
+        # f'{apt_key} adv --keyserver keyserver.ubuntu.com --recv-key C99B11DEB97541F0',
+        # self.executor.whoami)  # please depreciate
 
-        self.write_to_sources(self.repo_payload, True)  # please depreciate
-        self.edit_deb_packages(self.packages, is_installing=True)
+        # self.write_to_sources(self.repo_payload, True)  # please depreciate
+        # self.edit_deb_packages(self.packages, is_installing=True)
 
     def remove(self):
         self.edit_deb_packages(self.packages, is_installing=False)
@@ -545,16 +545,17 @@ class ZoomKeyword(AbstractKeyword):
                 is_git=False)}
 
     def add(self):
-        self.edit_deb_packages(self.checkable_packages, is_installing=True)
+        pass
+        # self.edit_deb_packages(self.checkable_packages, is_installing=True)
 
-        url = self.link_dictionary["ZOOM_DEB"].link
-        file_path = "/tmp/zoom"
-        print("[INFO] Downloading Zoom installer...")
-        content = requests.get(url).content
+        # url = self.link_dictionary["ZOOM_DEB"].link
+        # file_path = "/tmp/zoom"
+        # print("[INFO] Downloading Zoom installer...")
+        # content = requests.get(url).content
 
-        with open(file_path, 'wb') as fp:
-            fp.write(content)
-        apt.debfile.DebPackage(filename=file_path).install()
+        # with open(file_path, 'wb') as fp:
+        # fp.write(content)
+        # apt.debfile.DebPackage(filename=file_path).install()
 
     def remove(self):
         self.edit_deb_packages(self.packages, is_installing=False)
