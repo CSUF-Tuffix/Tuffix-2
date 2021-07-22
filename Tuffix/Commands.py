@@ -371,6 +371,8 @@ class InitCommand(AbstractCommand):
         """
         Goal: Install PPA
         """
+        # this is done in the installer
+        pass
 
         gpg_url = "https://www.tuffix.xyz/repo/KEY.gpg"
         tuffix_list = pathlib.Path("/etc/apt/sources.list.d/tuffix.list")
