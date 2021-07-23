@@ -10,7 +10,7 @@ If you are certain that you have found a bug in the `tuffix` command or error in
 
 ## Credits
 
-This is the product of a working group including Paul
-Salvador Inventado, Michael Shafae, and Kevin Wortman. Many others have provided input and bug reports. Tuffix builds upon Michael Shafae's build
+This is the product of a working group including Jared Dyreson, Paul
+Salvador Inventado, Michael Shafae, Kevin Wortman, and others. Many others have provided feedback and input. Tuffix builds upon Michael Shafae's build
 scripts and Kenytt Avery's
 node-box (https://github.com/ProfAvery/node-box).
