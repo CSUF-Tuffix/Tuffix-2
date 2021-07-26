@@ -297,7 +297,7 @@ def status(build_config: BuildConfig) -> tuple:
         f'{host()}',
         '-----',
         f'OS: {current_operating_system()}',
-        f'Release: {lsb_parser().lsb_release_type()}'
+        f'Release: {lsb_parser().lsb_release_type()}',
         f'Model: {current_model()}',
         f'Kernel: {current_kernel_revision()}',
         f'Uptime: {current_uptime()}',
@@ -351,6 +351,7 @@ def system_shell() -> str:
     _version_match = _version_re.match(shell_version)
 
     if(_version_match):
+        print("this is what I am returning")
         return f'{shell_name} {_version_match.group("version")}'
     raise ValueError(
         f'error in parsing version, currently have {shell_version}')
