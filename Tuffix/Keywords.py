@@ -225,7 +225,7 @@ class C223JKeyword(AbstractKeyword):
     """
 
     def __init__(self, build_config: BuildConfig):
-        super().__init__(build_config, 'C223J', 'CPSC 223J (Java Programming)')
+        super().__init__(build_config, '223J', 'CPSC 223J (Java Programming)')
         self.packages: list[str] = ['gthumb',
                                     'openjdk-11-jdk',
                                     'openjdk-11-jre']
@@ -271,7 +271,7 @@ class C223PKeyword(AbstractKeyword):
     """
 
     def __init__(self, build_config: BuildConfig):
-        super().__init__(build_config, 'C223P', 'CPSC 223P (Python Programming)')
+        super().__init__(build_config, '223P', 'CPSC 223P (Python Programming)')
         self.packages: list[str] = ['build-essential',
                                     'libssl-dev',
                                     'libffi-dev',
@@ -296,7 +296,7 @@ class C223WKeyword(AbstractKeyword):
     """
 
     def __init__(self, build_config: BuildConfig):
-        super().__init__(build_config, 'C223W', 'CPSC 223W (Swift Programming)')
+        super().__init__(build_config, '223W', 'CPSC 223W (Swift Programming)')
         self.packages: list[str] = ['binutils',
                                     'curl',
                                     'gnupg2',
@@ -327,7 +327,7 @@ class C240Keyword(AbstractKeyword):
     """
 
     def __init__(self, build_config: BuildConfig):
-        super().__init__(build_config, 'C240', 'CPSC 240 (Assembler)')
+        super().__init__(build_config, '240', 'CPSC 240 (Assembler)')
         self.packages: list[str] = ['intel2gas', 'nasm']
 
     def add(self):
@@ -344,7 +344,7 @@ class C474Keyword(AbstractKeyword):
     """
 
     def __init__(self, build_config: BuildConfig):
-        super().__init__(build_config, 'C474', 'CPSC 474 (Parallel and Distributed Computing)')
+        super().__init__(build_config, '474', 'CPSC 474 (Parallel and Distributed Computing)')
 
         self.packages: list[str] = ['libopenmpi-dev',
                                     'mpi-default-dev',
@@ -373,7 +373,7 @@ class C481Keyword(AbstractKeyword):
     """
 
     def __init__(self, build_config: BuildConfig):
-        super().__init__(build_config, 'C481', 'CPSC 481 (Artificial Intelligence)')
+        super().__init__(build_config, '481', 'CPSC 481 (Artificial Intelligence)')
         self.packages: list[str] = ['openjdk-11-jdk',
                                     'openjdk-11-jre',
                                     'sbcl',
@@ -401,7 +401,7 @@ class C484Keyword(AbstractKeyword):
     """
 
     def __init__(self, build_config: BuildConfig):
-        super().__init__(build_config, 'C484', 'CPSC 484 (Principles of Computer Graphics)')
+        super().__init__(build_config, '484', 'CPSC 484 (Principles of Computer Graphics)')
         self.packages: list[str] = ['freeglut3-dev',
                                     'libfreeimage-dev',
                                     'libgl1-mesa-dev',
