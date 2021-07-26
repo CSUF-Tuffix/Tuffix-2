@@ -251,7 +251,7 @@ class C223NKeyword(AbstractKeyword):
 
     def __init__(self, build_config: BuildConfig):
         super().__init__(build_config,
-                         'C223N', 'CPSC 223N (C# Programming)')
+                         '223N', 'CPSC 223N (C# Programming)')
         self.packages: list[str] = ['mono-complete']
         self.Netbeans = NetbeansKeyword(DEFAULT_BUILD_CONFIG)
 
