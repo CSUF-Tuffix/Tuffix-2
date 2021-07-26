@@ -15,6 +15,7 @@ NOTE: update this section with https://github.com/JaredDyreson/SudoRun/
 from Tuffix.SudoRun import SudoRun
 from Tuffix.Configuration import read_state, BuildConfig
 from Tuffix.Exceptions import *
+from Tuffix.LSBParser import lsb_parser
 
 from termcolor import colored
 import datetime
@@ -296,6 +297,7 @@ def status(build_config: BuildConfig) -> tuple:
         f'{host()}',
         '-----',
         f'OS: {current_operating_system()}',
+        f'Release: {lsb_parser().lsb_release_type()}'
         f'Model: {current_model()}',
         f'Kernel: {current_kernel_revision()}',
         f'Uptime: {current_uptime()}',
