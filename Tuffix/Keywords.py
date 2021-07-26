@@ -17,7 +17,6 @@ from Tuffix.Constants import KEYWORD_MAX_LENGTH
 
 from Tuffix.CustomPayload import CustomPayload
 
-import apt
 from zipfile import ZipFile
 
 import functools
@@ -98,6 +97,7 @@ class BaseKeyword(AbstractKeyword):
 
     - removed python2, this has been discarded in favour of python3.8
     - removed vscode from list of packages, this keyword already installs Atom
+    - updated clang => clang-12
     """
 
     def __init__(self, build_config: BuildConfig):
@@ -109,7 +109,7 @@ class BaseKeyword(AbstractKeyword):
                                     'automake',
                                     'build-essential',
                                     'cimg-dev',
-                                    'clang',
+                                    'clang-12',
                                     'clang-format',
                                     'clang-tidy',
                                     'cmake',
@@ -139,12 +139,37 @@ class BaseKeyword(AbstractKeyword):
                 is_git=True)}
 
     def add(self):
+        self.build_google_test()
         self.edit_deb_packages(self.packages, is_installing=True)
         self.Atom.add()
-        self.rewrite_state([self.name], True)
+
     def remove(self):
-        # We are not interested in removing these dependencies, they are critical for system use 
-        self.rewrite_state([self.name], False)
+        # self.edit_deb_packages(self.packages, is_installing=False)
+        self.Atom.remove()
+
+    def build_google_test(self):
+        """
+        GOAL: Get and install GoogleTest
+        NOTE: does this need to be done? <- can `googletest` from Ubuntu repos do this for us?
+        Test with clean version of Ubuntu
+        """
+
+        GOOGLE_TEST_URL = self.link_dictionary["GOOGLE_TEST_URL"].link
+        GOOGLE_DEST = "google"
+
+        os.chdir("/tmp")
+        if(os.path.isdir(GOOGLE_DEST)):
+            shutil.rmtree(GOOGLE_DEST)
+        subprocess.run(['git', 'clone', GOOGLE_TEST_URL, GOOGLE_DEST])
+        os.chdir(GOOGLE_DEST)
+        script = ["cmake CMakeLists.txt",
+                  "make -j8",
+                  "sudo cp -r -v googletest/include/. /usr/include",
+                  "sudo cp -r -v googlemock/include/. /usr/include",
+                  "sudo chown -v root:root /usr/lib"]
+        for command in script:
+            subprocess.run(command.split())
+
 
 class BazelKeyword(AbstractKeyword):
     def __init__(self, build_config: BuildConfig):
@@ -163,20 +188,21 @@ class BazelKeyword(AbstractKeyword):
         self.repo_payload = "deb [arch=amd64] https://storage.googleapis.com/bazel-apt stable jdk1.8"
 
     def add(self):
-        gpg_url = self.link_dictionary["BAZEL_GPG"].link
-        gpg_dest = pathlib.Path("/tmp/gpgkey")
+        pass
+        # gpg_url = self.link_dictionary["BAZEL_GPG"].link
+        # gpg_dest = pathlib.Path("/tmp/gpgkey")
 
-        content = requests.get(gpg_url).content
+        # content = requests.get(gpg_url).content
 
-        with open(gpg_dest, "wb") as fp:
-            fp.write(content)
+        # with open(gpg_dest, "wb") as fp:
+        # fp.write(content)
 
-        self.executor.run(
-            f'sudo apt-key add {gpg_dest.resolve()}',
-            self.executor.whoami)
+        # self.executor.run(
+        # f'sudo apt-key add {gpg_dest.resolve()}',
+        # self.executor.whoami)
 
-        self.write_to_sources(self.repo_payload, True)  # please depreciate
-        self.edit_deb_packages(self.packages, is_installing=True)
+        # self.write_to_sources(self.repo_payload, True)  # please depreciate
+        # self.edit_deb_packages(self.packages, is_installing=True)
 
     def remove(self):
         self.edit_deb_packages(self.packages, is_installing=False)
@@ -354,15 +380,15 @@ class C481Keyword(AbstractKeyword):
                                     'swi-prolog-nox',
                                     'swi-prolog-x']
 
-        # self.Eclipse = EclipseKeyword(self.build_config)
+        self.Eclipse = EclipseKeyword(self.build_config)
 
     def add(self):
         self.edit_deb_packages(self.packages, is_installing=True)
-        # self.Eclipse.add()
+        self.Eclipse.add()
 
     def remove(self):
         self.edit_deb_packages(packages, is_installing=False)
-        # self.Eclipse.remove()
+        self.Eclipse.remove()
 
 
 class C484Keyword(AbstractKeyword):
@@ -449,14 +475,15 @@ class GithubCLIKeyword(AbstractKeyword):
         self.repo_payload = "https://cli.github.com/packages"
 
     def add(self):
-        if not((apt_key := shutil.which("apt-key"))):
-            raise EnvironmentError(f'could not find  {apt_key=}')
-        self.executor.run(
-            f'{apt_key} adv --keyserver keyserver.ubuntu.com --recv-key C99B11DEB97541F0',
-            self.executor.whoami)  # please depreciate
+        pass
+        # if not((apt_key := shutil.which("apt-key"))):
+        # raise EnvironmentError(f'could not find  {apt_key=}')
+        # self.executor.run(
+        # f'{apt_key} adv --keyserver keyserver.ubuntu.com --recv-key C99B11DEB97541F0',
+        # self.executor.whoami)  # please depreciate
 
-        self.write_to_sources(self.repo_payload, True)  # please depreciate
-        self.edit_deb_packages(self.packages, is_installing=True)
+        # self.write_to_sources(self.repo_payload, True)  # please depreciate
+        # self.edit_deb_packages(self.packages, is_installing=True)
 
     def remove(self):
         self.edit_deb_packages(self.packages, is_installing=False)
@@ -519,16 +546,17 @@ class ZoomKeyword(AbstractKeyword):
                 is_git=False)}
 
     def add(self):
-        self.edit_deb_packages(self.checkable_packages, is_installing=True)
+        pass
+        # self.edit_deb_packages(self.checkable_packages, is_installing=True)
 
-        url = self.link_dictionary["ZOOM_DEB"].link
-        file_path = "/tmp/zoom"
-        print("[INFO] Downloading Zoom installer...")
-        content = requests.get(url).content
+        # url = self.link_dictionary["ZOOM_DEB"].link
+        # file_path = "/tmp/zoom"
+        # print("[INFO] Downloading Zoom installer...")
+        # content = requests.get(url).content
 
-        with open(file_path, 'wb') as fp:
-            fp.write(content)
-        apt.debfile.DebPackage(filename=file_path).install()
+        # with open(file_path, 'wb') as fp:
+        # fp.write(content)
+        # apt.debfile.DebPackage(filename=file_path).install()
 
     def remove(self):
         self.edit_deb_packages(self.packages, is_installing=False)

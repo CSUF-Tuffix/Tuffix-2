@@ -48,11 +48,15 @@ class EditorBaseKeyword(AbstractKeyword):
 
         new_action = current_state.editors
 
+        print(new_action)
+
         for argument in arguments:
             if(not install):
                 new_action.remove(argument)
             else:
                 new_action.append(argument)
+
+        print(new_action)
 
         new_state = State(self.build_config,
                           self.build_config.version,
