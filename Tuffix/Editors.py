@@ -75,10 +75,10 @@ class BlankEditorKeyword(EditorBaseKeyword):
         self.checkable_packages = self.packages
 
     def add(self):
-        self.rewrite_state(self.packages, True)
+        self.rewrite_state([self.name], True)
 
     def remove(self):
-        self.rewrite_state(self.packages, False)
+        self.rewrite_state([self.name], False)
 
 
 class AtomKeyword(EditorBaseKeyword):

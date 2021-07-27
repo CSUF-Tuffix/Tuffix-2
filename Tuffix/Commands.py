@@ -430,7 +430,12 @@ class InstalledCommand(AbstractCommand):
             print(f'[INFO] Tuffix installed keywords ({argc}):')
             for name in state.installed:
                 print(name)
-
+        if((e_argc := len(state.editors)) == 0):
+            print("[INFO] No editors are installed")
+        else:
+            print(f'[INFO] Tuffix installed editors ({e_argc})')
+            for name in state.editors:
+                print(name)
 
 class ListCommand(AbstractCommand):
     def __init__(self, build_config: BuildConfig):

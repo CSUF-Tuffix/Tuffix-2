@@ -7,7 +7,7 @@ from Tuffix.AbstractKeyword import AbstractKeyword
 # this is because we want to have access to this base class across two
 # source files that import each other
 
-from Tuffix.Editors import VimKeyword, EmacsKeyword, GeanyKeyword, NetbeansKeyword, EditorKeywordContainer, AtomKeyword, EclipseKeyword
+from Tuffix.Editors import VimKeyword, EmacsKeyword, GeanyKeyword, NetbeansKeyword, EditorKeywordContainer, AtomKeyword, EclipseKeyword, BlankEditorKeyword
 
 from Tuffix.Configuration import *
 from Tuffix.SudoRun import SudoRun
@@ -576,12 +576,15 @@ class TMuxKeyword(AbstractKeyword):
                          'multi-tasking in the terminal')
 
         self.packages: list[str] = ['tmux']
+        self.Blank = BlankEditorKeyword(self.build_config)
 
     def add(self):
         self.edit_deb_packages(self.packages, is_installing=True)
+        self.Blank.add()
 
     def remove(self):
         self.edit_deb_packages(self.packages, is_installing=False)
+        self.Blank.remove()
 
 
 class KeywordContainer():

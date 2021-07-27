@@ -281,6 +281,13 @@ def currently_installed_targets(build_config: BuildConfig) -> list:
     return [
         f'{"- ": >4} {element}' for element in read_state(build_config).installed]
 
+def currently_installed_editors(build_config: BuildConfig) -> list:
+    """
+    GOAL: list all installed editors in a formatted list
+    """
+
+    return [
+        f'{"- ": >4} {element}' for element in read_state(build_config).editors]
 
 def status(build_config: BuildConfig) -> tuple:
     """
@@ -290,8 +297,12 @@ def status(build_config: BuildConfig) -> tuple:
     git_email, git_username = list_git_configuration()
     primary, secondary = graphics_information()
     installed_targets = currently_installed_targets(build_config)
+    installed_editors = currently_installed_editors(build_config)
     installed_targets = '\n'.join(installed_targets).strip() if (
         installed_targets) else "None"
+
+    installed_editors = '\n'.join(installed_editors).strip() if (
+        installed_editors) else "None"
 
     return (
         f'{host()}',
@@ -314,6 +325,8 @@ def status(build_config: BuildConfig) -> tuple:
         f'  - Username: {git_username}',
         'Installed keywords:',
         f'{installed_targets}',
+        'Installed editors:',
+        f'{installed_editors}',
         f'Connected to Internet: {"Yes" if has_internet() else "No"}'
     )
 
