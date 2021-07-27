@@ -65,6 +65,22 @@ class EditorBaseKeyword(AbstractKeyword):
         new_state.write()
 
 
+class BlankEditorKeyword(EditorBaseKeyword):
+    # NOTE: please delete when done
+
+    def __init__(self, build_config: BuildConfig):
+        super().__init__(build_config, 'blank',
+                         'this is a test editor keyword and should be discarded when done')
+        self.packages = ['cowsay']
+        self.checkable_packages = self.packages
+
+    def add(self):
+        self.rewrite_state(self.packages, True)
+
+    def remove(self):
+        self.rewrite_state(self.packages, False)
+
+
 class AtomKeyword(EditorBaseKeyword):
 
     def __init__(self, build_config: BuildConfig):
@@ -335,6 +351,7 @@ class EditorKeywordContainer():
 
         self.container: list[EditorBaseKeyword] = [
             AtomKeyword(build_config),
+            BlankEditorKeyword(build_config),
             EclipseKeyword(build_config),
             EmacsKeyword(build_config),
             GeanyKeyword(build_config),
