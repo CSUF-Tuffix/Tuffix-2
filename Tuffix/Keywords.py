@@ -122,7 +122,7 @@ class ClangKeyword(AbstractKeyword):
                 f"update-alternatives --install {link} {name} {path} {priority} --slave {slave_link} {slave_name} {slave_path}")
 
     def install_ppa(self):
-        self.write_to_sources(self.repo_payload, True)
+        os.system("add-apt-repository -y ppa:ubuntu-toolchain-r/test")
 
     def link_all_binaries(self):
         _gcc_11 = [
@@ -175,8 +175,8 @@ class ClangKeyword(AbstractKeyword):
                                 '/usr/bin/clang-10', 10, _clang_10)
 
     def add(self):
-        # self.edit_deb_packages(self.packages, is_installing=True)
         self.install_ppa()
+        self.edit_deb_packages(self.packages, is_installing=True)
 
     def remove(self):
         # self.edit_deb_packages(self.packages, is_installing=False)
