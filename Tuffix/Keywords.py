@@ -90,6 +90,93 @@ class GeneralKeyword(AbstractKeyword):
         VimKeyword(self.build_config).remove()
 
 
+class ClangKeyword(AbstractKeyword):
+
+    def __init__(self, build_config: BuildConfig):
+        super().__init__(build_config,
+                         'clang',
+                         'clang temp')
+        self.repo_payload = "ppa:ubuntu-toolchain-r/test"
+        self.packages: list[str] = ['clang-12',
+                                    'clang-12-doc',
+                                    'clang-format-12',
+                                    'clang-tidy-12',
+                                    'clang-tools-12',
+                                    'clangd-12',
+                                    'g++-11',
+                                    'gcc-11',
+                                    'libc++-12-dev',
+                                    'libc++abi-12-dev'
+                                    'libclang-12-dev',
+                                    'libclang-common-12-dev',
+                                    'libclang1-12',
+                                    'lld-12',
+                                    'lldb-12',
+                                    'python3-clang-12']
+
+    def update_alternative(self, link: str, name: str, path: pathlib.Path, priority: int, slave_components):
+        for slave in slave_components:
+            slave_link, slave_name, slave_path = slave
+            os.system(
+                f"update-alternatives --install {link} {name} {path} {priority} --slave {slave_link} {slave_name} {slave_path}")
+
+    def link_all_binaries(self):
+        _gcc_11 = [
+            ('/usr/bin/g++',         'g++',         '/usr/bin/g++-11'),
+            ('/usr/bin/gcc-ar',      'gcc-ar',      '/usr/bin/gcc-ar-11'),
+            ('/usr/bin/gcc-nm',      'gcc-nm',      '/usr/bin/gcc-nm-11'),
+            ('/usr/bin/gcc-ranlib',  'gcc-ranlib',  '/usr/bin/gcc-ranlib-11'),
+            ('/usr/bin/gcov',        'gcov',        '/usr/bin/gcov-11'),
+            ('/usr/bin/gcov-dump',   'gcov-dump',   '/usr/bin/gcov-dump-11'),
+            ('/usr/bin/gcov-tool',   'gcov-tool',   '/usr/bin/gcov-tool-11')
+        ]
+
+        _gcc_9 = [
+            ('/usr/bin/g++',         'g++',         '/usr/bin/g++-9'),
+            ('/usr/bin/gcc-ar',      'gcc-ar',      '/usr/bin/gcc-ar-9'),
+            ('/usr/bin/gcc-nm',      'gcc-nm',      '/usr/bin/gcc-nm-9'),
+            ('/usr/bin/gcc-ranlib',  'gcc-ranlib',  '/usr/bin/gcc-ranlib-9'),
+            ('/usr/bin/gcov',        'gcov',        '/usr/bin/gcov-9'),
+            ('/usr/bin/gcov-dump',   'gcov-dump',   '/usr/bin/gcov-dump-9'),
+            ('/usr/bin/gcov-tool',   'gcov-tool',   '/usr/bin/gcov-tool-9')
+        ]
+
+        _clang_12 = [
+            ('/usr/bin/clang++'            'clang++'            '/usr/bin/clang++-12'),
+            ('/usr/bin/clang-format'       'clang-format'       '/usr/bin/clang-format-12'),
+            ('/usr/bin/clang-format-diff'  'clang-format-diff'  '/usr/bin/clang-format-diff-12'),
+            ('/usr/bin/clang-tidy'         'clang-tidy'         '/usr/bin/clang-tidy-12'),
+            ('/usr/bin/clang-tidy-diff'    'clang-tidy-diff'    '/usr/bin/clang-tidy-diff-12.py')
+        ]
+
+        _clang_10 = [
+            ('/usr/bin/clang++',            'clang++',
+             '/usr/bin/clang++-10'),
+            ('/usr/bin/clang-format',       'clang-format',
+             '/usr/bin/clang-format-10'),
+            ('/usr/bin/clang-format-diff',  'clang-format-diff',
+             '/usr/bin/clang-format-diff-10'),
+            ('/usr/bin/clang-tidy',         'clang-tidy',
+             '/usr/bin/clang-tidy-10'),
+            ('/usr/bin/clang-tidy-diff',    'clang-tidy-diff',
+             '/usr/bin/clang-tidy-diff-10.py')
+        ]
+        self.update_alternative('/usr/bin/gcc', 'gcc',
+                                '/usr/bin/gcc-11', 11, _gcc_11)
+        self.update_alternative('/usr/bin/gcc', 'gcc',
+                                '/usr/bin/gcc-9', 9, _gcc_9)
+        self.update_alternative('/usr/bin/clang', 'clang',
+                                '/usr/bin/clang-12', 12, _clang_12)
+        self.update_alternative('/usr/bin/clang', 'clang',
+                                '/usr/bin/clang-10', 10, _clang_10)
+
+    def add(self):
+        self.edit_deb_packages(self.packages, is_installing=True)
+
+    def remove(self):
+        self.edit_deb_packages(self.packages, is_installing=False)
+
+
 class BaseKeyword(AbstractKeyword):
 
     """
@@ -109,7 +196,7 @@ class BaseKeyword(AbstractKeyword):
                                     'automake',
                                     'build-essential',
                                     'cimg-dev',
-                                    'clang-12',
+                                    'clang',
                                     'clang-format',
                                     'clang-tidy',
                                     'cmake',
@@ -129,6 +216,7 @@ class BaseKeyword(AbstractKeyword):
                                     'python3']
 
         self.Atom = AtomKeyword(self.build_config)
+        self.repo_payload = "ppa:ubuntu-toolchain-r/test"
 
         self.link_dictionary = {
             "GOOGLE_TEST_URL": LinkPacket(
@@ -603,6 +691,7 @@ class KeywordContainer():
             C474Keyword(build_config),
             C481Keyword(build_config),
             C484Keyword(build_config),
+            ClangKeyword(build_config),
             GeneralKeyword(build_config),
             LatexKeyword(build_config),
             MediaKeyword(build_config),
