@@ -138,11 +138,10 @@ class AddRemoveHelper():
         else:
             attribute.append(keyword.name)
 
-        new_state = State(self.build_config,
-                          self.build_config.version,
-                          attribute if (
-                              _type == "AbstractKeyword") else current_state.installed,
-                          attribute if (_type == "EditorBaseKeyword") else current_state.editors)
+        new_state = State(
+            self.build_config, self.build_config.version, attribute if (
+                _type == "AbstractKeyword") else current_state.installed, attribute if (
+                _type == "EditorBaseKeyword") else current_state.editors)
         new_state.write()
 
     def run_commands(self, container: list, install: bool):
@@ -286,7 +285,7 @@ class CustomCommand(AbstractCommand):
                               (True, NewClassInstance))
 
             shutil.copyfile(
-                path, self.build_config.json_state_path / path.stem)
+                path, f'{(self.build_config.json_state_path / path.stem)}.json')
 
 
 class DescribeCommand(AbstractCommand):
@@ -372,6 +371,8 @@ class InitCommand(AbstractCommand):
         """
         Goal: Install PPA
         """
+        # this is done in the installer
+        pass
 
         gpg_url = "https://www.tuffix.xyz/repo/KEY.gpg"
         tuffix_list = pathlib.Path("/etc/apt/sources.list.d/tuffix.list")
@@ -403,9 +404,7 @@ class InitCommand(AbstractCommand):
 
         self.create_state_directory()
 
-        self.configure_ppa()
         self.configure_git()
-        self.install_atom(write=True)
 
         state = State(self.build_config,
                       self.build_config.version, [], ["atom"])
@@ -431,7 +430,12 @@ class InstalledCommand(AbstractCommand):
             print(f'[INFO] Tuffix installed keywords ({argc}):')
             for name in state.installed:
                 print(name)
-
+        if((e_argc := len(state.editors)) == 0):
+            print("[INFO] No editors are installed")
+        else:
+            print(f'[INFO] Tuffix installed editors ({e_argc})')
+            for name in state.editors:
+                print(name)
 
 class ListCommand(AbstractCommand):
     def __init__(self, build_config: BuildConfig):
@@ -459,7 +463,7 @@ class StatusCommand(AbstractCommand):
 
         messsage = (None, None)
         try:
-            for line in status():
+            for line in status(self.build_config):
                 print(line)
         except EnvironmentError as error:
             message = (

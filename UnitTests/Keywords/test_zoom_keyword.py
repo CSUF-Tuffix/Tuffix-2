@@ -4,6 +4,7 @@ from UnitTests.BaseEditorTest import TestEditorGeneric as TestKeywordGeneric
 
 import unittest
 
+
 class ZoomKeywordTest(TestKeywordGeneric):
     @classmethod
     def setUpClass(cls):

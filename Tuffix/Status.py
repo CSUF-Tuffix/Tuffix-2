@@ -13,8 +13,9 @@ NOTE: update this section with https://github.com/JaredDyreson/SudoRun/
 """
 
 from Tuffix.SudoRun import SudoRun
-from Tuffix.Configuration import read_state, DEFAULT_BUILD_CONFIG
+from Tuffix.Configuration import read_state, BuildConfig
 from Tuffix.Exceptions import *
+from Tuffix.LSBParser import lsb_parser
 
 from termcolor import colored
 import datetime
@@ -26,6 +27,7 @@ import socket
 import subprocess
 import sys
 import termcolor
+
 
 def ensure_ubuntu():
     """
@@ -63,16 +65,16 @@ def cpu_information() -> str:
 
     path = pathlib.Path("/proc/cpuinfo")
     regexes: list[re.Pattern] = [
-        re.compile("cpu cores\s*\:\s*(?P<cores>[\d]+)"),
-        re.compile("model name\s*\:\s*(?P<cpuname>.*)")
+        re.compile("cpu cores\\s*\\:\\s*(?P<cores>[\\d]+)"),
+        re.compile("model name\\s*\\:\\s*(?P<cpuname>.*)")
     ]
 
     with open(path, "r") as fp:
         contents = ''.join(fp.readlines())
 
     cores, name = [
-        match.group(1) for regex in regexes if((match := regex.search(contents)))
-    ]
+        match.group(1) for regex in regexes if(
+            (match := regex.search(contents)))]
 
     return f'{name} ({cores} core(s))'
 
@@ -197,7 +199,7 @@ def graphics_information() -> tuple:
 
     regexes: list[re.Pattern] = [
         re.compile(
-            "VGA.*\\:\s*(?P<model>(?:(?!\\s\\().)*)")
+            "VGA.*\\:\\s*(?P<model>(?:(?!\\s\\().)*)")
     ]
 
     if not((bash := shutil.which("bash")) and
@@ -213,9 +215,11 @@ def graphics_information() -> tuple:
         universal_newlines="\n").splitlines())
 
     primary = [
-        match.group(1) for regex in regexes if ((match := regex.search(output)))
-    ]
-    secondary = None # this is currently here because sometimes users might not have 3D accelerated graphics
+        match.group(1) for regex in regexes if (
+            (match := regex.search(output)))]
+    # this is currently here because sometimes users might not have 3D
+    # accelerated graphics
+    secondary = None
 
     return (termcolor.colored(*primary, 'green'),
             termcolor.colored("None" if not secondary else secondary, 'red'))
@@ -231,17 +235,16 @@ def list_git_configuration() -> list:
         raise EnvironmentError(f'could not find git path')
 
     regexes: list[re.Pattern] = [
-        re.compile("user\.email\=(?P<email>.*)"),
-        re.compile("user\.name\=(?P<name>.*)")
+        re.compile("user\\.email\\=(?P<email>.*)"),
+        re.compile("user\\.name\\=(?P<name>.*)")
     ]
 
     output = '\n'.join(keeper.run(
         command=f"{git} --no-pager config --list",
         desired_user=keeper.whoami))
 
-    return [
-        match.group(1) if ((match := regex.search(output))) else "None" for regex in regexes
-    ]
+    return [match.group(1) if ((match := regex.search(output)))
+            else "None" for regex in regexes]
 
 
 def has_internet() -> bool:
@@ -270,30 +273,42 @@ def has_internet() -> bool:
     return False
 
 
-def currently_installed_targets() -> list:
+def currently_installed_targets(build_config: BuildConfig) -> list:
     """
     GOAL: list all installed codewords in a formatted list
     """
 
     return [
-        f'{"- ": >4} {element}' for element in read_state(DEFAULT_BUILD_CONFIG).installed]
+        f'{"- ": >4} {element}' for element in read_state(build_config).installed]
 
+def currently_installed_editors(build_config: BuildConfig) -> list:
+    """
+    GOAL: list all installed editors in a formatted list
+    """
 
-def status() -> tuple:
+    return [
+        f'{"- ": >4} {element}' for element in read_state(build_config).editors]
+
+def status(build_config: BuildConfig) -> tuple:
     """
     GOAL: Driver code for all the components defined above
     """
 
     git_email, git_username = list_git_configuration()
     primary, secondary = graphics_information()
-    installed_targets = currently_installed_targets()
+    installed_targets = currently_installed_targets(build_config)
+    installed_editors = currently_installed_editors(build_config)
     installed_targets = '\n'.join(installed_targets).strip() if (
         installed_targets) else "None"
+
+    installed_editors = '\n'.join(installed_editors).strip() if (
+        installed_editors) else "None"
 
     return (
         f'{host()}',
         '-----',
         f'OS: {current_operating_system()}',
+        f'Release: {lsb_parser().lsb_release_type()}',
         f'Model: {current_model()}',
         f'Kernel: {current_kernel_revision()}',
         f'Uptime: {current_uptime()}',
@@ -310,6 +325,8 @@ def status() -> tuple:
         f'  - Username: {git_username}',
         'Installed keywords:',
         f'{installed_targets}',
+        'Installed editors:',
+        f'{installed_editors}',
         f'Connected to Internet: {"Yes" if has_internet() else "No"}'
     )
 
@@ -347,6 +364,7 @@ def system_shell() -> str:
     _version_match = _version_re.match(shell_version)
 
     if(_version_match):
+        print("this is what I am returning")
         return f'{shell_name} {_version_match.group("version")}'
     raise ValueError(
         f'error in parsing version, currently have {shell_version}')

@@ -5,6 +5,9 @@ from UnitTests.BaseEditorTest import TestEditorGeneric as TestKeywordGeneric
 
 import shutil
 import unittest
+import os
+import subprocess
+
 
 class TestBaseKeywordTest(TestKeywordGeneric):
     @classmethod
@@ -22,7 +25,7 @@ class TestBaseKeywordTest(TestKeywordGeneric):
         TEST_URL = "https://github.com/JaredDyreson/tuffix-google-test.git"
         """
 
-        TEST_URL = self.Base.link_dictionary["TEST_URL"].link
+        TEST_URL = self.keyword.link_dictionary["TEST_URL"].link
         TEST_DEST = "test"
 
         os.chdir("/tmp")
@@ -40,12 +43,14 @@ class TestBaseKeywordTest(TestKeywordGeneric):
         Test to see if we can install all dependencies
         """
         self.generic_check_add()
-        self.google_generic()
+        # self.google_generic()
 
     def test_remove(self):
         """
-        Test to see if we can remove all dependencies
-        NOTE: we have no way of removing the manually compiled googletest
+        We are only interested in removing mention of
+        the keyword. Most of these installation candiates
+        are critical for most software development
+        outside of academic work
         """
 
         self.generic_check_remove()

@@ -17,6 +17,7 @@ import subprocess
 
 import unittest
 
+
 class AtomKeywordTest(TestEditorGeneric):
     @classmethod
     def setUpClass(cls):

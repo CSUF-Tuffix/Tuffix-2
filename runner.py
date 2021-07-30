@@ -15,13 +15,19 @@ parser = argparse.ArgumentParser()
 parser.add_argument("-a", "--all",
                     help="test all components", action="store_true")
 
-parser.add_argument("-p", "--pedantic",
-                    help="allow for output of tests to be pedantic", action="store_true")
+parser.add_argument(
+    "-p",
+    "--pedantic",
+    help="allow for output of tests to be pedantic",
+    action="store_true")
 parser.add_argument("-t", "--test",
                     help="test certain components, comma separated", type=str)
 
-parser.add_argument("-s", "--sub-component",
-                    help="test certain sub-component, given the direct path", type=str)
+parser.add_argument(
+    "-s",
+    "--sub-component",
+    help="test certain sub-component, given the direct path",
+    type=str)
 arguments = parser.parse_args()
 
 R = TuffixTestRunner(

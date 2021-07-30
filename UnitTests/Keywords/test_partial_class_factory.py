@@ -47,7 +47,7 @@ class PartialClassTest(unittest.TestCase):
         }
 
         json_path = pathlib.Path("/tmp/test_from_json_container.json")
-        with open(json_path,  "w") as fp:
+        with open(json_path, "w") as fp:
             json.dump(container, fp)
 
         # pretend something has happened

@@ -18,7 +18,6 @@ from Tuffix.LinkChecker import LinkPacket
 from Tuffix.SudoRun import SudoRun
 from Tuffix.Exceptions import *
 from Tuffix.Configuration import *
-from Tuffix.DebBuilder import DebBuilder
 
 from apt import debfile
 import os
@@ -60,6 +59,22 @@ class EditorBaseKeyword(AbstractKeyword):
                           current_state.installed,
                           new_action)
         new_state.write()
+
+
+class BlankEditorKeyword(EditorBaseKeyword):
+    # NOTE: please delete when done
+
+    def __init__(self, build_config: BuildConfig):
+        super().__init__(build_config, 'blank',
+                         'this is a test editor keyword and should be discarded when done')
+        self.packages = ['cowsay']
+        self.checkable_packages = self.packages
+
+    def add(self):
+        self.rewrite_state([self.name], True)
+
+    def remove(self):
+        self.rewrite_state([self.name], False)
 
 
 class AtomKeyword(EditorBaseKeyword):
@@ -115,7 +130,12 @@ class AtomKeyword(EditorBaseKeyword):
 
         self.write_to_sources(self.repo_payload, True)
 
-    def install_plugins(self, plugins: list = ['dbg-gdb', 'dbg', 'output-panel']):
+    def install_plugins(
+        self,
+        plugins: list = [
+            'dbg-gdb',
+            'dbg',
+            'output-panel']):
         """
         Install pre-approved Atom packages
         API usage: supply custom plugins list
@@ -188,29 +208,25 @@ class EclipseKeyword(EditorBaseKeyword):
         self.packages: list[str] = ['openjdk-11-jdk']
         self.checkable_packages: list[str] = self.packages
 
-        if not((self.snap := shutil.which("snap"))):
+        if not((snap := shutil.which("snap"))):
             raise EnvironmentError(f'could not find snap')
+
+        self.snap = snap
 
     def add(self):
         """
         Install the Eclipse launcher
         """
-
-        self.executor.run(
-            f'{self.snap} install --classic eclipse',
-            self.executor.whoami)
-
-        self.rewrite_state(self.packages, True)
+        os.system(f'sudo {self.snap} install --classic eclipse')
+        self.rewrite_state([self.name], True)
 
     def remove(self):
         """
         Install the Eclipse launcher
         """
 
-        self.executor.run(
-            f'{self.snap} remove eclipse',
-            self.executor.whoami)
-        self.rewrite_state(self.packages, False)
+        os.system(f'sudo {self.snap} remove eclipse')
+        self.rewrite_state([self.name], False)
 
 
 class GeanyKeyword(EditorBaseKeyword):
@@ -272,14 +288,18 @@ class VimKeyword(EditorBaseKeyword):
 
 
 class VscodeKeyword(EditorBaseKeyword):
-    """
-    Not using the `apt` module, please be warned
-    """
 
     def __init__(self, build_config: BuildConfig):
         super().__init__(build_config, 'code', 'Microsoft\'s text editor')
-        self.packages: list[str] = ['code']
-        self.checkable_packages = []
+        self.packages: list[str] = ['gnupg',
+                                    'libgbm1',
+                                    'libgtk-3-0',
+                                    'libnss3',
+                                    'libsecret-1-0',
+                                    'libxkbfile1',
+                                    'libxss1',
+                                    'code']
+        self.checkable_packages = self.packages[:-1]
         self.link_dictionary = {
             "VSCODE_GPG": LinkPacket(
                 link="https://packages.microsoft.com/keys/microsoft.asc",
@@ -327,8 +347,8 @@ class EditorKeywordContainer():
 
         self.container: list[EditorBaseKeyword] = [
             AtomKeyword(build_config),
-            # EclipseKeyword(build_config), NOTE : needs to undergo more
-            # testing
+            BlankEditorKeyword(build_config),
+            EclipseKeyword(build_config),
             EmacsKeyword(build_config),
             GeanyKeyword(build_config),
             NetbeansKeyword(build_config),

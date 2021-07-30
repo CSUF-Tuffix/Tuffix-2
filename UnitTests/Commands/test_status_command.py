@@ -1,7 +1,7 @@
 #!/usr/bin/env python3.9
 
-from Tuffix.Commands import StatusCommand
-from Tuffix.Configuration import DEBUG_BUILD_CONFIG
+from Tuffix.Commands import StatusCommand, InitCommand
+from Tuffix.Configuration import DEBUG_BUILD_CONFIG, State
 
 from Tuffix.Quieter import Capturing
 
@@ -16,6 +16,11 @@ class StatusCommandTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.status_command = StatusCommand(DEBUG_BUILD_CONFIG)
+        cls.init = InitCommand(DEBUG_BUILD_CONFIG)
+        cls.init.create_state_directory()
+    @classmethod
+    def tearDownClass(cls):
+        cls.init.remove_state_directory()
 
     def test_success(self):
         message = f'{"#" * 10} [INFO] Status succeeded {"#" * 10}'

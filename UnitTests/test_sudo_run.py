@@ -76,4 +76,3 @@ class TestSudoRun(unittest.TestCase):
             # (_current_guid == 0) and
             # (_current_uid == 0)
         # )
-

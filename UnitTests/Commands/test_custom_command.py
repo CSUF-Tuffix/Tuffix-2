@@ -1,8 +1,8 @@
 #!/usr/bin/env python3.9
 
-from Tuffix.Commands import CustomCommand, InitCommand
+from Tuffix.Commands import CustomCommand, InitCommand, RemoveCommand, AddRemoveHelper
 
-from Tuffix.Configuration import DEBUG_BUILD_CONFIG
+from Tuffix.Configuration import DEBUG_BUILD_CONFIG, State, read_state
 from Tuffix.CustomPayload import CustomPayload
 
 import unittest
@@ -10,19 +10,25 @@ import textwrap
 import pathlib
 import json
 import shutil
+import os
 
 
 class CustomCommandTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
+        cls.state = State(DEBUG_BUILD_CONFIG,
+                          DEBUG_BUILD_CONFIG.version,
+                          [], [])
         cls.custom = CustomCommand(DEBUG_BUILD_CONFIG)
-        init = InitCommand(DEBUG_BUILD_CONFIG)
-        init.create_state_directory()
+        cls.init = InitCommand(DEBUG_BUILD_CONFIG)
+        cls.init.create_state_directory()
+        cls.state.write()
 
     @classmethod
     def tearDownClass(cls):
-        parent = cls.custom.build_config.state_path.parent
-        shutil.rmtree(parent)
+        pass
+        # parent = cls.custom.build_config.state_path.parent
+        # shutil.rmtree(parent)
 
     def test_init(self):
         """
@@ -39,18 +45,19 @@ class CustomCommandTest(unittest.TestCase):
         """
 
         payload = {
-            "name": "python",
+            "name": "ruby",
             "instructor": "Jared Dyreson",
-            "packages": ["python3", "python3-pip", "python3-virtualenv"]
+            "packages": ["ruby-full"]
         }
 
-        payload_path = pathlib.Path("/tmp/python_course.json")
+        payload_path = pathlib.Path("/tmp/ruby.json")
 
         with open(payload_path, "w") as fp:
             json.dump(payload, fp)
 
         custom = CustomCommand(DEBUG_BUILD_CONFIG)
         custom.execute(arguments=[str(payload_path.resolve())])
+
 
         payload_path.unlink()
 
@@ -94,3 +101,12 @@ class CustomCommandTest(unittest.TestCase):
                 pass
             else:
                 self.assertTrue(False)
+
+    def test_remove_custom(self):
+        helper_remove = AddRemoveHelper(DEBUG_BUILD_CONFIG, 'remove')
+        __search = helper_remove.search("ruby")
+        # Test Remove
+        helper_remove.run_commands(
+            container=[__search], install=False)
+        updated_state = read_state(DEBUG_BUILD_CONFIG)
+        self.assertTrue("ruby" not in updated_state.installed)

@@ -7,7 +7,7 @@ from Tuffix.AbstractKeyword import AbstractKeyword
 # this is because we want to have access to this base class across two
 # source files that import each other
 
-from Tuffix.Editors import VimKeyword, EmacsKeyword, GeanyKeyword, NetbeansKeyword, EditorKeywordContainer, AtomKeyword
+from Tuffix.Editors import VimKeyword, EmacsKeyword, GeanyKeyword, NetbeansKeyword, EditorKeywordContainer, AtomKeyword, EclipseKeyword, BlankEditorKeyword
 
 from Tuffix.Configuration import *
 from Tuffix.SudoRun import SudoRun
@@ -17,7 +17,6 @@ from Tuffix.Constants import KEYWORD_MAX_LENGTH
 
 from Tuffix.CustomPayload import CustomPayload
 
-import apt
 from zipfile import ZipFile
 
 import functools
@@ -26,15 +25,17 @@ import pathlib
 import requests
 import sys
 import dataclasses
+import os
 
 
 class AllKeyword(AbstractKeyword):
     # NOTE: GOOD
 
     def __init__(self, build_config: BuildConfig):
-        super().__init__(build_config,
-                         'all',
-                         'all keywords available (glob pattern); to be used in conjunction with remove or add respectively')
+        super().__init__(
+            build_config,
+            'all',
+            'all keywords available (glob pattern); to be used in conjunction with remove or add respectively')
         self.packages: list[str] = []
 
     def add(self):
@@ -90,6 +91,98 @@ class GeneralKeyword(AbstractKeyword):
         VimKeyword(self.build_config).remove()
 
 
+class ClangKeyword(AbstractKeyword):
+
+    def __init__(self, build_config: BuildConfig):
+        super().__init__(build_config,
+                         'clang',
+                         'clang temp')
+        self.repo_payload = "ppa:ubuntu-toolchain-r/test"
+        self.packages: list[str] = ['clang-12',
+                                    'clang-12-doc',
+                                    'clang-format-12',
+                                    'clang-tidy-12',
+                                    'clang-tools-12',
+                                    'clangd-12',
+                                    'g++-11',
+                                    'gcc-11',
+                                    'libc++-12-dev',
+                                    'libc++abi-12-dev'
+                                    'libclang-12-dev',
+                                    'libclang-common-12-dev',
+                                    'libclang1-12',
+                                    'lld-12',
+                                    'lldb-12',
+                                    'python3-clang-12']
+
+    def update_alternative(self, link: str, name: str, path: pathlib.Path, priority: int, slave_components):
+        for slave in slave_components:
+            slave_link, slave_name, slave_path = slave
+            os.system(
+                f"update-alternatives --install {link} {name} {path} {priority} --slave {slave_link} {slave_name} {slave_path}")
+
+    def install_ppa(self):
+        self.write_to_sources(self.repo_payload, True)
+
+    def link_all_binaries(self):
+        _gcc_11 = [
+            ('/usr/bin/g++',         'g++',         '/usr/bin/g++-11'),
+            ('/usr/bin/gcc-ar',      'gcc-ar',      '/usr/bin/gcc-ar-11'),
+            ('/usr/bin/gcc-nm',      'gcc-nm',      '/usr/bin/gcc-nm-11'),
+            ('/usr/bin/gcc-ranlib',  'gcc-ranlib',  '/usr/bin/gcc-ranlib-11'),
+            ('/usr/bin/gcov',        'gcov',        '/usr/bin/gcov-11'),
+            ('/usr/bin/gcov-dump',   'gcov-dump',   '/usr/bin/gcov-dump-11'),
+            ('/usr/bin/gcov-tool',   'gcov-tool',   '/usr/bin/gcov-tool-11')
+        ]
+
+        _gcc_9 = [
+            ('/usr/bin/g++',         'g++',         '/usr/bin/g++-9'),
+            ('/usr/bin/gcc-ar',      'gcc-ar',      '/usr/bin/gcc-ar-9'),
+            ('/usr/bin/gcc-nm',      'gcc-nm',      '/usr/bin/gcc-nm-9'),
+            ('/usr/bin/gcc-ranlib',  'gcc-ranlib',  '/usr/bin/gcc-ranlib-9'),
+            ('/usr/bin/gcov',        'gcov',        '/usr/bin/gcov-9'),
+            ('/usr/bin/gcov-dump',   'gcov-dump',   '/usr/bin/gcov-dump-9'),
+            ('/usr/bin/gcov-tool',   'gcov-tool',   '/usr/bin/gcov-tool-9')
+        ]
+
+        _clang_12 = [
+            ('/usr/bin/clang++'            'clang++'            '/usr/bin/clang++-12'),
+            ('/usr/bin/clang-format'       'clang-format'       '/usr/bin/clang-format-12'),
+            ('/usr/bin/clang-format-diff'  'clang-format-diff'  '/usr/bin/clang-format-diff-12'),
+            ('/usr/bin/clang-tidy'         'clang-tidy'         '/usr/bin/clang-tidy-12'),
+            ('/usr/bin/clang-tidy-diff'    'clang-tidy-diff'    '/usr/bin/clang-tidy-diff-12.py')
+        ]
+
+        _clang_10 = [
+            ('/usr/bin/clang++',            'clang++',
+             '/usr/bin/clang++-10'),
+            ('/usr/bin/clang-format',       'clang-format',
+             '/usr/bin/clang-format-10'),
+            ('/usr/bin/clang-format-diff',  'clang-format-diff',
+             '/usr/bin/clang-format-diff-10'),
+            ('/usr/bin/clang-tidy',         'clang-tidy',
+             '/usr/bin/clang-tidy-10'),
+            ('/usr/bin/clang-tidy-diff',    'clang-tidy-diff',
+             '/usr/bin/clang-tidy-diff-10.py')
+        ]
+        self.update_alternative('/usr/bin/gcc', 'gcc',
+                                '/usr/bin/gcc-11', 11, _gcc_11)
+        self.update_alternative('/usr/bin/gcc', 'gcc',
+                                '/usr/bin/gcc-9', 9, _gcc_9)
+        self.update_alternative('/usr/bin/clang', 'clang',
+                                '/usr/bin/clang-12', 12, _clang_12)
+        self.update_alternative('/usr/bin/clang', 'clang',
+                                '/usr/bin/clang-10', 10, _clang_10)
+
+    def add(self):
+        # self.edit_deb_packages(self.packages, is_installing=True)
+        self.install_ppa()
+
+    def remove(self):
+        # self.edit_deb_packages(self.packages, is_installing=False)
+        pass
+
+
 class BaseKeyword(AbstractKeyword):
 
     """
@@ -97,6 +190,7 @@ class BaseKeyword(AbstractKeyword):
 
     - removed python2, this has been discarded in favour of python3.8
     - removed vscode from list of packages, this keyword already installs Atom
+    - updated clang => clang-12
     """
 
     def __init__(self, build_config: BuildConfig):
@@ -115,7 +209,7 @@ class BaseKeyword(AbstractKeyword):
                                     'gdb',
                                     'gcc',
                                     'git',
-                                    'googltest',
+                                    'googletest',
                                     'g++',
                                     'libc++-dev',
                                     'libc++abi-dev',
@@ -128,11 +222,15 @@ class BaseKeyword(AbstractKeyword):
                                     'python3']
 
         self.Atom = AtomKeyword(self.build_config)
+        self.repo_payload = "ppa:ubuntu-toolchain-r/test"
 
         self.link_dictionary = {
-            "GOOGLE_TEST_URL": LinkPacket(link="https://github.com/google/googletest.git", is_git=True),
-            "TEST_URL": LinkPacket(link="https://github.com/JaredDyreson/tuffix-google-test.git", is_git=True)
-        }
+            "GOOGLE_TEST_URL": LinkPacket(
+                link="https://github.com/google/googletest.git",
+                is_git=True),
+            "TEST_URL": LinkPacket(
+                link="https://github.com/JaredDyreson/tuffix-google-test.git",
+                is_git=True)}
 
     def add(self):
         self.build_google_test()
@@ -167,6 +265,43 @@ class BaseKeyword(AbstractKeyword):
             subprocess.run(command.split())
 
 
+class BazelKeyword(AbstractKeyword):
+    def __init__(self, build_config: BuildConfig):
+        super().__init__(
+            build_config,
+            'bazel',
+            'software tool that allows for the automation of building and testing of software')
+        self.packages: list[str] = ['curl',
+                                    'gnupg',
+                                    'bazel']
+        self.checkable_packages = self.packages[:-1]
+        self.link_dictionary = {
+            "BAZEL_GPG": LinkPacket(
+                link="https://bazel.build/bazel-release.pub.gpg",
+                is_git=False)}
+        self.repo_payload = "deb [arch=amd64] https://storage.googleapis.com/bazel-apt stable jdk1.8"
+
+    def add(self):
+        pass
+        # gpg_url = self.link_dictionary["BAZEL_GPG"].link
+        # gpg_dest = pathlib.Path("/tmp/gpgkey")
+
+        # content = requests.get(gpg_url).content
+
+        # with open(gpg_dest, "wb") as fp:
+        # fp.write(content)
+
+        # self.executor.run(
+        # f'sudo apt-key add {gpg_dest.resolve()}',
+        # self.executor.whoami)
+
+        # self.write_to_sources(self.repo_payload, True)  # please depreciate
+        # self.edit_deb_packages(self.packages, is_installing=True)
+
+    def remove(self):
+        self.edit_deb_packages(self.packages, is_installing=False)
+
+
 class C223JKeyword(AbstractKeyword):
 
     """
@@ -184,7 +319,7 @@ class C223JKeyword(AbstractKeyword):
     """
 
     def __init__(self, build_config: BuildConfig):
-        super().__init__(build_config, 'C223J', 'CPSC 223J (Java Programming)')
+        super().__init__(build_config, '223J', 'CPSC 223J (Java Programming)')
         self.packages: list[str] = ['gthumb',
                                     'openjdk-11-jdk',
                                     'openjdk-11-jre']
@@ -210,7 +345,7 @@ class C223NKeyword(AbstractKeyword):
 
     def __init__(self, build_config: BuildConfig):
         super().__init__(build_config,
-                         'C223N', 'CPSC 223N (C# Programming)')
+                         '223N', 'CPSC 223N (C# Programming)')
         self.packages: list[str] = ['mono-complete']
         self.Netbeans = NetbeansKeyword(DEFAULT_BUILD_CONFIG)
 
@@ -230,7 +365,7 @@ class C223PKeyword(AbstractKeyword):
     """
 
     def __init__(self, build_config: BuildConfig):
-        super().__init__(build_config, 'C223P', 'CPSC 223P (Python Programming)')
+        super().__init__(build_config, '223P', 'CPSC 223P (Python Programming)')
         self.packages: list[str] = ['build-essential',
                                     'libssl-dev',
                                     'libffi-dev',
@@ -255,7 +390,7 @@ class C223WKeyword(AbstractKeyword):
     """
 
     def __init__(self, build_config: BuildConfig):
-        super().__init__(build_config, 'C223W', 'CPSC 223W (Swift Programming)')
+        super().__init__(build_config, '223W', 'CPSC 223W (Swift Programming)')
         self.packages: list[str] = ['binutils',
                                     'curl',
                                     'gnupg2',
@@ -286,7 +421,7 @@ class C240Keyword(AbstractKeyword):
     """
 
     def __init__(self, build_config: BuildConfig):
-        super().__init__(build_config, 'C240', 'CPSC 240 (Assembler)')
+        super().__init__(build_config, '240', 'CPSC 240 (Assembler)')
         self.packages: list[str] = ['intel2gas', 'nasm']
 
     def add(self):
@@ -303,7 +438,7 @@ class C474Keyword(AbstractKeyword):
     """
 
     def __init__(self, build_config: BuildConfig):
-        super().__init__(build_config, 'C474', 'CPSC 474 (Parallel and Distributed Computing)')
+        super().__init__(build_config, '474', 'CPSC 474 (Parallel and Distributed Computing)')
 
         self.packages: list[str] = ['libopenmpi-dev',
                                     'mpi-default-dev',
@@ -332,22 +467,22 @@ class C481Keyword(AbstractKeyword):
     """
 
     def __init__(self, build_config: BuildConfig):
-        super().__init__(build_config, 'C481', 'CPSC 481 (Artificial Intelligence)')
+        super().__init__(build_config, '481', 'CPSC 481 (Artificial Intelligence)')
         self.packages: list[str] = ['openjdk-11-jdk',
                                     'openjdk-11-jre',
                                     'sbcl',
                                     'swi-prolog-nox',
                                     'swi-prolog-x']
 
-        # self.Eclipse = EclipseKeyword(self.build_config)
+        self.Eclipse = EclipseKeyword(self.build_config)
 
     def add(self):
         self.edit_deb_packages(self.packages, is_installing=True)
-        # self.Eclipse.add()
+        self.Eclipse.add()
 
     def remove(self):
         self.edit_deb_packages(packages, is_installing=False)
-        # self.Eclipse.remove()
+        self.Eclipse.remove()
 
 
 class C484Keyword(AbstractKeyword):
@@ -360,7 +495,7 @@ class C484Keyword(AbstractKeyword):
     """
 
     def __init__(self, build_config: BuildConfig):
-        super().__init__(build_config, 'C484', 'CPSC 484 (Principles of Computer Graphics)')
+        super().__init__(build_config, '484', 'CPSC 484 (Principles of Computer Graphics)')
         self.packages: list[str] = ['freeglut3-dev',
                                     'libfreeimage-dev',
                                     'libgl1-mesa-dev',
@@ -422,12 +557,39 @@ class LatexKeyword(AbstractKeyword):
         self.edit_deb_packages(self.packages, is_installing=False)
 
 
+class GithubCLIKeyword(AbstractKeyword):
+    def __init__(self, build_config: BuildConfig):
+        super().__init__(build_config,
+                         'gh',
+                         'Github CLI utility')
+        self.packages: list[str] = ["dirmngr",
+                                    "software-properties-common",
+                                    "gh"]
+        self.checkable_packages: list[str] = self.packages[:-1]
+        self.repo_payload = "https://cli.github.com/packages"
+
+    def add(self):
+        pass
+        # if not((apt_key := shutil.which("apt-key"))):
+        # raise EnvironmentError(f'could not find  {apt_key=}')
+        # self.executor.run(
+        # f'{apt_key} adv --keyserver keyserver.ubuntu.com --recv-key C99B11DEB97541F0',
+        # self.executor.whoami)  # please depreciate
+
+        # self.write_to_sources(self.repo_payload, True)  # please depreciate
+        # self.edit_deb_packages(self.packages, is_installing=True)
+
+    def remove(self):
+        self.edit_deb_packages(self.packages, is_installing=False)
+
+
 class VirtualBoxKeyword(AbstractKeyword):
 
     def __init__(self, build_config: BuildConfig):
-        super().__init__(build_config,
-                         'vbox',
-                         'A powerful x86 and AMD64/Intel64 virtualization product')
+        super().__init__(
+            build_config,
+            'vbox',
+            'A powerful x86 and AMD64/Intel64 virtualization product')
         self.packages: list[str] = ['virtualbox',
                                     'virtualbox-ext-pack']
 
@@ -473,20 +635,22 @@ class ZoomKeyword(AbstractKeyword):
                                     'zoom']
         self.checkable_packages = self.packages[:-1]
         self.link_dictionary = {
-            "ZOOM_DEB": LinkPacket(link="https://zoom.us/client/latest/zoom_amd64.deb", is_git=False)
-        }
+            "ZOOM_DEB": LinkPacket(
+                link="https://zoom.us/client/latest/zoom_amd64.deb",
+                is_git=False)}
 
     def add(self):
-        self.edit_deb_packages(self.checkable_packages, is_installing=True)
+        pass
+        # self.edit_deb_packages(self.checkable_packages, is_installing=True)
 
-        url = self.link_dictionary["ZOOM_DEB"].link
-        file_path = "/tmp/zoom"
-        print("[INFO] Downloading Zoom installer...")
-        content = requests.get(url).content
+        # url = self.link_dictionary["ZOOM_DEB"].link
+        # file_path = "/tmp/zoom"
+        # print("[INFO] Downloading Zoom installer...")
+        # content = requests.get(url).content
 
-        with open(file_path, 'wb') as fp:
-            fp.write(content)
-        apt.debfile.DebPackage(filename=file_path).install()
+        # with open(file_path, 'wb') as fp:
+        # fp.write(content)
+        # apt.debfile.DebPackage(filename=file_path).install()
 
     def remove(self):
         self.edit_deb_packages(self.packages, is_installing=False)
@@ -506,12 +670,15 @@ class TMuxKeyword(AbstractKeyword):
                          'multi-tasking in the terminal')
 
         self.packages: list[str] = ['tmux']
+        self.Blank = BlankEditorKeyword(self.build_config)
 
     def add(self):
         self.edit_deb_packages(self.packages, is_installing=True)
+        self.Blank.add()
 
     def remove(self):
         self.edit_deb_packages(self.packages, is_installing=False)
+        self.Blank.remove()
 
 
 class KeywordContainer():
@@ -530,6 +697,7 @@ class KeywordContainer():
             C474Keyword(build_config),
             C481Keyword(build_config),
             C484Keyword(build_config),
+            ClangKeyword(build_config),
             GeneralKeyword(build_config),
             LatexKeyword(build_config),
             MediaKeyword(build_config),

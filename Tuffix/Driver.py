@@ -79,5 +79,5 @@ def main(argv, build_config=DEFAULT_BUILD_CONFIG):
 
     # commandline interface usage error
     except UsageError as e:
-        print(f'[ERROR]: {e.message}')
+        print(f'{e.message}')
         print_usage(build_config)

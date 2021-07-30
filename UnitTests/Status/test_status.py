@@ -7,9 +7,20 @@ import unittest
 from Tuffix.Status import *
 from Tuffix.Exceptions import *
 from subprocess import CalledProcessError
+from Tuffix.Configuration import DEBUG_BUILD_CONFIG
+from Tuffix.Commands import InitCommand
 
 
 class StatusTest(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.init = InitCommand(DEBUG_BUILD_CONFIG)
+        cls.init.create_state_directory()
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.init.remove_state_directory()
+
     def test_is_ubuntu(self):
         """
         Is the platform Ubuntu?
@@ -40,7 +51,7 @@ class StatusTest(unittest.TestCase):
         )
 
     def test_cpu_information(self):
-        _re = re.compile(".*\([\d]+ core\(s\)\)")
+        _re = re.compile(".*\\([\\d]+ core\\(s\\)\\)")
         self.assertTrue(
             (output := cpu_information()) and
             isinstance(output, str) and
@@ -83,7 +94,7 @@ class StatusTest(unittest.TestCase):
 
     def test_current_uptime(self):
         _re = re.compile(
-            "[\d]+ day\(s\)\, [\d]+ hour\(s\)\, [\d]+ minute\(s\), [\d]+ second\(s\)")
+            "[\\d]+ day\\(s\\)\\, [\\d]+ hour\\(s\\)\\, [\\d]+ minute\\(s\\), [\\d]+ second\\(s\\)")
         try:
             self.assertTrue(
                 (output := current_uptime()) and
@@ -121,7 +132,7 @@ class StatusTest(unittest.TestCase):
     def test_git_configuration(self):
         try:
             self.assertTrue(
-                (output := list_git_configuration())and
+                (output := list_git_configuration()) and
                 ((argc := len(output)) == 2) and
                 isinstance(output, list) and
                 all([isinstance(_, str) for _ in output])
@@ -143,7 +154,7 @@ class StatusTest(unittest.TestCase):
 
     def test_currently_installed_targets(self):
         try:
-            targets = currently_installed_targets()
+            targets = currently_installed_targets(DEBUG_BUILD_CONFIG)
             self.assertTrue(
                 isinstance(targets, list) and
                 all([isinstance(_, str) for _ in targets])
@@ -155,7 +166,7 @@ class StatusTest(unittest.TestCase):
     def test_status(self):
         try:
             self.assertTrue(
-                (_status := status()) and
+                (_status := status(DEBUG_BUILD_CONFIG)) and
                 isinstance(_status, tuple) and
                 all([isinstance(_, str) for _ in _status])
             )

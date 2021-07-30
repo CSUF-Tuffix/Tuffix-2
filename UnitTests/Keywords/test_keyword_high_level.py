@@ -4,7 +4,6 @@ from Tuffix.Configuration import DEFAULT_BUILD_CONFIG
 from Tuffix.Keywords import KeywordContainer
 from Tuffix.LinkChecker import DEFAULT_LINK_CHECKER
 
-IGNORE_ME = True
 
 class KeywordTest(unittest.TestCase):
     def test_keywords_and_editors(self):

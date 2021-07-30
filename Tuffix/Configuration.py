@@ -112,7 +112,7 @@ def read_state(build_config):
                          document['editors'])
     except (OSError, FileNotFoundError):
         raise EnvironmentError(
-            'state file not found, you must run $ tuffix init')
+            f'state file [{build_config.state_path}] not found, you must run $ tuffix init')
     except json.JSONDecodeError:
         raise EnvironmentError('state file JSON is corrupted')
     except packaging.version.InvalidVersion:
