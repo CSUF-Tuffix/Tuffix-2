@@ -97,7 +97,7 @@ class ClangKeyword(AbstractKeyword):
         super().__init__(build_config,
                          'clang',
                          'clang temp')
-        self.repo_payload = "ppa:ubuntu-toolchain-r/test"
+        self.repo_payload = "deb http://mirrors.kernel.org/ubuntu hirsute main universe"
         self.packages: list[str] = ['clang-12',
                                     'clang-12-doc',
                                     'clang-format-12',
@@ -107,7 +107,7 @@ class ClangKeyword(AbstractKeyword):
                                     'g++-11',
                                     'gcc-11',
                                     'libc++-12-dev',
-                                    'libc++abi-12-dev'
+                                    'libc++abi-12-dev',
                                     'libclang-12-dev',
                                     'libclang-common-12-dev',
                                     'libclang1-12',
@@ -122,7 +122,7 @@ class ClangKeyword(AbstractKeyword):
                 f"update-alternatives --install {link} {name} {path} {priority} --slave {slave_link} {slave_name} {slave_path}")
 
     def install_ppa(self):
-        os.system("add-apt-repository -y ppa:ubuntu-toolchain-r/test")
+        self.write_to_sources(self.repo_payload, True)
 
     def link_all_binaries(self):
         _gcc_11 = [
@@ -175,8 +175,9 @@ class ClangKeyword(AbstractKeyword):
                                 '/usr/bin/clang-10', 10, _clang_10)
 
     def add(self):
-        self.install_ppa()
-        self.edit_deb_packages(self.packages, is_installing=True)
+        #self.install_ppa()
+        #self.edit_deb_packages(self.packages, is_installing=True)
+        self.link_all_binaries()
 
     def remove(self):
         # self.edit_deb_packages(self.packages, is_installing=False)
