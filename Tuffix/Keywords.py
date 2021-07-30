@@ -146,11 +146,11 @@ class ClangKeyword(AbstractKeyword):
         ]
 
         _clang_12 = [
-            ('/usr/bin/clang++'            'clang++'            '/usr/bin/clang++-12'),
-            ('/usr/bin/clang-format'       'clang-format'       '/usr/bin/clang-format-12'),
-            ('/usr/bin/clang-format-diff'  'clang-format-diff'  '/usr/bin/clang-format-diff-12'),
-            ('/usr/bin/clang-tidy'         'clang-tidy'         '/usr/bin/clang-tidy-12'),
-            ('/usr/bin/clang-tidy-diff'    'clang-tidy-diff'    '/usr/bin/clang-tidy-diff-12.py')
+            ('/usr/bin/clang++',            'clang++',            '/usr/bin/clang++-12'),
+            ('/usr/bin/clang-format',       'clang-format',       '/usr/bin/clang-format-12'),
+            ('/usr/bin/clang-format-diff',  'clang-format-diff',  '/usr/bin/clang-format-diff-12'),
+            ('/usr/bin/clang-tidy',         'clang-tidy',         '/usr/bin/clang-tidy-12'),
+            ('/usr/bin/clang-tidy-diff',    'clang-tidy-diff',    '/usr/bin/clang-tidy-diff-12.py')
         ]
 
         _clang_10 = [
@@ -175,14 +175,12 @@ class ClangKeyword(AbstractKeyword):
                                 '/usr/bin/clang-10', 10, _clang_10)
 
     def add(self):
-        #self.install_ppa()
-        #self.edit_deb_packages(self.packages, is_installing=True)
+        self.install_ppa()
+        self.edit_deb_packages(self.packages, is_installing=True)
         self.link_all_binaries()
 
     def remove(self):
-        # self.edit_deb_packages(self.packages, is_installing=False)
-        pass
-
+        self.edit_deb_packages(self.packages, is_installing=False)
 
 class BaseKeyword(AbstractKeyword):
 
