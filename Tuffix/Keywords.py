@@ -222,6 +222,7 @@ class BaseKeyword(AbstractKeyword):
 
         self.Atom = AtomKeyword(self.build_config)
         self.repo_payload = "ppa:ubuntu-toolchain-r/test"
+        self.ClangInstallation = ClangKeyword(self.build_config)
 
         self.link_dictionary = {
             "GOOGLE_TEST_URL": LinkPacket(
@@ -235,10 +236,12 @@ class BaseKeyword(AbstractKeyword):
         self.build_google_test()
         self.edit_deb_packages(self.packages, is_installing=True)
         self.Atom.add()
+        self.ClangInstallation.add()
 
     def remove(self):
         # self.edit_deb_packages(self.packages, is_installing=False)
         self.Atom.remove()
+        self.ClangInstallation.remove()
 
     def build_google_test(self):
         """
