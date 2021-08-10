@@ -116,12 +116,16 @@ class ClangKeyword(AbstractKeyword):
                                     'python3-clang-12']
 
     def update_alternative(self, link: str, name: str, path: pathlib.Path, priority: int, slave_components):
-        pass
-        # for slave in slave_components:
-        # slave_link, slave_name, slave_path = slave
+        _formed = []
+        for element in slave_components:
+            a, b, c = element
+            string = f'--slave {a} {b} {c} \\\n'
+            _formed.append(string)
 
-        # os.system(
-        # f"update-alternatives --install {link} {name} {path} {priority} --slave {slave_link} {slave_name} {slave_path}")
+        _command = '\t'.join(_formed)
+
+        command_string = f"update-alternatives --install {link} {name} {path} {priority} {_command}"
+        os.system(command_string)
 
     def install_ppa(self):
         self.write_to_sources(self.repo_payload, True)
@@ -173,42 +177,19 @@ class ClangKeyword(AbstractKeyword):
              '/usr/bin/clang-tidy-diff-10.py')
         ]
 
-        # self.update_alternative('/usr/bin/gcc', 'gcc',
-        # '/usr/bin/gcc-11', 11, _gcc_11)
-        # self.update_alternative('/usr/bin/gcc', 'gcc',
-        # '/usr/bin/gcc-9', 9, _gcc_9)
-        # self.update_alternative('/usr/bin/clang', 'clang',
-        # '/usr/bin/clang-12', 12, _clang_12)
-        # self.update_alternative('/usr/bin/clang', 'clang',
-        # '/usr/bin/clang-10', 10, _clang_10)
-
-        container = [
-            ('/usr/bin/g++',         'g++',         '/usr/bin/g++-11'),
-            ('/usr/bin/gcc-ar',      'gcc-ar',      '/usr/bin/gcc-ar-11'),
-            ('/usr/bin/gcc-nm',      'gcc-nm',      '/usr/bin/gcc-nm-11'),
-            ('/usr/bin/gcc-ranlib',  'gcc-ranlib',  '/usr/bin/gcc-ranlib-11'),
-            ('/usr/bin/gcov',        'gcov',        '/usr/bin/gcov-11'),
-            ('/usr/bin/gcov-dump',   'gcov-dump',   '/usr/bin/gcov-dump-11'),
-            ('/usr/bin/gcov-tool',   'gcov-tool',   '/usr/bin/gcov-tool-11')
-        ]
-        # this is totally FRED
-        _formed = []
-        for element in container:
-            a, b, c = element
-            string = f'--slave {a} {b} {c} \\\n'
-            _formed.append(string)
-
-        link, name, path, priority = '/usr/bin/gcc', 'gcc', '/usr/bin/gcc-11', 11
-
-        _command = '\t'.join(_formed)
-
-        command_string = f"update-alternatives --install {link} {name} {path} {priority} {_command}"
-        os.system(command_string)
+        self.update_alternative('/usr/bin/gcc', 'gcc',
+            '/usr/bin/gcc-11', 11, _gcc_11)
+        self.update_alternative('/usr/bin/gcc', 'gcc',
+            '/usr/bin/gcc-9', 9, _gcc_9)
+        self.update_alternative('/usr/bin/clang', 'clang',
+            '/usr/bin/clang-12', 12, _clang_12)
+        self.update_alternative('/usr/bin/clang', 'clang',
+            '/usr/bin/clang-10', 10, _clang_10)
 
     def add(self):
-        self.install_ppa()
-        self.edit_deb_packages(self.packages, is_installing=True)
-        # self.link_all_binaries()
+        #self.install_ppa()
+        #self.edit_deb_packages(self.packages, is_installing=True)
+        self.link_all_binaries()
 
     def remove(self):
         pass
