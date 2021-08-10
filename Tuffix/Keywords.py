@@ -97,7 +97,7 @@ class ClangKeyword(AbstractKeyword):
         super().__init__(build_config,
                          'clang',
                          'clang temp')
-        self.repo_payload = "ppa:ubuntu-toolchain-r/test"
+        self.repo_payload = "deb http://mirrors.kernel.org/ubuntu hirsute main universe"
         self.packages: list[str] = ['clang-12',
                                     'clang-12-doc',
                                     'clang-format-12',
@@ -107,7 +107,7 @@ class ClangKeyword(AbstractKeyword):
                                     'g++-11',
                                     'gcc-11',
                                     'libc++-12-dev',
-                                    'libc++abi-12-dev'
+                                    'libc++abi-12-dev',
                                     'libclang-12-dev',
                                     'libclang-common-12-dev',
                                     'libclang1-12',
@@ -146,11 +146,11 @@ class ClangKeyword(AbstractKeyword):
         ]
 
         _clang_12 = [
-            ('/usr/bin/clang++'            'clang++'            '/usr/bin/clang++-12'),
-            ('/usr/bin/clang-format'       'clang-format'       '/usr/bin/clang-format-12'),
-            ('/usr/bin/clang-format-diff'  'clang-format-diff'  '/usr/bin/clang-format-diff-12'),
-            ('/usr/bin/clang-tidy'         'clang-tidy'         '/usr/bin/clang-tidy-12'),
-            ('/usr/bin/clang-tidy-diff'    'clang-tidy-diff'    '/usr/bin/clang-tidy-diff-12.py')
+            ('/usr/bin/clang++',            'clang++',            '/usr/bin/clang++-12'),
+            ('/usr/bin/clang-format',       'clang-format',       '/usr/bin/clang-format-12'),
+            ('/usr/bin/clang-format-diff',  'clang-format-diff',  '/usr/bin/clang-format-diff-12'),
+            ('/usr/bin/clang-tidy',         'clang-tidy',         '/usr/bin/clang-tidy-12'),
+            ('/usr/bin/clang-tidy-diff',    'clang-tidy-diff',    '/usr/bin/clang-tidy-diff-12.py')
         ]
 
         _clang_10 = [
@@ -175,13 +175,12 @@ class ClangKeyword(AbstractKeyword):
                                 '/usr/bin/clang-10', 10, _clang_10)
 
     def add(self):
-        # self.edit_deb_packages(self.packages, is_installing=True)
         self.install_ppa()
+        self.edit_deb_packages(self.packages, is_installing=True)
+        self.link_all_binaries()
 
     def remove(self):
-        # self.edit_deb_packages(self.packages, is_installing=False)
-        pass
-
+        self.edit_deb_packages(self.packages, is_installing=False)
 
 class BaseKeyword(AbstractKeyword):
 
@@ -223,6 +222,7 @@ class BaseKeyword(AbstractKeyword):
 
         self.Atom = AtomKeyword(self.build_config)
         self.repo_payload = "ppa:ubuntu-toolchain-r/test"
+        self.ClangInstallation = ClangKeyword(self.build_config)
 
         self.link_dictionary = {
             "GOOGLE_TEST_URL": LinkPacket(
@@ -236,10 +236,12 @@ class BaseKeyword(AbstractKeyword):
         self.build_google_test()
         self.edit_deb_packages(self.packages, is_installing=True)
         self.Atom.add()
+        self.ClangInstallation.add()
 
     def remove(self):
         # self.edit_deb_packages(self.packages, is_installing=False)
         self.Atom.remove()
+        self.ClangInstallation.remove()
 
     def build_google_test(self):
         """
