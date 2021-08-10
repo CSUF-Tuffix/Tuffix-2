@@ -146,11 +146,16 @@ class ClangKeyword(AbstractKeyword):
         ]
 
         _clang_12 = [
-            ('/usr/bin/clang++',            'clang++',            '/usr/bin/clang++-12'),
-            ('/usr/bin/clang-format',       'clang-format',       '/usr/bin/clang-format-12'),
-            ('/usr/bin/clang-format-diff',  'clang-format-diff',  '/usr/bin/clang-format-diff-12'),
-            ('/usr/bin/clang-tidy',         'clang-tidy',         '/usr/bin/clang-tidy-12'),
-            ('/usr/bin/clang-tidy-diff',    'clang-tidy-diff',    '/usr/bin/clang-tidy-diff-12.py')
+            ('/usr/bin/clang++',            'clang++',
+             '/usr/bin/clang++-12'),
+            ('/usr/bin/clang-format',       'clang-format',
+             '/usr/bin/clang-format-12'),
+            ('/usr/bin/clang-format-diff',  'clang-format-diff',
+             '/usr/bin/clang-format-diff-12'),
+            ('/usr/bin/clang-tidy',         'clang-tidy',
+             '/usr/bin/clang-tidy-12'),
+            ('/usr/bin/clang-tidy-diff',    'clang-tidy-diff',
+             '/usr/bin/clang-tidy-diff-12.py')
         ]
 
         _clang_10 = [
@@ -181,6 +186,7 @@ class ClangKeyword(AbstractKeyword):
 
     def remove(self):
         self.edit_deb_packages(self.packages, is_installing=False)
+
 
 class BaseKeyword(AbstractKeyword):
 
@@ -236,12 +242,12 @@ class BaseKeyword(AbstractKeyword):
         self.build_google_test()
         self.edit_deb_packages(self.packages, is_installing=True)
         self.Atom.add()
-        self.ClangInstallation.add()
+        # self.ClangInstallation.add()
 
     def remove(self):
         # self.edit_deb_packages(self.packages, is_installing=False)
         self.Atom.remove()
-        self.ClangInstallation.remove()
+        # self.ClangInstallation.remove()
 
     def build_google_test(self):
         """
