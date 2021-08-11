@@ -178,22 +178,21 @@ class ClangKeyword(AbstractKeyword):
         ]
 
         self.update_alternative('/usr/bin/gcc', 'gcc',
-            '/usr/bin/gcc-11', 11, _gcc_11)
+                                '/usr/bin/gcc-11', 11, _gcc_11)
         self.update_alternative('/usr/bin/gcc', 'gcc',
-            '/usr/bin/gcc-9', 9, _gcc_9)
+                                '/usr/bin/gcc-9', 9, _gcc_9)
         self.update_alternative('/usr/bin/clang', 'clang',
-            '/usr/bin/clang-12', 12, _clang_12)
+                                '/usr/bin/clang-12', 12, _clang_12)
         self.update_alternative('/usr/bin/clang', 'clang',
-            '/usr/bin/clang-10', 10, _clang_10)
+                                '/usr/bin/clang-10', 10, _clang_10)
 
     def add(self):
-        #self.install_ppa()
-        #self.edit_deb_packages(self.packages, is_installing=True)
+        self.install_ppa()
+        self.edit_deb_packages(self.packages, is_installing=True)
         self.link_all_binaries()
 
     def remove(self):
-        pass
-        # self.edit_deb_packages(self.packages, is_installing=False)
+        self.edit_deb_packages(self.packages, is_installing=False)
 
 
 class BaseKeyword(AbstractKeyword):
