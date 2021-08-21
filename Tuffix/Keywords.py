@@ -187,8 +187,8 @@ class ClangKeyword(AbstractKeyword):
                                 '/usr/bin/clang-10', 10, _clang_10)
 
     def add(self):
-        self.install_ppa()
-        self.edit_deb_packages(self.packages, is_installing=True)
+        # self.install_ppa()
+        # self.edit_deb_packages(self.packages, is_installing=True)
         self.link_all_binaries()
 
     def remove(self):
