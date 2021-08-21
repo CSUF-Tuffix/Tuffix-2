@@ -116,6 +116,7 @@ class ClangKeyword(AbstractKeyword):
                                     'python3-clang-12']
 
     def update_alternative(self, link: str, name: str, path: pathlib.Path, priority: int, slave_components):
+        # NOTE: not the prettiest code I have ever written but hey, it works
         _formed = []
         for element in slave_components:
             a, b, c = element
@@ -187,8 +188,8 @@ class ClangKeyword(AbstractKeyword):
                                 '/usr/bin/clang-10', 10, _clang_10)
 
     def add(self):
-        # self.install_ppa()
-        # self.edit_deb_packages(self.packages, is_installing=True)
+        self.install_ppa()
+        self.edit_deb_packages(self.packages, is_installing=True)
         self.link_all_binaries()
 
     def remove(self):
@@ -248,10 +249,10 @@ class BaseKeyword(AbstractKeyword):
                 is_git=True)}
 
     def add(self):
-        self.build_google_test()
         self.edit_deb_packages(self.packages, is_installing=True)
         self.Atom.add()
         self.ClangInstallation.add()
+        self.build_google_test()
 
     def remove(self):
         # self.edit_deb_packages(self.packages, is_installing=False)
@@ -714,7 +715,6 @@ class KeywordContainer():
             C474Keyword(build_config),
             C481Keyword(build_config),
             C484Keyword(build_config),
-            ClangKeyword(build_config),
             GeneralKeyword(build_config),
             LatexKeyword(build_config),
             MediaKeyword(build_config),
