@@ -198,37 +198,6 @@ class EmacsKeyword(EditorBaseKeyword):
         self.rewrite_state(self.packages, False)
 
 
-class EclipseKeyword(EditorBaseKeyword):
-    """
-    This uses `snap` to do the installation
-    """
-
-    def __init__(self, build_config: BuildConfig):
-        super().__init__(build_config, 'eclipse', 'a Java IDE')
-        self.packages: list[str] = ['openjdk-11-jdk']
-        self.checkable_packages: list[str] = self.packages
-
-        if not((snap := shutil.which("snap"))):
-            raise EnvironmentError(f'could not find snap')
-
-        self.snap = snap
-
-    def add(self):
-        """
-        Install the Eclipse launcher
-        """
-        os.system(f'sudo {self.snap} install --classic eclipse')
-        self.rewrite_state([self.name], True)
-
-    def remove(self):
-        """
-        Install the Eclipse launcher
-        """
-
-        os.system(f'sudo {self.snap} remove eclipse')
-        self.rewrite_state([self.name], False)
-
-
 class GeanyKeyword(EditorBaseKeyword):
 
     def __init__(self, build_config: BuildConfig):
@@ -348,7 +317,6 @@ class EditorKeywordContainer():
         self.container: list[EditorBaseKeyword] = [
             AtomKeyword(build_config),
             BlankEditorKeyword(build_config),
-            EclipseKeyword(build_config),
             EmacsKeyword(build_config),
             GeanyKeyword(build_config),
             NetbeansKeyword(build_config),

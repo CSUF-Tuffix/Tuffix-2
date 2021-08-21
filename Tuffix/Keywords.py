@@ -7,7 +7,7 @@ from Tuffix.AbstractKeyword import AbstractKeyword
 # this is because we want to have access to this base class across two
 # source files that import each other
 
-from Tuffix.Editors import VimKeyword, EmacsKeyword, GeanyKeyword, NetbeansKeyword, EditorKeywordContainer, AtomKeyword, EclipseKeyword, BlankEditorKeyword
+from Tuffix.Editors import VimKeyword, EmacsKeyword, GeanyKeyword, NetbeansKeyword, EditorKeywordContainer, AtomKeyword, BlankEditorKeyword
 
 from Tuffix.Configuration import *
 from Tuffix.SudoRun import SudoRun
@@ -489,15 +489,15 @@ class C481Keyword(AbstractKeyword):
                                     'swi-prolog-nox',
                                     'swi-prolog-x']
 
-        self.Eclipse = EclipseKeyword(self.build_config)
+        # self.Eclipse = EclipseKeyword(self.build_config)
 
     def add(self):
         self.edit_deb_packages(self.packages, is_installing=True)
-        self.Eclipse.add()
+        # self.Eclipse.add()
 
     def remove(self):
         self.edit_deb_packages(packages, is_installing=False)
-        self.Eclipse.remove()
+        # self.Eclipse.remove()
 
 
 class C484Keyword(AbstractKeyword):
