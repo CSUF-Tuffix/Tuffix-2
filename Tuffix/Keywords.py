@@ -192,6 +192,8 @@ class ClangKeyword(AbstractKeyword):
         self.link_all_binaries()
 
     def remove(self):
+        # NOTE: please remove source
+        # this issue should be easily fixed when we migrate to a package manager class that can help officiate the installation of packages (code exists)
         self.edit_deb_packages(self.packages, is_installing=False)
 
 
@@ -249,12 +251,12 @@ class BaseKeyword(AbstractKeyword):
         self.build_google_test()
         self.edit_deb_packages(self.packages, is_installing=True)
         self.Atom.add()
-        # self.ClangInstallation.add()
+        self.ClangInstallation.add()
 
     def remove(self):
         # self.edit_deb_packages(self.packages, is_installing=False)
         self.Atom.remove()
-        # self.ClangInstallation.remove()
+        self.ClangInstallation.remove()
 
     def build_google_test(self):
         """
