@@ -21,32 +21,25 @@ class LinkCheckerTest(unittest.TestCase):
         """
 
         active_links: list[LinkPacket] = [
+            LinkPacket(link="https://google.com", is_git=False),
+            LinkPacket(link="https://github.com", is_git=False),
+            LinkPacket(link="http://www.fullerton.edu/", is_git=False),
             LinkPacket(
-                link="https://google.com",
-                is_git=False),
+                link="https://github.com/JaredDyreson/thin-mint.git", is_git=True
+            ),
             LinkPacket(
-                link="https://github.com",
-                is_git=False),
+                link="https://github.com/JaredDyreson/Tuffix-Lib.git", is_git=True
+            ),
             LinkPacket(
-                link="http://www.fullerton.edu/",
-                is_git=False),
-            LinkPacket(
-                link="https://github.com/JaredDyreson/thin-mint.git",
-                is_git=True),
-            LinkPacket(
-                link="https://github.com/JaredDyreson/Tuffix-Lib.git",
-                is_git=True),
-            LinkPacket(
-                link="https://github.com/JaredDyreson/StarSort.git",
-                is_git=True)]
+                link="https://github.com/JaredDyreson/StarSort.git", is_git=True
+            ),
+        ]
 
         for link in active_links:
             try:
                 status, code = self.Linker.link_up(link)
                 self.assertTrue(
-                    isinstance(status, bool) and
-                    (status) and
-                    isinstance(code, int)
+                    isinstance(status, bool) and (status) and isinstance(code, int)
                 )
             except ValueError:
                 self.assertTrue(False)
@@ -58,31 +51,28 @@ class LinkCheckerTest(unittest.TestCase):
 
         active_links: list[LinkPacket] = [
             LinkPacket(
-                link="https://thisshouldnotbeavalidurlbecauseisaidso.com",
-                is_git=False),
+                link="https://thisshouldnotbeavalidurlbecauseisaidso.com", is_git=False
+            ),
+            LinkPacket(link="https://tacobellisthebestever.com", is_git=False),
+            LinkPacket(link="https://thislinkshouldbedead.xyz", is_git=False),
             LinkPacket(
-                link="https://tacobellisthebestever.com",
-                is_git=False),
+                link="https://github.com/JaredDyreson/tacobell.git", is_git=True
+            ),
             LinkPacket(
-                link="https://thislinkshouldbedead.xyz",
-                is_git=False),
+                link="https://github.com/JaredDyreson/bacotellmenu.git", is_git=True
+            ),
             LinkPacket(
-                link="https://github.com/JaredDyreson/tacobell.git",
-                is_git=True),
-            LinkPacket(
-                link="https://github.com/JaredDyreson/bacotellmenu.git",
-                is_git=True),
-            LinkPacket(
-                link="https://github.com/JaredDyreson/JoJoRabbit.git",
-                is_git=True)]
+                link="https://github.com/JaredDyreson/JoJoRabbit.git", is_git=True
+            ),
+        ]
 
         for link in active_links:
             try:
                 status, code = self.Linker.link_up(link)
                 self.assertTrue(
-                    isinstance(status, bool) and
-                    (status == False) and
-                    isinstance(code, int)
+                    isinstance(status, bool)
+                    and (status == False)
+                    and isinstance(code, int)
                 )
             except ValueError:
                 self.assertTrue(False)
@@ -96,8 +86,8 @@ class LinkCheckerTest(unittest.TestCase):
         Atom = AtomKeyword(DEFAULT_BUILD_CONFIG)
         Base = BaseKeyword(DEFAULT_BUILD_CONFIG)
 
-        self.assertTrue(hasattr(Atom, 'link_dictionary'))
-        self.assertTrue(hasattr(Base, 'link_dictionary'))
+        self.assertTrue(hasattr(Atom, "link_dictionary"))
+        self.assertTrue(hasattr(Base, "link_dictionary"))
 
         try:
             self.Linker.check_links(Atom.link_dictionary)

@@ -34,9 +34,8 @@ def ensure_ubuntu():
     /etc/debian_release -> /etc/debian_version
     """
 
-    if not(os.path.exists("/etc/debian_version")):
-        raise UsageError(
-            'this is not an Debian derivative, please try again')
+    if not (os.path.exists("/etc/debian_version")):
+        raise UsageError("this is not an Debian derivative, please try again")
 
 
 def ensure_root_access():
@@ -44,9 +43,10 @@ def ensure_root_access():
     Raises UsageError if we do not have root access.
     """
 
-    if(os.getuid() != 0):
+    if os.getuid() != 0:
         raise UsageError(
-            'you do not have root access; run this command like $ sudo tuffix ...')
+            "you do not have root access; run this command like $ sudo tuffix ..."
+        )
 
 
 def in_VM() -> bool:
@@ -55,7 +55,7 @@ def in_VM() -> bool:
     SOURCE: https://www.kite.com/python/answers/how-to-determine-if-code-is-being-run-inside-a-virtual-machine-in-python
     """
 
-    return hasattr(sys, 'real_prefix')
+    return hasattr(sys, "real_prefix")
 
 
 def cpu_information() -> str:
@@ -66,17 +66,17 @@ def cpu_information() -> str:
     path = pathlib.Path("/proc/cpuinfo")
     regexes: list[re.Pattern] = [
         re.compile("cpu cores\\s*\\:\\s*(?P<cores>[\\d]+)"),
-        re.compile("model name\\s*\\:\\s*(?P<cpuname>.*)")
+        re.compile("model name\\s*\\:\\s*(?P<cpuname>.*)"),
     ]
 
     with open(path, "r") as fp:
-        contents = ''.join(fp.readlines())
+        contents = "".join(fp.readlines())
 
     cores, name = [
-        match.group(1) for regex in regexes if(
-            (match := regex.search(contents)))]
+        match.group(1) for regex in regexes if ((match := regex.search(contents)))
+    ]
 
-    return f'{name} ({cores} core(s))'
+    return f"{name} ({cores} core(s))"
 
 
 def host() -> str:
@@ -94,16 +94,16 @@ def current_operating_system() -> str:
 
     path = pathlib.Path("/etc/os-release")
 
-    if not(path.is_file()):
-        raise EnvironmentError(f'Could not find {path}; is this Unix?')
+    if not (path.is_file()):
+        raise EnvironmentError(f"Could not find {path}; is this Unix?")
 
-    _re = re.compile("NAME\\=\"(?P<release>[a-zA-Z].*)\"")
+    _re = re.compile('NAME\\="(?P<release>[a-zA-Z].*)"')
 
     with open(path, "r") as fp:
-        contents = ''.join(fp.readlines())
+        contents = "".join(fp.readlines())
 
-    if not((match := _re.search(contents))):
-        raise ParsingError(f'Failed to parse {path}')
+    if not ((match := _re.search(contents))):
+        raise ParsingError(f"Failed to parse {path}")
 
     return match.group("release")
 
@@ -133,16 +133,19 @@ def current_model() -> str:
     product_family = "/sys/devices/virtual/dmi/id/product_family"
     vendor_name = "/sys/devices/virtual/dmi/id/sys_vendor"
 
-    if not(
-            os.path.exists(product_name) or
-            os.path.exists(product_family) or
-            os.path.exists(vendor_name)):
-        raise EnvironmentError(f'could not find system information files')
+    if not (
+        os.path.exists(product_name)
+        or os.path.exists(product_family)
+        or os.path.exists(vendor_name)
+    ):
+        raise EnvironmentError(f"could not find system information files")
 
-    with open(product_name, "r") as pn, open(product_family, "r") as pf, open(vendor_name, "r") as vn:
-        name = pn.readline().strip('\n')
-        family = pf.readline().strip('\n')
-        vendor = vn.readline().strip('\n')
+    with open(product_name, "r") as pn, open(product_family, "r") as pf, open(
+        vendor_name, "r"
+    ) as vn:
+        name = pn.readline().strip("\n")
+        family = pf.readline().strip("\n")
+        vendor = vn.readline().strip("\n")
 
     vendor = "" if vendor in name else vendor
     family = "" if name not in family else family
@@ -156,10 +159,10 @@ def current_uptime() -> str:
     """
 
     path = "/proc/uptime"
-    if not(os.path.exists(path)):
-        raise EnvironmentError(f'could not open {path}, is this unix?')
+    if not (os.path.exists(path)):
+        raise EnvironmentError(f"could not open {path}, is this unix?")
 
-    with open(path, 'r') as f:
+    with open(path, "r") as f:
         total_seconds = float(f.readline().split()[0])
 
     MINUTE = 60
@@ -179,10 +182,12 @@ def memory_information() -> int:
     Goal: get total amount of ram on system
     """
 
-    def formatting(quantity, power): return quantity / (1000**power)
+    def formatting(quantity, power):
+        return quantity / (1000 ** power)
+
     path = "/proc/meminfo"
-    if not(os.path.exists(path)):
-        raise EnvironmentError(f'could not open {path}, is this unix?')
+    if not (os.path.exists(path)):
+        raise EnvironmentError(f"could not open {path}, is this unix?")
 
     with open(path, "r") as fp:
         total = int(fp.readline().split()[1])
@@ -197,32 +202,30 @@ def graphics_information() -> tuple:
     Source: https://stackoverflow.com/questions/13867696/python-in-linux-obtain-vga-specifications-via-lspci-or-hal
     """
 
-    regexes: list[re.Pattern] = [
-        re.compile(
-            "VGA.*\\:\\s*(?P<model>(?:(?!\\s\\().)*)")
-    ]
+    regexes: list[re.Pattern] = [re.compile("VGA.*\\:\\s*(?P<model>(?:(?!\\s\\().)*)")]
 
-    if not((bash := shutil.which("bash")) and
-           (lspci := shutil.which("lspci"))):
-        raise EnvironmentError(
-            f'could not find bash ({bash}) or lspci ({lspci})')
+    if not ((bash := shutil.which("bash")) and (lspci := shutil.which("lspci"))):
+        raise EnvironmentError(f"could not find bash ({bash}) or lspci ({lspci})")
 
-    output = '\n'.join(subprocess.check_output(
-        lspci,
-        shell=True,
-        executable=bash,
-        encoding="utf-8",
-        universal_newlines="\n").splitlines())
+    output = "\n".join(
+        subprocess.check_output(
+            lspci,
+            shell=True,
+            executable=bash,
+            encoding="utf-8",
+            universal_newlines="\n",
+        ).splitlines()
+    )
 
-    primary = [
-        match.group(1) for regex in regexes if (
-            (match := regex.search(output)))]
+    primary = [match.group(1) for regex in regexes if ((match := regex.search(output)))]
     # this is currently here because sometimes users might not have 3D
     # accelerated graphics
     secondary = None
 
-    return (termcolor.colored(*primary, 'green'),
-            termcolor.colored("None" if not secondary else secondary, 'red'))
+    return (
+        termcolor.colored(*primary, "green"),
+        termcolor.colored("None" if not secondary else secondary, "red"),
+    )
 
 
 def list_git_configuration() -> list:
@@ -231,20 +234,24 @@ def list_git_configuration() -> list:
     """
     keeper = SudoRun()
 
-    if not((git := shutil.which("git"))):
-        raise EnvironmentError(f'could not find git path')
+    if not ((git := shutil.which("git"))):
+        raise EnvironmentError(f"could not find git path")
 
     regexes: list[re.Pattern] = [
         re.compile("user\\.email\\=(?P<email>.*)"),
-        re.compile("user\\.name\\=(?P<name>.*)")
+        re.compile("user\\.name\\=(?P<name>.*)"),
     ]
 
-    output = '\n'.join(keeper.run(
-        command=f"{git} --no-pager config --list",
-        desired_user=keeper.whoami))
+    output = "\n".join(
+        keeper.run(
+            command=f"{git} --no-pager config --list", desired_user=keeper.whoami
+        )
+    )
 
-    return [match.group(1) if ((match := regex.search(output)))
-            else "None" for regex in regexes]
+    return [
+        match.group(1) if ((match := regex.search(output))) else "None"
+        for regex in regexes
+    ]
 
 
 def has_internet() -> bool:
@@ -253,22 +260,21 @@ def has_internet() -> bool:
     setting as bool for unit tests
     """
 
-    PARENT_DIR = '/sys/class/net'
-    LOOPBACK_ADAPTER = 'lo'
-    ADAPTER_PATH = f'{PARENT_DIR}/{LOOPBACK_ADAPTER}'
+    PARENT_DIR = "/sys/class/net"
+    LOOPBACK_ADAPTER = "lo"
+    ADAPTER_PATH = f"{PARENT_DIR}/{LOOPBACK_ADAPTER}"
 
-    if not(os.path.isdir(PARENT_DIR)):
-        raise EnvironmentError(
-            f'no {PARENT_DIR}; this does not seem to be Linux')
+    if not (os.path.isdir(PARENT_DIR)):
+        raise EnvironmentError(f"no {PARENT_DIR}; this does not seem to be Linux")
 
-    carrier_path = f'{ADAPTER_PATH}/carrier'
+    carrier_path = f"{ADAPTER_PATH}/carrier"
 
-    if not(os.path.exists(carrier_path)):
+    if not (os.path.exists(carrier_path)):
         return False
 
-    with open(carrier_path, 'r') as fp:
+    with open(carrier_path, "r") as fp:
         state = int(fp.read())
-        if(state != 0):
+        if state != 0:
             return True
     return False
 
@@ -278,16 +284,16 @@ def currently_installed_targets(build_config: BuildConfig) -> list:
     GOAL: list all installed codewords in a formatted list
     """
 
-    return [
-        f'{"- ": >4} {element}' for element in read_state(build_config).installed]
+    return [f'{"- ": >4} {element}' for element in read_state(build_config).installed]
+
 
 def currently_installed_editors(build_config: BuildConfig) -> list:
     """
     GOAL: list all installed editors in a formatted list
     """
 
-    return [
-        f'{"- ": >4} {element}' for element in read_state(build_config).editors]
+    return [f'{"- ": >4} {element}' for element in read_state(build_config).editors]
+
 
 def status(build_config: BuildConfig) -> tuple:
     """
@@ -298,36 +304,38 @@ def status(build_config: BuildConfig) -> tuple:
     primary, secondary = graphics_information()
     installed_targets = currently_installed_targets(build_config)
     installed_editors = currently_installed_editors(build_config)
-    installed_targets = '\n'.join(installed_targets).strip() if (
-        installed_targets) else "None"
+    installed_targets = (
+        "\n".join(installed_targets).strip() if (installed_targets) else "None"
+    )
 
-    installed_editors = '\n'.join(installed_editors).strip() if (
-        installed_editors) else "None"
+    installed_editors = (
+        "\n".join(installed_editors).strip() if (installed_editors) else "None"
+    )
 
     return (
-        f'{host()}',
-        '-----',
-        f'OS: {current_operating_system()}',
-        f'Release: {lsb_parser().lsb_release_type()}',
-        f'Model: {current_model()}',
-        f'Kernel: {current_kernel_revision()}',
-        f'Uptime: {current_uptime()}',
-        f'Shell: {system_shell()}',
-        f'Terminal: {system_terminal_emulator()}',
-        f'CPU: {cpu_information()}',
-        'GPU:',
-        f'  - Primary: {primary}',
-        f'  - Secondary: {secondary}',
-        f'Memory: {memory_information()} GB',
-        f'Current Time: {current_time()}',
-        'Git Configuration:',
-        f'  - Email: {git_email}',
-        f'  - Username: {git_username}',
-        'Installed keywords:',
-        f'{installed_targets}',
-        'Installed editors:',
-        f'{installed_editors}',
-        f'Connected to Internet: {"Yes" if has_internet() else "No"}'
+        f"{host()}",
+        "-----",
+        f"OS: {current_operating_system()}",
+        f"Release: {lsb_parser().lsb_release_type()}",
+        f"Model: {current_model()}",
+        f"Kernel: {current_kernel_revision()}",
+        f"Uptime: {current_uptime()}",
+        f"Shell: {system_shell()}",
+        f"Terminal: {system_terminal_emulator()}",
+        f"CPU: {cpu_information()}",
+        "GPU:",
+        f"  - Primary: {primary}",
+        f"  - Secondary: {secondary}",
+        f"Memory: {memory_information()} GB",
+        f"Current Time: {current_time()}",
+        "Git Configuration:",
+        f"  - Email: {git_email}",
+        f"  - Username: {git_username}",
+        "Installed keywords:",
+        f"{installed_targets}",
+        "Installed editors:",
+        f"{installed_editors}",
+        f'Connected to Internet: {"Yes" if has_internet() else "No"}',
     )
 
 
@@ -337,37 +345,39 @@ def system_shell() -> str:
     """
 
     passwd_file = "/etc/passwd"
-    if not(os.path.exists(passwd_file)):
-        raise EnvironmentError(f'cannot find {passwd_file}, is this unix?')
+    if not (os.path.exists(passwd_file)):
+        raise EnvironmentError(f"cannot find {passwd_file}, is this unix?")
 
     current_user = os.getlogin()
     _r_shell = re.compile(
-        f"^{current_user}.*\\:\\/home\\/{current_user}\\:(?P<path>.*)")
+        f"^{current_user}.*\\:\\/home\\/{current_user}\\:(?P<path>.*)"
+    )
     shell_name, shell_path, shell_version = None, None, None
 
     with open(passwd_file, "r") as fp:
         contents = fp.readlines()
     for line in contents:
         shell_match = _r_shell.match(line)
-        if(shell_match):
+        if shell_match:
             shell_path = shell_match.group("path")
-            shell_version, _ = subprocess.Popen([shell_path, '--version'],
-                                                stdout=subprocess.PIPE,
-                                                stderr=subprocess.STDOUT,
-                                                encoding="utf-8").communicate()
+            shell_version, _ = subprocess.Popen(
+                [shell_path, "--version"],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                encoding="utf-8",
+            ).communicate()
             shell_name = os.path.basename(shell_path)
 
-    if not(shell_name or shell_path or shell_version):
-        raise EnvironmentError(f'could not parse {passwd_file}')
+    if not (shell_name or shell_path or shell_version):
+        raise EnvironmentError(f"could not parse {passwd_file}")
 
     _version_re = re.compile("(version)?\\s*(?P<version>[\\w|\\W]+)")
     _version_match = _version_re.match(shell_version)
 
-    if(_version_match):
+    if _version_match:
         print("this is what I am returning")
         return f'{shell_name} {_version_match.group("version")}'
-    raise ValueError(
-        f'error in parsing version, currently have {shell_version}')
+    raise ValueError(f"error in parsing version, currently have {shell_version}")
 
 
 def system_terminal_emulator() -> str:
@@ -390,6 +400,6 @@ def system_terminal_emulator() -> str:
 
     output = keeper.run(command=_command, desired_user=keeper.whoami)
 
-    if not(output):
-        raise ValueError('error when parsing ps output')
-    return ' '.join(output)
+    if not (output):
+        raise ValueError("error when parsing ps output")
+    return " ".join(output)

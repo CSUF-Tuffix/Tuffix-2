@@ -14,9 +14,7 @@ class LSBTest(unittest.TestCase):
             self.assertTrue(False)
 
     def test_load(self):
-        self.assertTrue(
-            isinstance(self._lsb_parser.file_map, dict)
-        )
+        self.assertTrue(isinstance(self._lsb_parser.file_map, dict))
 
     def test_lsb_codename(self):
         try:
@@ -24,27 +22,19 @@ class LSBTest(unittest.TestCase):
         except KeyError:
             self.assertTrue(False)
 
-        self.assertTrue(
-            isinstance(_version, str)
-        )
+        self.assertTrue(isinstance(_version, str))
 
     def test_lsb_id(self):
         _id = self._lsb_parser.lsb_id()
 
-        self.assertTrue(
-            isinstance(_id, str)
-        )
+        self.assertTrue(isinstance(_id, str))
 
     def test_lsb_type(self):
         _type = self._lsb_parser.lsb_release_type()
 
-        self.assertTrue(
-            isinstance(_type, str)
-        )
+        self.assertTrue(isinstance(_type, str))
 
     def test_lsb_description(self):
         _description = self._lsb_parser.lsb_distrib_description()
 
-        self.assertTrue(
-            isinstance(_description, str)
-        )
+        self.assertTrue(isinstance(_description, str))

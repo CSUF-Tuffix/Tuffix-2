@@ -33,4 +33,3 @@ class TestClangKeywordTest(TestKeywordGeneric):
         """
 
         self.generic_check_remove()
-

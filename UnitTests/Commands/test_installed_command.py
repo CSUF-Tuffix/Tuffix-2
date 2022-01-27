@@ -27,9 +27,7 @@ class InstalledCommandTest(unittest.TestCase):
 
         with Capturing() as output:
             self.installed_command.execute([])
-        self.assertTrue(
-            output == ['[INFO] No keywords are installed']
-        )
+        self.assertTrue(output == ["[INFO] No keywords are installed"])
 
     def test_installed_target_present(self):
         """
@@ -44,9 +42,7 @@ class InstalledCommandTest(unittest.TestCase):
         [INFO] Tuffix installed keywords (1):
         tmux
         """
-        self.assertTrue(
-            ['\n'.join(output)] == [textwrap.dedent(message).strip()]
-        )
+        self.assertTrue(["\n".join(output)] == [textwrap.dedent(message).strip()])
 
     def test_installed_target_present_removed(self):
         """

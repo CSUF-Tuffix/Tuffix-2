@@ -21,14 +21,13 @@ class BuildConfig:
     json_state_path: pathlib.Path holding the path to custom keyword files
     """
 
-    def __init__(self,
-                 version,
-                 state_path,
-                 json_state_path):
-        if not (isinstance(version, packaging.version.Version) and
-                isinstance(state_path, pathlib.Path) and
-                state_path.suffix == '.json' and
-                isinstance(json_state_path, pathlib.Path)):
+    def __init__(self, version, state_path, json_state_path):
+        if not (
+            isinstance(version, packaging.version.Version)
+            and isinstance(state_path, pathlib.Path)
+            and state_path.suffix == ".json"
+            and isinstance(json_state_path, pathlib.Path)
+        ):
             raise ValueError
         self.version = version
         self.state_path = state_path
@@ -36,17 +35,16 @@ class BuildConfig:
 
     def __eq__(self, other):
         return (
-            self.version == other.version and
-            self.state_path == other.state_path and
-            self.json_state_path == other.json_state_path
+            self.version == other.version
+            and self.state_path == other.state_path
+            and self.json_state_path == other.json_state_path
         )
 
 
 # Singleton BuildConfig object using the constants declared at the top of
 # this file.
 DEFAULT_BUILD_CONFIG = BuildConfig(VERSION, STATE_PATH, JSON_PATH)
-DEBUG_BUILD_CONFIG = BuildConfig(
-    VERSION, DEBUG_STATE_PATH, DEBUG_JSON_PATH)
+DEBUG_BUILD_CONFIG = BuildConfig(VERSION, DEBUG_STATE_PATH, DEBUG_JSON_PATH)
 # this is for reading and writing to a separate Tuffix instance on the machine
 # we can remove it when we're done so we don't have to worry about having
 # left-over installations
@@ -62,12 +60,14 @@ class State:
     """
 
     def __init__(self, build_config, version, installed, editors):
-        if not (isinstance(build_config, BuildConfig) and
-                isinstance(version, packaging.version.Version) and
-                isinstance(installed, list) and
-                all([isinstance(codeword, str) for codeword in installed]) and
-                isinstance(editors, list) and
-                all([isinstance(editor, str) for editor in editors])):
+        if not (
+            isinstance(build_config, BuildConfig)
+            and isinstance(version, packaging.version.Version)
+            and isinstance(installed, list)
+            and all([isinstance(codeword, str) for codeword in installed])
+            and isinstance(editors, list)
+            and all([isinstance(editor, str) for editor in editors])
+        ):
             raise ValueError
         self.build_config = build_config
         self.version = version
@@ -77,19 +77,19 @@ class State:
     def __eq__(self, other):
         # this might be nice to implement as a dataclass?
         return (
-            self.build_config == other.build_config and
-            self.version == other.version and
-            self.installed == other.installed and
-            self.editors == other.editors
+            self.build_config == other.build_config
+            and self.version == other.version
+            and self.installed == other.installed
+            and self.editors == other.editors
         )
 
     # Write this state to disk.
     def write(self):
-        with open(self.build_config.state_path, 'w') as f:
+        with open(self.build_config.state_path, "w") as f:
             document = {
-                'version': str(self.version),
-                'installed': self.installed,
-                'editors': self.editors
+                "version": str(self.version),
+                "installed": self.installed,
+                "editors": self.editors,
             }
             json.dump(document, f)
 
@@ -106,19 +106,21 @@ def read_state(build_config):
     try:
         with open(build_config.state_path) as f:
             document = json.load(f)
-            return State(build_config,
-                         packaging.version.Version(document['version']),
-                         document['installed'],
-                         document['editors'])
+            return State(
+                build_config,
+                packaging.version.Version(document["version"]),
+                document["installed"],
+                document["editors"],
+            )
     except (OSError, FileNotFoundError):
         raise EnvironmentError(
-            f'state file [{build_config.state_path}] not found, you must run $ tuffix init')
+            f"state file [{build_config.state_path}] not found, you must run $ tuffix init"
+        )
     except json.JSONDecodeError:
-        raise EnvironmentError('state file JSON is corrupted')
+        raise EnvironmentError("state file JSON is corrupted")
     except packaging.version.InvalidVersion:
-        raise EnvironmentError('version number in state file is invalid')
+        raise EnvironmentError("version number in state file is invalid")
     except KeyError as e:
-        raise EnvironmentError(
-            f'state file JSON is missing required keys: {e}')
+        raise EnvironmentError(f"state file JSON is missing required keys: {e}")
     except ValueError:
-        raise EnvironmentError('state file JSON has malformed values')
+        raise EnvironmentError("state file JSON has malformed values")

@@ -20,21 +20,22 @@ class PartialClassTest(unittest.TestCase):
     def from_dict_template(self, container: dict):
         __custom = CustomPayload(container)
         __custom_class = partial_class(
-            (__custom.name,
-             f'created by {__custom.instructor} for {__custom.name}',
-             __custom.packages),
+            (
+                __custom.name,
+                f"created by {__custom.instructor} for {__custom.name}",
+                __custom.packages,
+            ),
             AbstractKeyword,
-            DEBUG_BUILD_CONFIG)
-
-        self.assertTrue(
-            issubclass(__custom_class, AbstractKeyword)
+            DEBUG_BUILD_CONFIG,
         )
+
+        self.assertTrue(issubclass(__custom_class, AbstractKeyword))
 
     def test_from_dictionary(self):
         container = {
             "name": "Operating System Concepts",
             "instructor": "William McCarthy",
-            "packages": ["vim"]
+            "packages": ["vim"],
         }
 
         self.from_dict_template(container)
@@ -43,7 +44,7 @@ class PartialClassTest(unittest.TestCase):
         container = {
             "name": "Operating System Concepts",
             "instructor": "William McCarthy",
-            "packages": ["vim", "emacs", "cowsay"]
+            "packages": ["vim", "emacs", "cowsay"],
         }
 
         json_path = pathlib.Path("/tmp/test_from_json_container.json")

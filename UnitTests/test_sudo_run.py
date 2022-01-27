@@ -13,7 +13,6 @@ from Tuffix.Exceptions import *
 
 
 class TestSudoRun(unittest.TestCase):
-
     def test_check_user(self):
         param = 100
         runner = SudoRun()
@@ -23,7 +22,7 @@ class TestSudoRun(unittest.TestCase):
             _is_kate_valid = runner.check_user("kate")
         except EnvironmentError as error:
             # cannot find /etc/passwd
-            raise AssertionError(f'{error}')
+            raise AssertionError(f"{error}")
         try:
             _is_params_valid = runner.check_user(param)
         except ValueError:
@@ -32,14 +31,8 @@ class TestSudoRun(unittest.TestCase):
         else:
             self.assertTrue(False)
 
-        self.assertTrue(
-            _is_root_valid and
-            isinstance(_is_root_valid, bool)
-        )
-        self.assertFalse(
-            _is_kate_valid and
-            isinstance(_is_kate_valid, bool)
-        )
+        self.assertTrue(_is_root_valid and isinstance(_is_root_valid, bool))
+        self.assertFalse(_is_kate_valid and isinstance(_is_kate_valid, bool))
 
     def test_run(self):
 
@@ -47,8 +40,7 @@ class TestSudoRun(unittest.TestCase):
         runner = SudoRun()
 
         try:
-            _are_params_valid = runner.run(
-                command=bad_param, desired_user=bad_param)
+            _are_params_valid = runner.run(command=bad_param, desired_user=bad_param)
         except ValueError:
             self.assertTrue(True)
         else:
@@ -62,17 +54,16 @@ class TestSudoRun(unittest.TestCase):
             self.assertTrue(False)
 
         try:
-            _can_jared_run_as_root = runner.run(
-                command="whoami", desired_user="root")
+            _can_jared_run_as_root = runner.run(command="whoami", desired_user="root")
         except PrivilageExecutionException:
             self.assertTrue(True)
         else:
             self.assertTrue(False)
 
     # def test_chuser(self):
-        # _current_guid, _current_uid = os.getgid(), os.getuid()
+    # _current_guid, _current_uid = os.getgid(), os.getuid()
 
-        # self.assertTrue(
-            # (_current_guid == 0) and
-            # (_current_uid == 0)
-        # )
+    # self.assertTrue(
+    # (_current_guid == 0) and
+    # (_current_uid == 0)
+    # )

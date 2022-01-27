@@ -4,10 +4,19 @@ AUTHORS: Kevin Wortman, Jared Dyreson
 """
 
 from Tuffix.AbstractKeyword import AbstractKeyword
+
 # this is because we want to have access to this base class across two
 # source files that import each other
 
-from Tuffix.Editors import VimKeyword, EmacsKeyword, GeanyKeyword, NetbeansKeyword, EditorKeywordContainer, AtomKeyword, BlankEditorKeyword
+from Tuffix.Editors import (
+    VimKeyword,
+    EmacsKeyword,
+    GeanyKeyword,
+    NetbeansKeyword,
+    EditorKeywordContainer,
+    AtomKeyword,
+    BlankEditorKeyword,
+)
 
 from Tuffix.Configuration import *
 from Tuffix.SudoRun import SudoRun
@@ -34,8 +43,9 @@ class AllKeyword(AbstractKeyword):
     def __init__(self, build_config: BuildConfig):
         super().__init__(
             build_config,
-            'all',
-            'all keywords available (glob pattern); to be used in conjunction with remove or add respectively')
+            "all",
+            "all keywords available (glob pattern); to be used in conjunction with remove or add respectively",
+        )
         self.packages: list[str] = []
 
     def add(self):
@@ -59,28 +69,31 @@ class GeneralKeyword(AbstractKeyword):
     def __init__(self, build_config: BuildConfig):
         super().__init__(
             build_config,
-            'general',
-            'General configuration, not tied to any specific course')
-        self.packages: list[str] = ['autoconf',
-                                    'automake',
-                                    'a2ps',
-                                    'cscope',
-                                    'curl',
-                                    'dkms',
-                                    'enscript',
-                                    'glibc-doc',
-                                    'gpg',
-                                    'graphviz',
-                                    'gthumb',
-                                    'libreadline-dev',
-                                    'manpages-posix',
-                                    'manpages-posix-dev',
-                                    'meld',
-                                    'nfs-common',
-                                    'openssh-client',
-                                    'openssh-server',
-                                    'seahorse',
-                                    'synaptic']
+            "general",
+            "General configuration, not tied to any specific course",
+        )
+        self.packages: list[str] = [
+            "autoconf",
+            "automake",
+            "a2ps",
+            "cscope",
+            "curl",
+            "dkms",
+            "enscript",
+            "glibc-doc",
+            "gpg",
+            "graphviz",
+            "gthumb",
+            "libreadline-dev",
+            "manpages-posix",
+            "manpages-posix-dev",
+            "meld",
+            "nfs-common",
+            "openssh-client",
+            "openssh-server",
+            "seahorse",
+            "synaptic",
+        ]
 
     def add(self):
         self.edit_deb_packages(self.packages, is_installing=True)
@@ -92,40 +105,43 @@ class GeneralKeyword(AbstractKeyword):
 
 
 class ClangKeyword(AbstractKeyword):
-
     def __init__(self, build_config: BuildConfig):
-        super().__init__(build_config,
-                         'clang',
-                         'clang temp')
+        super().__init__(build_config, "clang", "clang temp")
         self.repo_payload = "deb http://mirrors.kernel.org/ubuntu hirsute main universe"
-        self.packages: list[str] = ['clang-12',
-                                    'clang-12-doc',
-                                    'clang-format-12',
-                                    'clang-tidy-12',
-                                    'clang-tools-12',
-                                    'clangd-12',
-                                    'g++-11',
-                                    'gcc-11',
-                                    'libc++-12-dev',
-                                    'libc++abi-12-dev',
-                                    'libclang-12-dev',
-                                    'libclang-common-12-dev',
-                                    'libclang1-12',
-                                    'lld-12',
-                                    'lldb-12',
-                                    'python3-clang-12']
+        self.packages: list[str] = [
+            "clang-12",
+            "clang-12-doc",
+            "clang-format-12",
+            "clang-tidy-12",
+            "clang-tools-12",
+            "clangd-12",
+            "g++-11",
+            "gcc-11",
+            "libc++-12-dev",
+            "libc++abi-12-dev",
+            "libclang-12-dev",
+            "libclang-common-12-dev",
+            "libclang1-12",
+            "lld-12",
+            "lldb-12",
+            "python3-clang-12",
+        ]
 
-    def update_alternative(self, link: str, name: str, path: pathlib.Path, priority: int, slave_components):
+    def update_alternative(
+        self, link: str, name: str, path: pathlib.Path, priority: int, slave_components
+    ):
         # NOTE: not the prettiest code I have ever written but hey, it works
         _formed = []
         for element in slave_components:
             a, b, c = element
-            string = f'--slave {a} {b} {c} \\\n'
+            string = f"--slave {a} {b} {c} \\\n"
             _formed.append(string)
 
-        _command = '\t'.join(_formed)
+        _command = "\t".join(_formed)
 
-        command_string = f"update-alternatives --install {link} {name} {path} {priority} {_command}"
+        command_string = (
+            f"update-alternatives --install {link} {name} {path} {priority} {_command}"
+        )
         os.system(command_string)
 
     def install_ppa(self):
@@ -133,59 +149,65 @@ class ClangKeyword(AbstractKeyword):
 
     def link_all_binaries(self):
         _gcc_11 = [
-            ('/usr/bin/g++',         'g++',         '/usr/bin/g++-11'),
-            ('/usr/bin/gcc-ar',      'gcc-ar',      '/usr/bin/gcc-ar-11'),
-            ('/usr/bin/gcc-nm',      'gcc-nm',      '/usr/bin/gcc-nm-11'),
-            ('/usr/bin/gcc-ranlib',  'gcc-ranlib',  '/usr/bin/gcc-ranlib-11'),
-            ('/usr/bin/gcov',        'gcov',        '/usr/bin/gcov-11'),
-            ('/usr/bin/gcov-dump',   'gcov-dump',   '/usr/bin/gcov-dump-11'),
-            ('/usr/bin/gcov-tool',   'gcov-tool',   '/usr/bin/gcov-tool-11')
+            ("/usr/bin/g++", "g++", "/usr/bin/g++-11"),
+            ("/usr/bin/gcc-ar", "gcc-ar", "/usr/bin/gcc-ar-11"),
+            ("/usr/bin/gcc-nm", "gcc-nm", "/usr/bin/gcc-nm-11"),
+            ("/usr/bin/gcc-ranlib", "gcc-ranlib", "/usr/bin/gcc-ranlib-11"),
+            ("/usr/bin/gcov", "gcov", "/usr/bin/gcov-11"),
+            ("/usr/bin/gcov-dump", "gcov-dump", "/usr/bin/gcov-dump-11"),
+            ("/usr/bin/gcov-tool", "gcov-tool", "/usr/bin/gcov-tool-11"),
         ]
 
         _gcc_9 = [
-            ('/usr/bin/g++',         'g++',         '/usr/bin/g++-9'),
-            ('/usr/bin/gcc-ar',      'gcc-ar',      '/usr/bin/gcc-ar-9'),
-            ('/usr/bin/gcc-nm',      'gcc-nm',      '/usr/bin/gcc-nm-9'),
-            ('/usr/bin/gcc-ranlib',  'gcc-ranlib',  '/usr/bin/gcc-ranlib-9'),
-            ('/usr/bin/gcov',        'gcov',        '/usr/bin/gcov-9'),
-            ('/usr/bin/gcov-dump',   'gcov-dump',   '/usr/bin/gcov-dump-9'),
-            ('/usr/bin/gcov-tool',   'gcov-tool',   '/usr/bin/gcov-tool-9')
+            ("/usr/bin/g++", "g++", "/usr/bin/g++-9"),
+            ("/usr/bin/gcc-ar", "gcc-ar", "/usr/bin/gcc-ar-9"),
+            ("/usr/bin/gcc-nm", "gcc-nm", "/usr/bin/gcc-nm-9"),
+            ("/usr/bin/gcc-ranlib", "gcc-ranlib", "/usr/bin/gcc-ranlib-9"),
+            ("/usr/bin/gcov", "gcov", "/usr/bin/gcov-9"),
+            ("/usr/bin/gcov-dump", "gcov-dump", "/usr/bin/gcov-dump-9"),
+            ("/usr/bin/gcov-tool", "gcov-tool", "/usr/bin/gcov-tool-9"),
         ]
 
         _clang_12 = [
-            ('/usr/bin/clang++',            'clang++',
-             '/usr/bin/clang++-12'),
-            ('/usr/bin/clang-format',       'clang-format',
-             '/usr/bin/clang-format-12'),
-            ('/usr/bin/clang-format-diff',  'clang-format-diff',
-             '/usr/bin/clang-format-diff-12'),
-            ('/usr/bin/clang-tidy',         'clang-tidy',
-             '/usr/bin/clang-tidy-12'),
-            ('/usr/bin/clang-tidy-diff',    'clang-tidy-diff',
-             '/usr/bin/clang-tidy-diff-12.py')
+            ("/usr/bin/clang++", "clang++", "/usr/bin/clang++-12"),
+            ("/usr/bin/clang-format", "clang-format", "/usr/bin/clang-format-12"),
+            (
+                "/usr/bin/clang-format-diff",
+                "clang-format-diff",
+                "/usr/bin/clang-format-diff-12",
+            ),
+            ("/usr/bin/clang-tidy", "clang-tidy", "/usr/bin/clang-tidy-12"),
+            (
+                "/usr/bin/clang-tidy-diff",
+                "clang-tidy-diff",
+                "/usr/bin/clang-tidy-diff-12.py",
+            ),
         ]
 
         _clang_10 = [
-            ('/usr/bin/clang++',            'clang++',
-             '/usr/bin/clang++-10'),
-            ('/usr/bin/clang-format',       'clang-format',
-             '/usr/bin/clang-format-10'),
-            ('/usr/bin/clang-format-diff',  'clang-format-diff',
-             '/usr/bin/clang-format-diff-10'),
-            ('/usr/bin/clang-tidy',         'clang-tidy',
-             '/usr/bin/clang-tidy-10'),
-            ('/usr/bin/clang-tidy-diff',    'clang-tidy-diff',
-             '/usr/bin/clang-tidy-diff-10.py')
+            ("/usr/bin/clang++", "clang++", "/usr/bin/clang++-10"),
+            ("/usr/bin/clang-format", "clang-format", "/usr/bin/clang-format-10"),
+            (
+                "/usr/bin/clang-format-diff",
+                "clang-format-diff",
+                "/usr/bin/clang-format-diff-10",
+            ),
+            ("/usr/bin/clang-tidy", "clang-tidy", "/usr/bin/clang-tidy-10"),
+            (
+                "/usr/bin/clang-tidy-diff",
+                "clang-tidy-diff",
+                "/usr/bin/clang-tidy-diff-10.py",
+            ),
         ]
 
-        self.update_alternative('/usr/bin/gcc', 'gcc',
-                                '/usr/bin/gcc-11', 11, _gcc_11)
-        self.update_alternative('/usr/bin/gcc', 'gcc',
-                                '/usr/bin/gcc-9', 9, _gcc_9)
-        self.update_alternative('/usr/bin/clang', 'clang',
-                                '/usr/bin/clang-12', 12, _clang_12)
-        self.update_alternative('/usr/bin/clang', 'clang',
-                                '/usr/bin/clang-10', 10, _clang_10)
+        self.update_alternative("/usr/bin/gcc", "gcc", "/usr/bin/gcc-11", 11, _gcc_11)
+        self.update_alternative("/usr/bin/gcc", "gcc", "/usr/bin/gcc-9", 9, _gcc_9)
+        self.update_alternative(
+            "/usr/bin/clang", "clang", "/usr/bin/clang-12", 12, _clang_12
+        )
+        self.update_alternative(
+            "/usr/bin/clang", "clang", "/usr/bin/clang-10", 10, _clang_10
+        )
 
     def add(self):
         self.install_ppa()
@@ -209,32 +231,34 @@ class BaseKeyword(AbstractKeyword):
     """
 
     def __init__(self, build_config: BuildConfig):
-        super().__init__(build_config,
-                         'base',
-                         'CPSC 120-121-131-301 C++ development environment')
+        super().__init__(
+            build_config, "base", "CPSC 120-121-131-301 C++ development environment"
+        )
 
-        self.packages: list[str] = ['autoconf',
-                                    'automake',
-                                    'build-essential',
-                                    'cimg-dev',
-                                    'clang',
-                                    'clang-format',
-                                    'clang-tidy',
-                                    'cmake',
-                                    'gdb',
-                                    'gcc',
-                                    'git',
-                                    'googletest',
-                                    'g++',
-                                    'libc++-dev',
-                                    'libc++abi-dev',
-                                    'libgconf-2-4',
-                                    'libgtest-dev',
-                                    'libgmock-dev',
-                                    'lldb',
-                                    'nlohmann-json3-dev',
-                                    'subversion',
-                                    'python3']
+        self.packages: list[str] = [
+            "autoconf",
+            "automake",
+            "build-essential",
+            "cimg-dev",
+            "clang",
+            "clang-format",
+            "clang-tidy",
+            "cmake",
+            "gdb",
+            "gcc",
+            "git",
+            "googletest",
+            "g++",
+            "libc++-dev",
+            "libc++abi-dev",
+            "libgconf-2-4",
+            "libgtest-dev",
+            "libgmock-dev",
+            "lldb",
+            "nlohmann-json3-dev",
+            "subversion",
+            "python3",
+        ]
 
         self.Atom = AtomKeyword(self.build_config)
         self.repo_payload = "ppa:ubuntu-toolchain-r/test"
@@ -242,11 +266,13 @@ class BaseKeyword(AbstractKeyword):
 
         self.link_dictionary = {
             "GOOGLE_TEST_URL": LinkPacket(
-                link="https://github.com/google/googletest.git",
-                is_git=True),
+                link="https://github.com/google/googletest.git", is_git=True
+            ),
             "TEST_URL": LinkPacket(
                 link="https://github.com/JaredDyreson/tuffix-google-test.git",
-                is_git=True)}
+                is_git=True,
+            ),
+        }
 
     def add(self):
         self.edit_deb_packages(self.packages, is_installing=True)
@@ -270,15 +296,17 @@ class BaseKeyword(AbstractKeyword):
         GOOGLE_DEST = "google"
 
         os.chdir("/tmp")
-        if(os.path.isdir(GOOGLE_DEST)):
+        if os.path.isdir(GOOGLE_DEST):
             shutil.rmtree(GOOGLE_DEST)
-        subprocess.run(['git', 'clone', GOOGLE_TEST_URL, GOOGLE_DEST])
+        subprocess.run(["git", "clone", GOOGLE_TEST_URL, GOOGLE_DEST])
         os.chdir(GOOGLE_DEST)
-        script = ["cmake CMakeLists.txt",
-                  "make -j8",
-                  "sudo cp -r -v googletest/include/. /usr/include",
-                  "sudo cp -r -v googlemock/include/. /usr/include",
-                  "sudo chown -v root:root /usr/lib"]
+        script = [
+            "cmake CMakeLists.txt",
+            "make -j8",
+            "sudo cp -r -v googletest/include/. /usr/include",
+            "sudo cp -r -v googlemock/include/. /usr/include",
+            "sudo chown -v root:root /usr/lib",
+        ]
         for command in script:
             subprocess.run(command.split())
 
@@ -287,17 +315,19 @@ class BazelKeyword(AbstractKeyword):
     def __init__(self, build_config: BuildConfig):
         super().__init__(
             build_config,
-            'bazel',
-            'software tool that allows for the automation of building and testing of software')
-        self.packages: list[str] = ['curl',
-                                    'gnupg',
-                                    'bazel']
+            "bazel",
+            "software tool that allows for the automation of building and testing of software",
+        )
+        self.packages: list[str] = ["curl", "gnupg", "bazel"]
         self.checkable_packages = self.packages[:-1]
         self.link_dictionary = {
             "BAZEL_GPG": LinkPacket(
-                link="https://bazel.build/bazel-release.pub.gpg",
-                is_git=False)}
-        self.repo_payload = "deb [arch=amd64] https://storage.googleapis.com/bazel-apt stable jdk1.8"
+                link="https://bazel.build/bazel-release.pub.gpg", is_git=False
+            )
+        }
+        self.repo_payload = (
+            "deb [arch=amd64] https://storage.googleapis.com/bazel-apt stable jdk1.8"
+        )
 
     def add(self):
         pass
@@ -337,10 +367,8 @@ class C223JKeyword(AbstractKeyword):
     """
 
     def __init__(self, build_config: BuildConfig):
-        super().__init__(build_config, '223J', 'CPSC 223J (Java Programming)')
-        self.packages: list[str] = ['gthumb',
-                                    'openjdk-11-jdk',
-                                    'openjdk-11-jre']
+        super().__init__(build_config, "223J", "CPSC 223J (Java Programming)")
+        self.packages: list[str] = ["gthumb", "openjdk-11-jdk", "openjdk-11-jre"]
         self.Geany = GeanyKeyword(DEFAULT_BUILD_CONFIG)
         self.Netbeans = NetbeansKeyword(DEFAULT_BUILD_CONFIG)
 
@@ -362,9 +390,8 @@ class C223NKeyword(AbstractKeyword):
     """
 
     def __init__(self, build_config: BuildConfig):
-        super().__init__(build_config,
-                         '223N', 'CPSC 223N (C# Programming)')
-        self.packages: list[str] = ['mono-complete']
+        super().__init__(build_config, "223N", "CPSC 223N (C# Programming)")
+        self.packages: list[str] = ["mono-complete"]
         self.Netbeans = NetbeansKeyword(DEFAULT_BUILD_CONFIG)
 
     def add(self):
@@ -383,14 +410,16 @@ class C223PKeyword(AbstractKeyword):
     """
 
     def __init__(self, build_config: BuildConfig):
-        super().__init__(build_config, '223P', 'CPSC 223P (Python Programming)')
-        self.packages: list[str] = ['build-essential',
-                                    'libssl-dev',
-                                    'libffi-dev',
-                                    'python3',
-                                    'python3-dev',
-                                    'python3-pip',
-                                    'virtualenvwrapper']
+        super().__init__(build_config, "223P", "CPSC 223P (Python Programming)")
+        self.packages: list[str] = [
+            "build-essential",
+            "libssl-dev",
+            "libffi-dev",
+            "python3",
+            "python3-dev",
+            "python3-pip",
+            "virtualenvwrapper",
+        ]
 
     def add(self):
         self.edit_deb_packages(self.packages, is_installing=True)
@@ -408,22 +437,24 @@ class C223WKeyword(AbstractKeyword):
     """
 
     def __init__(self, build_config: BuildConfig):
-        super().__init__(build_config, '223W', 'CPSC 223W (Swift Programming)')
-        self.packages: list[str] = ['binutils',
-                                    'curl',
-                                    'gnupg2',
-                                    'libc6-dev',
-                                    'libcurl4',
-                                    'libedit2',
-                                    'libgcc-9-dev',
-                                    'libpython3.8',
-                                    'libsqlite3-0',
-                                    'libstdc++-9-dev',
-                                    'libxml2',
-                                    'libz3-dev',
-                                    'pkg-config',
-                                    'tzdata',
-                                    'zlib1g-dev']
+        super().__init__(build_config, "223W", "CPSC 223W (Swift Programming)")
+        self.packages: list[str] = [
+            "binutils",
+            "curl",
+            "gnupg2",
+            "libc6-dev",
+            "libcurl4",
+            "libedit2",
+            "libgcc-9-dev",
+            "libpython3.8",
+            "libsqlite3-0",
+            "libstdc++-9-dev",
+            "libxml2",
+            "libz3-dev",
+            "pkg-config",
+            "tzdata",
+            "zlib1g-dev",
+        ]
 
     def add(self):
         self.edit_deb_packages(self.packages, is_installing=True)
@@ -439,8 +470,8 @@ class C240Keyword(AbstractKeyword):
     """
 
     def __init__(self, build_config: BuildConfig):
-        super().__init__(build_config, '240', 'CPSC 240 (Assembler)')
-        self.packages: list[str] = ['intel2gas', 'nasm']
+        super().__init__(build_config, "240", "CPSC 240 (Assembler)")
+        self.packages: list[str] = ["intel2gas", "nasm"]
 
     def add(self):
         self.edit_deb_packages(self.packages, is_installing=True)
@@ -456,13 +487,17 @@ class C474Keyword(AbstractKeyword):
     """
 
     def __init__(self, build_config: BuildConfig):
-        super().__init__(build_config, '474', 'CPSC 474 (Parallel and Distributed Computing)')
+        super().__init__(
+            build_config, "474", "CPSC 474 (Parallel and Distributed Computing)"
+        )
 
-        self.packages: list[str] = ['libopenmpi-dev',
-                                    'mpi-default-dev',
-                                    'mpich',
-                                    'openmpi-bin',
-                                    'openmpi-common']
+        self.packages: list[str] = [
+            "libopenmpi-dev",
+            "mpi-default-dev",
+            "mpich",
+            "openmpi-bin",
+            "openmpi-common",
+        ]
 
     def add(self):
         self.edit_deb_packages(self.packages, is_installing=True)
@@ -485,12 +520,14 @@ class C481Keyword(AbstractKeyword):
     """
 
     def __init__(self, build_config: BuildConfig):
-        super().__init__(build_config, '481', 'CPSC 481 (Artificial Intelligence)')
-        self.packages: list[str] = ['openjdk-11-jdk',
-                                    'openjdk-11-jre',
-                                    'sbcl',
-                                    'swi-prolog-nox',
-                                    'swi-prolog-x']
+        super().__init__(build_config, "481", "CPSC 481 (Artificial Intelligence)")
+        self.packages: list[str] = [
+            "openjdk-11-jdk",
+            "openjdk-11-jre",
+            "sbcl",
+            "swi-prolog-nox",
+            "swi-prolog-x",
+        ]
 
         # self.Eclipse = EclipseKeyword(self.build_config)
 
@@ -513,20 +550,24 @@ class C484Keyword(AbstractKeyword):
     """
 
     def __init__(self, build_config: BuildConfig):
-        super().__init__(build_config, '484', 'CPSC 484 (Principles of Computer Graphics)')
-        self.packages: list[str] = ['freeglut3-dev',
-                                    'libfreeimage-dev',
-                                    'libgl1-mesa-dev',
-                                    'libglew-dev',
-                                    'libglu1-mesa-dev',
-                                    'libopenctm-dev',
-                                    'libx11-dev',
-                                    'libxi-dev',
-                                    'libxrandr-dev',
-                                    'mesa-utils',
-                                    'mesa-utils-extra',
-                                    'openctm-doc',
-                                    'openctm-tools']
+        super().__init__(
+            build_config, "484", "CPSC 484 (Principles of Computer Graphics)"
+        )
+        self.packages: list[str] = [
+            "freeglut3-dev",
+            "libfreeimage-dev",
+            "libgl1-mesa-dev",
+            "libglew-dev",
+            "libglu1-mesa-dev",
+            "libopenctm-dev",
+            "libx11-dev",
+            "libxi-dev",
+            "libxrandr-dev",
+            "mesa-utils",
+            "mesa-utils-extra",
+            "openctm-doc",
+            "openctm-tools",
+        ]
 
     def add(self):
         self.edit_deb_packages(self.packages, is_installing=True)
@@ -543,12 +584,8 @@ class MediaKeyword(AbstractKeyword):
     """
 
     def __init__(self, build_config: BuildConfig):
-        super().__init__(build_config, 'media', 'Media Computation Tools')
-        self.packages: list[str] = ['blender',
-                                    'gimp',
-                                    'imagemagick',
-                                    'sox',
-                                    'vlc']
+        super().__init__(build_config, "media", "Media Computation Tools")
+        self.packages: list[str] = ["blender", "gimp", "imagemagick", "sox", "vlc"]
 
     def add(self):
         self.edit_deb_packages(self.packages, is_installing=True)
@@ -563,9 +600,7 @@ class LatexKeyword(AbstractKeyword):
     """
 
     def __init__(self, build_config: BuildConfig):
-        super().__init__(build_config,
-                         'latex',
-                         'LaTeX typesetting environment (large)')
+        super().__init__(build_config, "latex", "LaTeX typesetting environment (large)")
         self.packages: list[str] = ["texlive-full"]
 
     def add(self):
@@ -577,12 +612,8 @@ class LatexKeyword(AbstractKeyword):
 
 class GithubCLIKeyword(AbstractKeyword):
     def __init__(self, build_config: BuildConfig):
-        super().__init__(build_config,
-                         'gh',
-                         'Github CLI utility')
-        self.packages: list[str] = ["dirmngr",
-                                    "software-properties-common",
-                                    "gh"]
+        super().__init__(build_config, "gh", "Github CLI utility")
+        self.packages: list[str] = ["dirmngr", "software-properties-common", "gh"]
         self.checkable_packages: list[str] = self.packages[:-1]
         self.repo_payload = "https://cli.github.com/packages"
 
@@ -602,18 +633,16 @@ class GithubCLIKeyword(AbstractKeyword):
 
 
 class VirtualBoxKeyword(AbstractKeyword):
-
     def __init__(self, build_config: BuildConfig):
         super().__init__(
             build_config,
-            'vbox',
-            'A powerful x86 and AMD64/Intel64 virtualization product')
-        self.packages: list[str] = ['virtualbox',
-                                    'virtualbox-ext-pack']
+            "vbox",
+            "A powerful x86 and AMD64/Intel64 virtualization product",
+        )
+        self.packages: list[str] = ["virtualbox", "virtualbox-ext-pack"]
 
-        if(in_VM()):
-            raise EnvironmentError(
-                "This is a virtual enviornment, not proceeding")
+        if in_VM():
+            raise EnvironmentError("This is a virtual enviornment, not proceeding")
 
     def add(self):
         self.edit_deb_packages(self.packages, is_installing=True)
@@ -628,34 +657,35 @@ class ZoomKeyword(AbstractKeyword):
     """
 
     def __init__(self, build_config: BuildConfig):
-        super().__init__(build_config,
-                         'zoom',
-                         'Video conferencing software')
-        self.packages: list[str] = ['libglib2.0-0',
-                                    'libgstreamer-plugins-base0.10-0',
-                                    'libxcb-shape0',
-                                    'libxcb-shm0',
-                                    'libxcb-xfixes0',
-                                    'libxcb-randr0',
-                                    'libxcb-image0',
-                                    'libfontconfig1',
-                                    'libgl1-mesa-glx',
-                                    'libxi6',
-                                    'libsm6',
-                                    'libxrender1',
-                                    'libpulse0',
-                                    'libxcomposite1',
-                                    'libxslt1.1',
-                                    'libsqlite3-0',
-                                    'libxcb-keysyms1',
-                                    'libxcb-xtest0',
-                                    'ibus',
-                                    'zoom']
+        super().__init__(build_config, "zoom", "Video conferencing software")
+        self.packages: list[str] = [
+            "libglib2.0-0",
+            "libgstreamer-plugins-base0.10-0",
+            "libxcb-shape0",
+            "libxcb-shm0",
+            "libxcb-xfixes0",
+            "libxcb-randr0",
+            "libxcb-image0",
+            "libfontconfig1",
+            "libgl1-mesa-glx",
+            "libxi6",
+            "libsm6",
+            "libxrender1",
+            "libpulse0",
+            "libxcomposite1",
+            "libxslt1.1",
+            "libsqlite3-0",
+            "libxcb-keysyms1",
+            "libxcb-xtest0",
+            "ibus",
+            "zoom",
+        ]
         self.checkable_packages = self.packages[:-1]
         self.link_dictionary = {
             "ZOOM_DEB": LinkPacket(
-                link="https://zoom.us/client/latest/zoom_amd64.deb",
-                is_git=False)}
+                link="https://zoom.us/client/latest/zoom_amd64.deb", is_git=False
+            )
+        }
 
     def add(self):
         pass
@@ -683,11 +713,9 @@ class TMuxKeyword(AbstractKeyword):
     """
 
     def __init__(self, build_config: BuildConfig):
-        super().__init__(build_config,
-                         'tmux',
-                         'multi-tasking in the terminal')
+        super().__init__(build_config, "tmux", "multi-tasking in the terminal")
 
-        self.packages: list[str] = ['tmux']
+        self.packages: list[str] = ["tmux"]
         self.Blank = BlankEditorKeyword(self.build_config)
 
     def add(self):
@@ -699,11 +727,12 @@ class TMuxKeyword(AbstractKeyword):
         self.Blank.remove()
 
 
-class KeywordContainer():
+class KeywordContainer:
     def __init__(self, build_config: BuildConfig):
-        if(not isinstance(build_config, BuildConfig)):
+        if not isinstance(build_config, BuildConfig):
             raise ValueError(
-                f'expected BuildConfig for first argument, received: {type(build_configuration)}')
+                f"expected BuildConfig for first argument, received: {type(build_configuration)}"
+            )
         self.container: list[AbstractKeyword] = [
             AllKeyword(build_config),
             BaseKeyword(build_config),
@@ -727,17 +756,17 @@ class KeywordContainer():
         self.container.extend(__container)
 
     def obtain(self, value: str) -> tuple:
-        if(not isinstance(value, str)):
-            raise ValueError(f'incorrect type: {type(value)}')
+        if not isinstance(value, str):
+            raise ValueError(f"incorrect type: {type(value)}")
 
         for keyword in self.container:
-            if(keyword.name == value):
+            if keyword.name == value:
                 return (True, keyword)
         return (False, None)
 
     def __contains__(self, value: str):
-        if(not isinstance(value, str)):
-            raise ValueError(f'incorrect type: {type(value)}')
+        if not isinstance(value, str):
+            raise ValueError(f"incorrect type: {type(value)}")
 
         _, status = self.obtain(value)
         return status
@@ -750,8 +779,8 @@ def partial_class(information: tuple, cls, build_config: BuildConfig):
     https://stackoverflow.com/a/58039373
     """
 
-    if(not isinstance(information, tuple)):
-        raise ValueError(f'exepecting tuple, received {type(name).__name__}')
+    if not isinstance(information, tuple):
+        raise ValueError(f"exepecting tuple, received {type(name).__name__}")
 
     """
     Python 3.10 implementation for sanity checks
@@ -771,28 +800,27 @@ def partial_class(information: tuple, cls, build_config: BuildConfig):
             build_config=build_config,
             name=name,
             description=description,
-            packages=packages),
+            packages=packages,
+        ),
         "add": functools.partial(
-            cls.edit_deb_packages,
-            package_names=packages,
-            is_installing=True),
+            cls.edit_deb_packages, package_names=packages, is_installing=True
+        ),
         "remove": functools.partial(
-            cls.edit_deb_packages,
-            package_names=packages,
-            is_installing=False)}
+            cls.edit_deb_packages, package_names=packages, is_installing=False
+        ),
+    }
 
-    __class = type(name, (cls, ), body)
+    __class = type(name, (cls,), body)
 
     try:
-        __class.__module__ = sys._getframe(
-            1).f_globals.get('__name__', '__main__')
+        __class.__module__ = sys._getframe(1).f_globals.get("__name__", "__main__")
     except (AttributeError, ValueError):
         pass
 
     return __class
 
 
-class ClassKeywordGenerator():
+class ClassKeywordGenerator:
     """
     Generate a custom keyword class for usage in add/remove commands
     """
@@ -801,11 +829,11 @@ class ClassKeywordGenerator():
         pass
 
     def generate(self, path: pathlib.PosixPath, build_config: BuildConfig):
-        if not(isinstance(path, pathlib.PosixPath)):
-            raise ValueError(f'received type {type(path).__name__}')
+        if not (isinstance(path, pathlib.PosixPath)):
+            raise ValueError(f"received type {type(path).__name__}")
 
-        if(not path.is_file()):
-            raise FileNotFoundError(f'could not load {path}')
+        if not path.is_file():
+            raise FileNotFoundError(f"could not load {path}")
 
         with open(path, encoding="utf-8") as fp:
             content = json.loads(fp.read())
@@ -813,11 +841,14 @@ class ClassKeywordGenerator():
         __custom = CustomPayload(content)
 
         return partial_class(
-            (__custom.name,
-             f'created by {__custom.instructor} for {__custom.name}',
-             __custom.packages),
+            (
+                __custom.name,
+                f"created by {__custom.instructor} for {__custom.name}",
+                __custom.packages,
+            ),
             AbstractKeyword,
-            build_config)
+            build_config,
+        )
 
 
 DEFAULT_CLASS_GENERATOR = ClassKeywordGenerator()

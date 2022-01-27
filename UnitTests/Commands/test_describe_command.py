@@ -19,12 +19,11 @@ class DescribeCommandTest(unittest.TestCase):
         """
 
         container = KeywordContainer(DEFAULT_BUILD_CONFIG).container
-        container.extend(EditorKeywordContainer(
-            DEFAULT_BUILD_CONFIG).container)
+        container.extend(EditorKeywordContainer(DEFAULT_BUILD_CONFIG).container)
 
         describe = DescribeCommand(DEFAULT_BUILD_CONFIG)
         for keyword in container:
             with Capturing() as output:
                 name, description = keyword.name, keyword.description
                 describe.execute([name])
-            self.assertTrue([f'{name}: {description}'] == output)
+            self.assertTrue([f"{name}: {description}"] == output)

@@ -14,10 +14,8 @@ class AbstractKeywordTest(unittest.TestCase):
 
         try:
             _ = AbstractKeyword(
-                DEFAULT_BUILD_CONFIG,
-                'test',
-                "this is an example AbstractKeyword",
-                [])
+                DEFAULT_BUILD_CONFIG, "test", "this is an example AbstractKeyword", []
+            )
         except ValueError:
             self.assertTrue(False)
 
@@ -31,9 +29,10 @@ class AbstractKeywordTest(unittest.TestCase):
         try:
             _ = AbstractKeyword(
                 DEFAULT_BUILD_CONFIG,
-                'this is a long long name that should surely break',
+                "this is a long long name that should surely break",
                 "long long description",
-                [])
+                [],
+            )
         except ValueError:
             self.assertTrue(True)
         else:
@@ -47,9 +46,10 @@ class AbstractKeywordTest(unittest.TestCase):
 
         AbstractKeywordTest = AbstractKeyword(
             DEFAULT_BUILD_CONFIG,
-            'test',
+            "test",
             "this is an example AbstractKeyword",
-            ["cowsay"])
+            ["cowsay"],
+        )
         try:
             AbstractKeywordTest.add()
         except NotImplementedError:
@@ -65,9 +65,10 @@ class AbstractKeywordTest(unittest.TestCase):
 
         AbstractKeywordTest = AbstractKeyword(
             DEFAULT_BUILD_CONFIG,
-            'test',
+            "test",
             "this is an example AbstractKeyword",
-            ["cowsay"])
+            ["cowsay"],
+        )
         try:
             AbstractKeywordTest.remove()
         except NotImplementedError:
@@ -82,8 +83,18 @@ class AbstractKeywordTest(unittest.TestCase):
         """
 
         AbstractKeywordTest = AbstractKeyword(
-            DEFAULT_BUILD_CONFIG, 'test', "this is an example AbstractKeyword", [
-                "git", "openssh-client", "openssh-server", "python3", "python3-pip", "vim"])
+            DEFAULT_BUILD_CONFIG,
+            "test",
+            "this is an example AbstractKeyword",
+            [
+                "git",
+                "openssh-client",
+                "openssh-server",
+                "python3",
+                "python3-pip",
+                "vim",
+            ],
+        )
         try:
             AbstractKeywordTest.check_candiates()
         except KeyError:
@@ -96,8 +107,11 @@ class AbstractKeywordTest(unittest.TestCase):
         """
 
         AbstractKeywordTest = AbstractKeyword(
-            DEFAULT_BUILD_CONFIG, 'test', "this is an example AbstractKeyword", [
-                "kevinwortman", "jareddyreson", "paulinventado", "mshafae"])
+            DEFAULT_BUILD_CONFIG,
+            "test",
+            "this is an example AbstractKeyword",
+            ["kevinwortman", "jareddyreson", "paulinventado", "mshafae"],
+        )
         try:
             AbstractKeywordTest.check_candiates()
         except KeyError:
@@ -113,8 +127,18 @@ class AbstractKeywordTest(unittest.TestCase):
         """
 
         AbstractKeywordTest = AbstractKeyword(
-            DEFAULT_BUILD_CONFIG, 'test', "this is an example AbstractKeyword", [
-                "git", "openssh-client", "openssh-server", "python3", "python3-pip", "vim"])
+            DEFAULT_BUILD_CONFIG,
+            "test",
+            "this is an example AbstractKeyword",
+            [
+                "git",
+                "openssh-client",
+                "openssh-server",
+                "python3",
+                "python3-pip",
+                "vim",
+            ],
+        )
         for package in AbstractKeywordTest.packages:
             try:
                 status = AbstractKeywordTest.is_deb_package_installed(package)
@@ -131,9 +155,10 @@ class AbstractKeywordTest(unittest.TestCase):
         """
         AbstractKeywordTest = AbstractKeyword(
             DEFAULT_BUILD_CONFIG,
-            'test',
+            "test",
             "this is an example AbstractKeyword",
-            ["unicorn"])
+            ["unicorn"],
+        )
         for package in AbstractKeywordTest.packages:
             try:
                 status = AbstractKeywordTest.is_deb_package_installed(package)

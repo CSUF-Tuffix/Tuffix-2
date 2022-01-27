@@ -29,14 +29,12 @@ class TestBaseKeywordTest(TestKeywordGeneric):
         TEST_DEST = "test"
 
         os.chdir("/tmp")
-        if(os.path.isdir(TEST_DEST)):
+        if os.path.isdir(TEST_DEST):
             shutil.rmtree(TEST_DEST)
-        subprocess.run(['git', 'clone', TEST_URL, TEST_DEST])
+        subprocess.run(["git", "clone", TEST_URL, TEST_DEST])
         os.chdir(TEST_DEST)
-        subprocess.check_output(['clang++', '-v', 'main.cpp', '-o', 'main'])
-        self.assertTrue(
-            (output := subprocess.run(['make', 'all']).returncode) != 0
-        )
+        subprocess.check_output(["clang++", "-v", "main.cpp", "-o", "main"])
+        self.assertTrue((output := subprocess.run(["make", "all"]).returncode) != 0)
 
     def test_add(self):
         """

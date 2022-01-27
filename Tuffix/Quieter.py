@@ -11,8 +11,11 @@ Source: https://stackoverflow.com/a/2829036
 
 
 class DummyFile(object):
-    def write(self, x): pass
-    def flush(self): pass
+    def write(self, x):
+        pass
+
+    def flush(self):
+        pass
 
 
 @contextlib.contextmanager
@@ -21,6 +24,7 @@ def quiet():
     sys.stdout = DummyFile()
     yield
     sys.stdout = _stdout
+
 
 # Capture the output of a function
 # Source : https://stackoverflow.com/a/16571630
@@ -34,7 +38,7 @@ class Capturing(list):
 
     def __exit__(self, *args):
         self.extend(self._stringio.getvalue().splitlines())
-        del self._stringio    # free up some memory
+        del self._stringio  # free up some memory
         sys.stdout = self._stdout
 
 
@@ -46,5 +50,5 @@ class CapturingStderr(list):
 
     def __exit__(self, *args):
         self.extend(self._stringio.getvalue().splitlines())
-        del self._stringio    # free up some memory
+        del self._stringio  # free up some memory
         sys.stderr = self._stderr

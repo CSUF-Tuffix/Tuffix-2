@@ -15,11 +15,11 @@ def partial_class(container: tuple):
             AbstractCommand.__init__,
             build_config=build_config,
             name=name,
-            description=description
+            description=description,
         )
     }
 
-    return type("test", (AbstractCommand, ), body)
+    return type("test", (AbstractCommand,), body)
 
 
 class AbstractCommandTest(unittest.TestCase):
@@ -30,9 +30,8 @@ class AbstractCommandTest(unittest.TestCase):
     def test_init_valid(self):
         try:
             _ = AbstractCommand(
-                DEFAULT_BUILD_CONFIG,
-                'test',
-                'this is a test description')
+                DEFAULT_BUILD_CONFIG, "test", "this is a test description"
+            )
         except ValueError:
             self.assertTrue(False)
 
@@ -42,14 +41,16 @@ class AbstractCommandTest(unittest.TestCase):
         """
 
         instances = [
-            partial_class((DEFAULT_BUILD_CONFIG, "TEST",
-                           "this is a test description")),  # captial name
-            partial_class((DEFAULT_BUILD_CONFIG,
-                           "test_not_working",
-                           "this is a test description")),
+            partial_class(
+                (DEFAULT_BUILD_CONFIG, "TEST", "this is a test description")
+            ),  # captial name
+            partial_class(
+                (DEFAULT_BUILD_CONFIG, "test_not_working", "this is a test description")
+            ),
             # non-alphanumeric characters
-            partial_class((DEFAULT_BUILD_CONFIG, "",
-                           "this is a test description")),  # empty name
+            partial_class(
+                (DEFAULT_BUILD_CONFIG, "", "this is a test description")
+            ),  # empty name
             # BuildConfig is a float
             partial_class((0.5, "TEST", "this is a test description")),
             # description is a float
@@ -75,12 +76,14 @@ class AbstractCommandTest(unittest.TestCase):
         """
 
         AbstractCommandTest = AbstractCommand(
-            DEFAULT_BUILD_CONFIG, 'test', 'this is a test description')
+            DEFAULT_BUILD_CONFIG, "test", "this is a test description"
+        )
         self.assertTrue(message == AbstractCommandTest.__repr__())
 
     def test_execute(self):
         AbstractCommandTest = AbstractCommand(
-            DEFAULT_BUILD_CONFIG, 'test', 'this is a test description')
+            DEFAULT_BUILD_CONFIG, "test", "this is a test description"
+        )
         try:
             AbstractCommandTest.execute([])
         except NotImplementedError:

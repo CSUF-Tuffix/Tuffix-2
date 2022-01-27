@@ -17,6 +17,7 @@ import os
 import json
 import pickle  # dump custom class instance to disk
 from termcolor import colored
+
 # so we can pass in function pointers with predefined args
 from functools import partial
 import shutil
@@ -37,12 +38,14 @@ class AbstractCommand:
     """
 
     def __init__(self, build_config: BuildConfig, name: str, description: str):
-        if not (isinstance(build_config, BuildConfig) and
-                isinstance(name, str) and
-                len(name) > 0 and
-                name.isalpha() and
-                name.islower() and
-                isinstance(description, str)):
+        if not (
+            isinstance(build_config, BuildConfig)
+            and isinstance(name, str)
+            and len(name) > 0
+            and name.isalpha()
+            and name.islower()
+            and isinstance(description, str)
+        ):
             raise ValueError
         self.build_config = build_config
         self.name = name
@@ -70,7 +73,7 @@ class AbstractCommand:
         raise NotImplementedError
 
 
-class AddRemoveHelper():
+class AddRemoveHelper:
     """
     GOAL: combine both the add and remove keywords
     This prevents us for not writing the same code twice.
@@ -80,8 +83,7 @@ class AddRemoveHelper():
     """
 
     def __init__(self, build_config: BuildConfig, command: str):
-        if not(isinstance(command, str) and
-               isinstance(build_config, BuildConfig)):
+        if not (isinstance(command, str) and isinstance(build_config, BuildConfig)):
             raise ValueError
 
         # either select the add or remove from the Keywords
@@ -90,19 +92,20 @@ class AddRemoveHelper():
         self.container = KeywordContainer(build_config)
 
     def search(self, pattern: str) -> tuple:
-        if(not isinstance(pattern, str)):
+        if not isinstance(pattern, str):
             raise ValueError
 
-        _re = re.compile(f'{pattern}.json', flags=re.IGNORECASE)
+        _re = re.compile(f"{pattern}.json", flags=re.IGNORECASE)
         # NOTE: check if this works
         for dirpath, _, filepath in os.walk(self.build_config.json_state_path):
             for _file in filepath:
-                if((match := _re.match(_file))):
+                if match := _re.match(_file):
                     # If the JSON file is found, we need to now dynamically
                     # create a class
-                    path = pathlib.Path(f'{dirpath}/{_file}')
+                    path = pathlib.Path(f"{dirpath}/{_file}")
                     NewClass = DEFAULT_CLASS_GENERATOR.generate(
-                        path.resolve(), self.build_config)
+                        path.resolve(), self.build_config
+                    )
                     return (True, NewClass())
         return (False, None)
 
@@ -110,38 +113,41 @@ class AddRemoveHelper():
         # same code in UnitTests/BaseEditorTest
 
         _type = type(keyword)
-        if(issubclass(_type, AbstractKeyword) and
-           not issubclass(_type, EditorBaseKeyword)):
+        if issubclass(_type, AbstractKeyword) and not issubclass(
+            _type, EditorBaseKeyword
+        ):
             correct_attr = (True, False, "AbstractKeyword")
         else:
             correct_attr = (False, True, "EditorBaseKeyword")
 
         regular_keyword, editor, __name = correct_attr
-        if(regular_keyword):
-            return (__name, getattr(state, 'installed'))
-        return (__name, getattr(state, 'editors'))
+        if regular_keyword:
+            return (__name, getattr(state, "installed"))
+        return (__name, getattr(state, "editors"))
 
     def rewrite_state(self, keyword: AbstractKeyword, install: bool):
         """
         Goal: update the state file
         """
-        if not(issubclass(type(keyword), AbstractKeyword) and
-               isinstance(install, bool)):
+        if not (
+            issubclass(type(keyword), AbstractKeyword) and isinstance(install, bool)
+        ):
             raise ValueError
 
         current_state = read_state(self.build_config)
-        _type, attribute = self.obtain_correct_attribute(
-            keyword, current_state)
+        _type, attribute = self.obtain_correct_attribute(keyword, current_state)
 
-        if(not install):
+        if not install:
             attribute.remove(keyword.name)
         else:
             attribute.append(keyword.name)
 
         new_state = State(
-            self.build_config, self.build_config.version, attribute if (
-                _type == "AbstractKeyword") else current_state.installed, attribute if (
-                _type == "EditorBaseKeyword") else current_state.editors)
+            self.build_config,
+            self.build_config.version,
+            attribute if (_type == "AbstractKeyword") else current_state.installed,
+            attribute if (_type == "EditorBaseKeyword") else current_state.editors,
+        )
         new_state.write()
 
     def run_commands(self, container: list, install: bool):
@@ -149,57 +155,58 @@ class AddRemoveHelper():
         Goal: execute a series of keywords given in a list container
         """
 
-        if not(isinstance(container, list) and
-               isinstance(install, bool)):
+        if not (isinstance(container, list) and isinstance(install, bool)):
             raise ValueError
 
         current_state = read_state(self.build_config)
 
-        verb, past = (
-            "installing", "installed") if install else (
-            "removing", "removed")
+        verb, past = ("installing", "installed") if install else ("removing", "removed")
 
         for status, command in container:
-            if((command.name in current_state.installed)):
-                if(install):
+            if command.name in current_state.installed:
+                if install:
                     raise UsageError(
-                        f'[WARNING] Tuffix: cannot add {command.name}, it is already installed')
-            elif((command.name not in current_state.installed) and (not install)):
+                        f"[WARNING] Tuffix: cannot add {command.name}, it is already installed"
+                    )
+            elif (command.name not in current_state.installed) and (not install):
                 raise UsageError(
-                    f'[ERROR]: Tuffix: Cannot remove candidate {command.name}; not installed')
+                    f"[ERROR]: Tuffix: Cannot remove candidate {command.name}; not installed"
+                )
 
-            print(f'[INFO] Tuffix: {verb} {command.name}')
+            print(f"[INFO] Tuffix: {verb} {command.name}")
 
             try:
                 getattr(command, self.command)()
             except AttributeError:
                 raise UsageError(
-                    f'[INTERNAL ERROR] {command.__name__} does not have the function {self.command}')
+                    f"[INTERNAL ERROR] {command.__name__} does not have the function {self.command}"
+                )
 
             self.rewrite_state(command, install)
 
-            print(f'[INFO] Tuffix: successfully {past} {command.name}')
+            print(f"[INFO] Tuffix: successfully {past} {command.name}")
 
     def execute(self, arguments: list, custom=(None, None), override=True):
         """
         Goal: install or remove keywords
         """
 
-        if not (isinstance(arguments, list) and
-                all([isinstance(argument, str) for argument in arguments]) and
-                isinstance(override, bool)):
+        if not (
+            isinstance(arguments, list)
+            and all([isinstance(argument, str) for argument in arguments])
+            and isinstance(override, bool)
+        ):
             raise ValueError
 
-        if not(arguments):
-            raise UsageError(
-                "[ERROR] You must supply at least one keyword to mark")
+        if not (arguments):
+            raise UsageError("[ERROR] You must supply at least one keyword to mark")
 
         ensure_root_access()
 
         # This pertains to custom keywords we have defined in a JSON file
         custom_status, custom_command = custom
 
-        if(custom_status):
+        if custom_status:
             # Emplace this into the list of possible keywords
             collection = [(True, custom_command)]
         else:
@@ -209,12 +216,13 @@ class AddRemoveHelper():
         for x, element in enumerate(collection):
             # if the command could not be found and we need to remove it
             status, command = element
-            if(not status and not command):
+            if not status and not command:
                 # search the pickle jar to load the custom class
                 status, obj = self.search(arguments[x])
-                if(not status):
+                if not status:
                     raise ValueError(
-                        f'[INTERNAL ERROR] Tuffix: Could not find custom class for {arguments[x]}')
+                        f"[INTERNAL ERROR] Tuffix: Could not find custom class for {arguments[x]}"
+                    )
                 collection[x] = obj
 
         install = True if self.command == "add" else False
@@ -222,18 +230,20 @@ class AddRemoveHelper():
         # ./tuffix add all
         # ./tuffix remove all
 
-        if(arguments[0] == "all"):
-            if not(override):
+        if arguments[0] == "all":
+            if not (override):
                 try:
                     input(
-                        "[INFO] Tuffix: Are you sure you want to install/remove all packages? Press enter to continue or CTRL-D to exit: ")
+                        "[INFO] Tuffix: Are you sure you want to install/remove all packages? Press enter to continue or CTRL-D to exit: "
+                    )
                 except EOFError:
                     quit()
-            if(install):
+            if install:
                 collection = self.container.container  # all keywords
             else:
-                collection = [self.container.obtain(
-                    x) for x in state.installed]  # all installed
+                collection = [
+                    self.container.obtain(x) for x in state.installed
+                ]  # all installed
 
         self.run_commands(collection, install)
         os.system("apt autoremove -y")  # purge system of unneeded dependencies
@@ -246,12 +256,13 @@ class AddCommand(AbstractCommand):
     """
 
     def __init__(self, build_config: BuildConfig):
-        super().__init__(build_config, 'add', 'add (install) one or more keywords')
+        super().__init__(build_config, "add", "add (install) one or more keywords")
         self.mark = AddRemoveHelper(build_config, self.name)
 
     def execute(self, arguments: list):
-        if not(isinstance(arguments, list) and
-               all([isinstance(_, str) for _ in arguments])):
+        if not (
+            isinstance(arguments, list) and all([isinstance(_, str) for _ in arguments])
+        ):
             raise ValueError
         self.mark.execute(arguments)
 
@@ -262,30 +273,30 @@ class CustomCommand(AbstractCommand):
     """
 
     def __init__(self, build_config: BuildConfig):
-        super().__init__(build_config, 'custom', 'user-defined json payload')
+        super().__init__(build_config, "custom", "user-defined json payload")
 
     def execute(self, arguments: list):
-        if not(isinstance(arguments, list) and
-               all([isinstance(_, str) for _ in arguments])):
+        if not (
+            isinstance(arguments, list) and all([isinstance(_, str) for _ in arguments])
+        ):
             raise ValueError
 
         for path in arguments:
             path = pathlib.Path(path)
 
-            if not(path.is_file()):
-                raise FileNotFoundError(f'[ERROR] Could not load {path}')
+            if not (path.is_file()):
+                raise FileNotFoundError(f"[ERROR] Could not load {path}")
 
-            NewClass = DEFAULT_CLASS_GENERATOR.generate(
-                path, self.build_config)
+            NewClass = DEFAULT_CLASS_GENERATOR.generate(path, self.build_config)
 
             NewClassInstance = NewClass()
 
             self.mark = AddRemoveHelper(self.build_config, "add")
-            self.mark.execute([NewClassInstance.name],
-                              (True, NewClassInstance))
+            self.mark.execute([NewClassInstance.name], (True, NewClassInstance))
 
             shutil.copyfile(
-                path, f'{(self.build_config.json_state_path / path.stem)}.json')
+                path, f"{(self.build_config.json_state_path / path.stem)}.json"
+            )
 
 
 class DescribeCommand(AbstractCommand):
@@ -296,18 +307,19 @@ class DescribeCommand(AbstractCommand):
     """
 
     def __init__(self, build_config):
-        super().__init__(build_config, 'describe', 'describe a given keyword')
+        super().__init__(build_config, "describe", "describe a given keyword")
 
     def execute(self, arguments):
-        if not (isinstance(arguments, list) and
-                all([isinstance(_, str) for _ in arguments])):
-            raise ValueError(f'received type: {type(arguments[0])}')
-        if(len(arguments) != 1):
+        if not (
+            isinstance(arguments, list) and all([isinstance(_, str) for _ in arguments])
+        ):
+            raise ValueError(f"received type: {type(arguments[0])}")
+        if len(arguments) != 1:
             raise UsageError("Please supply at only one keyword to describe")
         k_container = KeywordContainer(DEFAULT_BUILD_CONFIG)
         status, keyword = k_container.obtain(arguments[0])
 
-        print(f'{keyword.name}: {keyword.description}')
+        print(f"{keyword.name}: {keyword.description}")
 
 
 class InitCommand(AbstractCommand):
@@ -322,7 +334,7 @@ class InitCommand(AbstractCommand):
     """
 
     def __init__(self, build_config: BuildConfig):
-        super().__init__(build_config, 'init', 'initialize tuffix')
+        super().__init__(build_config, "init", "initialize tuffix")
 
     def create_state_directory(self):
         """
@@ -332,13 +344,12 @@ class InitCommand(AbstractCommand):
         ensure_root_access()
         os.makedirs(self.build_config.state_path.parent, exist_ok=True)
 
-        new_state = State(self.build_config,
-                          self.build_config.version,
-                          [], [])
+        new_state = State(self.build_config, self.build_config.version, [], [])
         new_state.write()
 
-        os.makedirs(self.build_config.json_state_path,
-                    exist_ok=True)  # for custom commands
+        os.makedirs(
+            self.build_config.json_state_path, exist_ok=True
+        )  # for custom commands
 
     def remove_state_directory(self):
         """
@@ -358,14 +369,14 @@ class InitCommand(AbstractCommand):
 
         username = input("Git username: ") if not username else username
         mail = input("Git email: ") if not mail else mail
-        git_conf_file = pathlib.Path(f'/home/{whoami}/.gitconfig')
+        git_conf_file = pathlib.Path(f"/home/{whoami}/.gitconfig")
         commands = [
-            f'git config --file {git_conf_file} user.name {username}',
-            f'git config --file {git_conf_file} user.email {mail}'
+            f"git config --file {git_conf_file} user.name {username}",
+            f"git config --file {git_conf_file} user.email {mail}",
         ]
         for command in commands:
             keeper.run(command, whoami)
-        print(colored("Successfully configured git", 'green'))
+        print(colored("Successfully configured git", "green"))
 
     def configure_ppa(self):
         """
@@ -385,80 +396,79 @@ class InitCommand(AbstractCommand):
             gd.write(content)
             tl.write("deb https://www.tuffix.xyz/repo focal main")
 
-        executor.run(
-            f'sudo apt-key add {gpg_dest.resolve()}',
-            executor.whoami)
+        executor.run(f"sudo apt-key add {gpg_dest.resolve()}", executor.whoami)
 
     def install_atom(self, write=False):
         AtomKeyword(self.build_config).add(write=write)
 
     def execute(self, arguments: list):
-        if not (isinstance(arguments, list) and
-                all([isinstance(_, str) for _ in arguments]) and
-                not arguments):
+        if not (
+            isinstance(arguments, list)
+            and all([isinstance(_, str) for _ in arguments])
+            and not arguments
+        ):
             # this should also be caught when testing (give multiple args)
             raise ValueError
 
-        if(STATE_PATH.exists()):
+        if STATE_PATH.exists():
             raise UsageError("init has already been done")
 
         self.create_state_directory()
 
         self.configure_git()
 
-        state = State(self.build_config,
-                      self.build_config.version, [], ["atom"])
+        state = State(self.build_config, self.build_config.version, [], ["atom"])
         state.write()
 
-        print('[INFO] Tuffix init succeeded')
+        print("[INFO] Tuffix init succeeded")
 
 
 class InstalledCommand(AbstractCommand):
     def __init__(self, build_config: BuildConfig):
-        super().__init__(build_config, 'installed', 'list all currently-installed keywords')
+        super().__init__(
+            build_config, "installed", "list all currently-installed keywords"
+        )
 
     def execute(self, arguments):
-        if not (isinstance(arguments, list) and
-                not arguments):
+        if not (isinstance(arguments, list) and not arguments):
             raise ValueError
 
         state = read_state(self.build_config)
 
-        if((argc := len(state.installed)) == 0):
-            print('[INFO] No keywords are installed')
+        if (argc := len(state.installed)) == 0:
+            print("[INFO] No keywords are installed")
         else:
-            print(f'[INFO] Tuffix installed keywords ({argc}):')
+            print(f"[INFO] Tuffix installed keywords ({argc}):")
             for name in state.installed:
                 print(name)
-        if((e_argc := len(state.editors)) == 0):
+        if (e_argc := len(state.editors)) == 0:
             print("[INFO] No editors are installed")
         else:
-            print(f'[INFO] Tuffix installed editors ({e_argc})')
+            print(f"[INFO] Tuffix installed editors ({e_argc})")
             for name in state.editors:
                 print(name)
 
+
 class ListCommand(AbstractCommand):
     def __init__(self, build_config: BuildConfig):
-        super().__init__(build_config, 'list', 'list all available keywords')
+        super().__init__(build_config, "list", "list all available keywords")
 
     def execute(self, arguments: list):
-        if not(isinstance(arguments, list) and
-                ((argc := len(arguments) >= 0))):
+        if not (isinstance(arguments, list) and ((argc := len(arguments) >= 0))):
             raise ValueError
 
         container = KeywordContainer(self.build_config).container
-        print('[INFO] Tuffix list of keywords:')
+        print("[INFO] Tuffix list of keywords:")
         for keyword in container:
-            print(f'{keyword.name.ljust(KEYWORD_MAX_LENGTH)}   {keyword.description}')
+            print(f"{keyword.name.ljust(KEYWORD_MAX_LENGTH)}   {keyword.description}")
 
 
 class StatusCommand(AbstractCommand):
     def __init__(self, build_config: BuildConfig):
-        super().__init__(build_config, 'status', 'status of the current host')
+        super().__init__(build_config, "status", "status of the current host")
 
     def execute(self, arguments: list):
-        if not(isinstance(arguments, list) and
-                ((argc := len(arguments)) >= 0)):
+        if not (isinstance(arguments, list) and ((argc := len(arguments)) >= 0)):
             raise ValueError
 
         messsage = (None, None)
@@ -466,25 +476,24 @@ class StatusCommand(AbstractCommand):
             for line in status(self.build_config):
                 print(line)
         except EnvironmentError as error:
-            message = (
-                f'{"#" * 10} [INFO] Status failed ({error}) {"#" * 10}',
-                "red")
+            message = (f'{"#" * 10} [INFO] Status failed ({error}) {"#" * 10}', "red")
         else:
-            message = (
-                f'{"#" * 10} [INFO] Status succeeded {"#" * 10}',
-                "green")
+            message = (f'{"#" * 10} [INFO] Status succeeded {"#" * 10}', "green")
         content, color = message
         print(colored(content, color))
 
 
 class RemoveCommand(AbstractCommand):
     def __init__(self, build_config: BuildConfig):
-        super().__init__(build_config, 'remove', 'remove (uninstall) one or more keywords')
+        super().__init__(
+            build_config, "remove", "remove (uninstall) one or more keywords"
+        )
         self.mark = AddRemoveHelper(build_config, self.name)
 
     def execute(self, arguments: list):
-        if not(isinstance(arguments, list) and
-               all([isinstance(_, str) for _ in arguments])):
+        if not (
+            isinstance(arguments, list) and all([isinstance(_, str) for _ in arguments])
+        ):
             raise ValueError
         self.mark.execute(arguments)
 
@@ -496,14 +505,16 @@ def all_commands(build_config: BuildConfig):
     AbstractCommand, using build_config and state for each.
     """
 
-    if not(isinstance(build_config, BuildConfig)):
+    if not (isinstance(build_config, BuildConfig)):
         raise ValueError
     # alphabetical order
-    return [AddCommand(build_config),
-            CustomCommand(build_config),
-            DescribeCommand(build_config),
-            InitCommand(build_config),
-            InstalledCommand(build_config),
-            ListCommand(build_config),
-            StatusCommand(build_config),
-            RemoveCommand(build_config), ]
+    return [
+        AddCommand(build_config),
+        CustomCommand(build_config),
+        DescribeCommand(build_config),
+        InitCommand(build_config),
+        InstalledCommand(build_config),
+        ListCommand(build_config),
+        StatusCommand(build_config),
+        RemoveCommand(build_config),
+    ]

@@ -19,20 +19,16 @@ def partial_class(container: tuple):
     build_config, name = container
     body = {
         "__init__": functools.partialmethod(
-            AddRemoveHelper.__init__,
-            build_config=build_config,
-            command=name
+            AddRemoveHelper.__init__, build_config=build_config, command=name
         )
     }
-    return type("test", (AddRemoveHelper, ), body)
+    return type("test", (AddRemoveHelper,), body)
 
 
 class AddRemoveHelperTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.state = State(DEBUG_BUILD_CONFIG,
-                          DEBUG_BUILD_CONFIG.version,
-                          [], [])
+        cls.state = State(DEBUG_BUILD_CONFIG, DEBUG_BUILD_CONFIG.version, [], [])
         cls.Init = InitCommand(DEBUG_BUILD_CONFIG)
         cls.Init.create_state_directory()
         cls.state.write()
@@ -47,7 +43,7 @@ class AddRemoveHelperTest(unittest.TestCase):
         """
 
         try:
-            _ = AddRemoveHelper(DEBUG_BUILD_CONFIG, 'add')
+            _ = AddRemoveHelper(DEBUG_BUILD_CONFIG, "add")
         except ValueError:
             self.assertTrue(False)
 
@@ -57,7 +53,7 @@ class AddRemoveHelperTest(unittest.TestCase):
         """
         instances = [
             partial_class((0.5, "add")),  # build_config is a float
-            partial_class((DEBUG_BUILD_CONFIG, 0.5))  # command is a float
+            partial_class((DEBUG_BUILD_CONFIG, 0.5)),  # command is a float
         ]
 
         for instance in instances:
@@ -76,7 +72,7 @@ class AddRemoveHelperTest(unittest.TestCase):
         payload = {
             "name": "osc",
             "instructor": "William McCarthy",
-            "packages": ["cowsay", "vim"]
+            "packages": ["cowsay", "vim"],
         }
 
         payload_path = pathlib.Path("/tmp/tuffix/json_payloads/osc.json")
@@ -84,14 +80,14 @@ class AddRemoveHelperTest(unittest.TestCase):
         with open(payload_path, "w") as fp:
             json.dump(payload, fp)
 
-        helper = AddRemoveHelper(DEBUG_BUILD_CONFIG, 'searcher')
-        resultant = helper.search('osc')
+        helper = AddRemoveHelper(DEBUG_BUILD_CONFIG, "searcher")
+        resultant = helper.search("osc")
         self.assertTrue(isinstance(resultant, tuple))
         status, class_instance = resultant
         self.assertTrue(
-            isinstance(status, bool) and
-            (status) and
-            isinstance(class_instance, AbstractKeyword)
+            isinstance(status, bool)
+            and (status)
+            and isinstance(class_instance, AbstractKeyword)
         )
         payload_path.unlink()
 
@@ -100,14 +96,14 @@ class AddRemoveHelperTest(unittest.TestCase):
         Test the search function for installed custom keywords (the file should not be found)
         """
 
-        helper = AddRemoveHelper(DEBUG_BUILD_CONFIG, 'searcher')
-        resultant = helper.search('jareddyreson')
+        helper = AddRemoveHelper(DEBUG_BUILD_CONFIG, "searcher")
+        resultant = helper.search("jareddyreson")
         self.assertTrue(isinstance(resultant, tuple))
         status, class_instance = resultant
         self.assertTrue(
-            isinstance(status, bool) and
-            (status == False) and
-            isinstance(class_instance, type(None))
+            isinstance(status, bool)
+            and (status == False)
+            and isinstance(class_instance, type(None))
         )
 
     def test_rewrite_state_install(self):
@@ -117,19 +113,20 @@ class AddRemoveHelperTest(unittest.TestCase):
 
         original_state = read_state(DEBUG_BUILD_CONFIG)
 
-        helper = AddRemoveHelper(DEBUG_BUILD_CONFIG, 'rewriter')
+        helper = AddRemoveHelper(DEBUG_BUILD_CONFIG, "rewriter")
         example_keyword = TMuxKeyword(DEBUG_BUILD_CONFIG)
 
-        helper.rewrite_state(keyword=example_keyword,
-                             install=True)  # install the keyword
+        helper.rewrite_state(
+            keyword=example_keyword, install=True
+        )  # install the keyword
 
         updated_state = read_state(DEBUG_BUILD_CONFIG)  # note the state
 
-        helper.rewrite_state(keyword=example_keyword,
-                             install=False)  # remove the keyword
+        helper.rewrite_state(
+            keyword=example_keyword, install=False
+        )  # remove the keyword
 
-        reverted_state = read_state(
-            DEBUG_BUILD_CONFIG)  # note the state again
+        reverted_state = read_state(DEBUG_BUILD_CONFIG)  # note the state again
 
         # check if the new state is equal to the snap shot
         self.assertTrue(original_state == reverted_state)
@@ -143,47 +140,48 @@ class AddRemoveHelperTest(unittest.TestCase):
         """
 
     def test_run_commands_install(self):
-        helper_add = AddRemoveHelper(DEBUG_BUILD_CONFIG, 'add')
+        helper_add = AddRemoveHelper(DEBUG_BUILD_CONFIG, "add")
         # Test install
         helper_add.run_commands(
-            container=[
-                (True, TMuxKeyword(DEBUG_BUILD_CONFIG))], install=True)
+            container=[(True, TMuxKeyword(DEBUG_BUILD_CONFIG))], install=True
+        )
         updated_state = read_state(DEBUG_BUILD_CONFIG)  # note the state
         self.assertTrue("tmux" in updated_state.installed)
 
         # Test reinstall
         try:
             helper_add.run_commands(
-                container=[
-                    (True, TMuxKeyword(DEBUG_BUILD_CONFIG))], install=True)
+                container=[(True, TMuxKeyword(DEBUG_BUILD_CONFIG))], install=True
+            )
         except UsageError:
             pass
         else:
             self.assertTrue(False)
 
     def test_run_commands_remove(self):
-        helper_remove = AddRemoveHelper(DEBUG_BUILD_CONFIG, 'remove')
+        helper_remove = AddRemoveHelper(DEBUG_BUILD_CONFIG, "remove")
         # Test Remove
         helper_remove.run_commands(
-            container=[
-                (True, TMuxKeyword(DEBUG_BUILD_CONFIG))], install=False)
+            container=[(True, TMuxKeyword(DEBUG_BUILD_CONFIG))], install=False
+        )
         updated_state = read_state(DEBUG_BUILD_CONFIG)
         self.assertTrue("tmux" not in updated_state.installed)
 
         try:
             helper_remove.run_commands(
-                [(True, AllKeyword(DEBUG_BUILD_CONFIG))], install=False)
+                [(True, AllKeyword(DEBUG_BUILD_CONFIG))], install=False
+            )
         except UsageError:
             pass
         else:
             self.assertTrue(False)
 
     def test_run_commands_invalid(self):
-        helper_invalid = AddRemoveHelper(DEBUG_BUILD_CONFIG, '__remove')
+        helper_invalid = AddRemoveHelper(DEBUG_BUILD_CONFIG, "__remove")
         try:
             helper_invalid.run_commands(
-                container=[
-                    (True, TMuxKeyword(DEBUG_BUILD_CONFIG))], install=True)
+                container=[(True, TMuxKeyword(DEBUG_BUILD_CONFIG))], install=True
+            )
         except AttributeError:
             pass
         else:
