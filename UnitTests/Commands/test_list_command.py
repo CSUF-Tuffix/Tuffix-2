@@ -17,6 +17,4 @@ class ListCommandTest(unittest.TestCase):
         __list = ListCommand(DEBUG_BUILD_CONFIG)
         with Capturing() as output:
             __list.execute([])
-        self.assertTrue(
-            (argc  := (len(output)) > 0)
-        )
+        self.assertTrue((argc := (len(output)) > 0))

@@ -45,22 +45,25 @@ class AtomKeywordTest(TestEditorGeneric):
         apt_key = shutil.which("apt-key")
         bash = shutil.which("bash")
 
-        apt_key_output = '\n'.join(subprocess.check_output(
-            f'{apt_key} list',
-            shell=True,
-            executable=bash,
-            encoding="utf-8",
-            universal_newlines="\n").splitlines())
+        apt_key_output = "\n".join(
+            subprocess.check_output(
+                f"{apt_key} list",
+                shell=True,
+                executable=bash,
+                encoding="utf-8",
+                universal_newlines="\n",
+            ).splitlines()
+        )
 
-        if not(match := (apt_key_re.search(apt_key_output))):
+        if not (match := (apt_key_re.search(apt_key_output))):
             self.assertTrue(False)
 
         _id, _, _, link, email = match.groups()
         self._id = _id
 
         self.assertTrue(
-            (link == "https://packagecloud.io/AtomEditor/atom") and
-            (email == "support@packagecloud.io")
+            (link == "https://packagecloud.io/AtomEditor/atom")
+            and (email == "support@packagecloud.io")
         )
 
     def test_add(self):
@@ -80,7 +83,11 @@ class AtomKeywordTest(TestEditorGeneric):
         installable_packages = ["dbg-gdb", "dbg", "output-panel"]
 
         with CapturingStderr() as _:
-            self.assertFalse(all([self.keyword.check_apm_candiate(_)
-                                  for _ in uninstallable_packages]))
-            self.assertTrue(all([self.keyword.check_apm_candiate(_)
-                                 for _ in installable_packages]))
+            self.assertFalse(
+                all(
+                    [self.keyword.check_apm_candiate(_) for _ in uninstallable_packages]
+                )
+            )
+            self.assertTrue(
+                all([self.keyword.check_apm_candiate(_) for _ in installable_packages])
+            )

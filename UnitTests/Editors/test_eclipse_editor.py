@@ -22,11 +22,13 @@ class EclipseKeywordTest(TestEditorGeneric):
 
         before_install = read_state(self.keyword.build_config)
         self.assertTrue(
-            self.keyword.name not in self.obtain_correct_attribute(before_install))
+            self.keyword.name not in self.obtain_correct_attribute(before_install)
+        )
         self.keyword.add()
         after_install = read_state(self.keyword.build_config)
         self.assertTrue(
-            self.keyword.name in self.obtain_correct_attribute(after_install))
+            self.keyword.name in self.obtain_correct_attribute(after_install)
+        )
 
     def test_remove(self):
         """
@@ -36,4 +38,5 @@ class EclipseKeywordTest(TestEditorGeneric):
         self.keyword.remove()
         after_removal = read_state(self.keyword.build_config)
         self.assertTrue(
-            self.keyword.name not in self.obtain_correct_attribute(after_removal))
+            self.keyword.name not in self.obtain_correct_attribute(after_removal)
+        )

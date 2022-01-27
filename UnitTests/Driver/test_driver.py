@@ -29,7 +29,7 @@ class DriverTest(unittest.TestCase):
         k_container = KeywordContainer(DEFAULT_BUILD_CONFIG)
         k_container.container.sort(key=lambda x: x.name)
         for keyword in k_container.container:
-            command = f'tuffix describe {keyword.name}'
+            command = f"tuffix describe {keyword.name}"
             main(command.split())
 
     def test_add(self):

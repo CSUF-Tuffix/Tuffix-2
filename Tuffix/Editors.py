@@ -40,8 +40,7 @@ class EditorBaseKeyword(AbstractKeyword):
         Goal: update the state file
         """
 
-        if not(isinstance(arguments, list) and
-               isinstance(install, bool)):
+        if not (isinstance(arguments, list) and isinstance(install, bool)):
             raise ValueError
 
         current_state = read_state(self.build_config)
@@ -49,15 +48,17 @@ class EditorBaseKeyword(AbstractKeyword):
         new_action = current_state.editors
 
         for argument in arguments:
-            if(not install):
+            if not install:
                 new_action.remove(argument)
             else:
                 new_action.append(argument)
 
-        new_state = State(self.build_config,
-                          self.build_config.version,
-                          current_state.installed,
-                          new_action)
+        new_state = State(
+            self.build_config,
+            self.build_config.version,
+            current_state.installed,
+            new_action,
+        )
         new_state.write()
 
 
@@ -65,9 +66,12 @@ class BlankEditorKeyword(EditorBaseKeyword):
     # NOTE: please delete when done
 
     def __init__(self, build_config: BuildConfig):
-        super().__init__(build_config, 'blank',
-                         'this is a test editor keyword and should be discarded when done')
-        self.packages = ['cowsay']
+        super().__init__(
+            build_config,
+            "blank",
+            "this is a test editor keyword and should be discarded when done",
+        )
+        self.packages = ["cowsay"]
         self.checkable_packages = self.packages
 
     def add(self):
@@ -78,17 +82,18 @@ class BlankEditorKeyword(EditorBaseKeyword):
 
 
 class AtomKeyword(EditorBaseKeyword):
-
     def __init__(self, build_config: BuildConfig):
-        super().__init__(build_config, 'atom', 'Github\'s own editor')
-        self.packages: list[str] = ['atom']
+        super().__init__(build_config, "atom", "Github's own editor")
+        self.packages: list[str] = ["atom"]
         self.checkable_packages = []
-        self.repo_payload = "deb [arch=amd64] https://packagecloud.io/AtomEditor/atom/any/ any main"
+        self.repo_payload = (
+            "deb [arch=amd64] https://packagecloud.io/AtomEditor/atom/any/ any main"
+        )
 
         self.link_dictionary = {
             "ATOM_GPG_URL": LinkPacket(
-                link="https://packagecloud.io/AtomEditor/atom/gpgkey",
-                is_git=False)
+                link="https://packagecloud.io/AtomEditor/atom/gpgkey", is_git=False
+            )
         }
 
     def check_apm_candiate(self, package: str) -> bool:
@@ -96,17 +101,13 @@ class AtomKeyword(EditorBaseKeyword):
         Ensure that an Atom plugin can be installed
         """
 
-        if not(isinstance(package, str)):
-            raise ValueError(f'expecting `str`, received {type(package)}')
+        if not (isinstance(package, str)):
+            raise ValueError(f"expecting `str`, received {type(package)}")
 
-        if not(
-            (bash := shutil.which("bash")) and
-                (apm := shutil.which("apm"))):
+        if not ((bash := shutil.which("bash")) and (apm := shutil.which("apm"))):
             raise ValueError
         try:
-            self.executor.run(
-                f'{apm} view {package}',
-                self.executor.whoami)
+            self.executor.run(f"{apm} view {package}", self.executor.whoami)
         except Exception as e:
             return False
         return True
@@ -125,43 +126,37 @@ class AtomKeyword(EditorBaseKeyword):
             fp.write(content)
 
         self.executor.run(
-            f'sudo apt-key add {gpg_dest.resolve()}',
-            self.executor.whoami)
+            f"sudo apt-key add {gpg_dest.resolve()}", self.executor.whoami
+        )
 
         self.write_to_sources(self.repo_payload, True)
 
-    def install_plugins(
-        self,
-        plugins: list = [
-            'dbg-gdb',
-            'dbg',
-            'output-panel']):
+    def install_plugins(self, plugins: list = ["dbg-gdb", "dbg", "output-panel"]):
         """
         Install pre-approved Atom packages
         API usage: supply custom plugins list
         """
 
-        if not(isinstance(plugins, list) and
-               all([isinstance(_, str) for _ in plugins])):
+        if not (
+            isinstance(plugins, list) and all([isinstance(_, str) for _ in plugins])
+        ):
             raise ValueError
 
-        atom_conf_dir = pathlib.Path(f'/home/{self.executor.whoami}/.atom')
+        atom_conf_dir = pathlib.Path(f"/home/{self.executor.whoami}/.atom")
 
         for plugin in plugins:
-            print(f'[INFO] Installing {plugin}...')
+            print(f"[INFO] Installing {plugin}...")
+            self.executor.run(f"/usr/bin/apm install {plugin}", self.executor.whoami)
             self.executor.run(
-                f'/usr/bin/apm install {plugin}',
-                self.executor.whoami)
-            self.executor.run(
-                f'chown {self.executor.whoami} -R {atom_conf_dir}',
-                self.executor.whoami)
+                f"chown {self.executor.whoami} -R {atom_conf_dir}", self.executor.whoami
+            )
 
     def add(self, write=True, can_install_ppa=True):
         """
         GOAL: Get and install Atom with predefined plugins
         """
 
-        if(can_install_ppa):
+        if can_install_ppa:
             self.install_ppa()
 
         self.edit_deb_packages(self.packages, is_installing=True)
@@ -170,13 +165,13 @@ class AtomKeyword(EditorBaseKeyword):
 
         print("[INFO] Finished installing Atom")
 
-        if(write):
+        if write:
             self.rewrite_state(self.packages, True)
 
     def remove(self, write=True):
         self.edit_deb_packages(self.packages, is_installing=False)
 
-        if(write):
+        if write:
             self.rewrite_state(self.packages, False)
 
 
@@ -186,8 +181,8 @@ class EmacsKeyword(EditorBaseKeyword):
     """
 
     def __init__(self, build_config: BuildConfig):
-        super().__init__(build_config, 'emacs', 'an adequite editor')
-        self.packages: list[str] = ['emacs']
+        super().__init__(build_config, "emacs", "an adequite editor")
+        self.packages: list[str] = ["emacs"]
 
     def add(self):
         self.edit_deb_packages(self.packages, is_installing=True)
@@ -199,10 +194,9 @@ class EmacsKeyword(EditorBaseKeyword):
 
 
 class GeanyKeyword(EditorBaseKeyword):
-
     def __init__(self, build_config: BuildConfig):
-        super().__init__(build_config, 'geany', 'a lightweight GTK IDE')
-        self.packages: list[str] = ['geany']
+        super().__init__(build_config, "geany", "a lightweight GTK IDE")
+        self.packages: list[str] = ["geany"]
 
     def add(self):
         self.edit_deb_packages(self.packages, is_installing=True)
@@ -215,8 +209,8 @@ class GeanyKeyword(EditorBaseKeyword):
 
 class NetbeansKeyword(EditorBaseKeyword):
     def __init__(self, build_config: BuildConfig):
-        super().__init__(build_config, 'netbeans', 'a Java IDE')
-        self.packages: list[str] = ['netbeans']
+        super().__init__(build_config, "netbeans", "a Java IDE")
+        self.packages: list[str] = ["netbeans"]
 
     def add(self):
         self.edit_deb_packages(self.packages, is_installing=True)
@@ -229,27 +223,26 @@ class NetbeansKeyword(EditorBaseKeyword):
 
 class VimKeyword(EditorBaseKeyword):
     def __init__(self, build_config: BuildConfig):
-        super().__init__(build_config, 'vim', 'an exquisite editor')
-        self.packages: list[str] = ['vim', 'vim-gtk3']
+        super().__init__(build_config, "vim", "an exquisite editor")
+        self.packages: list[str] = ["vim", "vim-gtk3"]
 
     def add(self, vimrc_path=""):
         """
         Goal: install vim and added feature for vimrc (personal touch)
         """
 
-        if not(isinstance(vimrc_path, str)):
-            raise ValueError(
-                f'expected `str`, obtained {type(vimrc_path).__name__}')
+        if not (isinstance(vimrc_path, str)):
+            raise ValueError(f"expected `str`, obtained {type(vimrc_path).__name__}")
 
-        if(vimrc_path):
-            vrc = pathlib.Path(f'/home/{self.executor.whoami}/.vimrc')
+        if vimrc_path:
+            vrc = pathlib.Path(f"/home/{self.executor.whoami}/.vimrc")
             content = requests.get(vimrc_path).content
             with open(vrc, "wb") as fp:
                 fp.write(content)
         self.edit_deb_packages(self.packages, is_installing=True)
         self.rewrite_state(self.packages[:1], True)
-        if(vimrc_path):
-            self.executor.run(f'vim +silent +PluginInstall +qall')
+        if vimrc_path:
+            self.executor.run(f"vim +silent +PluginInstall +qall")
 
     def remove(self):
         self.edit_deb_packages(self.packages, is_installing=False)
@@ -257,23 +250,27 @@ class VimKeyword(EditorBaseKeyword):
 
 
 class VscodeKeyword(EditorBaseKeyword):
-
     def __init__(self, build_config: BuildConfig):
-        super().__init__(build_config, 'code', 'Microsoft\'s text editor')
-        self.packages: list[str] = ['gnupg',
-                                    'libgbm1',
-                                    'libgtk-3-0',
-                                    'libnss3',
-                                    'libsecret-1-0',
-                                    'libxkbfile1',
-                                    'libxss1',
-                                    'code']
+        super().__init__(build_config, "code", "Microsoft's text editor")
+        self.packages: list[str] = [
+            "gnupg",
+            "libgbm1",
+            "libgtk-3-0",
+            "libnss3",
+            "libsecret-1-0",
+            "libxkbfile1",
+            "libxss1",
+            "code",
+        ]
         self.checkable_packages = self.packages[:-1]
         self.link_dictionary = {
             "VSCODE_GPG": LinkPacket(
-                link="https://packages.microsoft.com/keys/microsoft.asc",
-                is_git=False)}
-        self.repo_payload = "deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main"
+                link="https://packages.microsoft.com/keys/microsoft.asc", is_git=False
+            )
+        }
+        self.repo_payload = (
+            "deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main"
+        )
 
     def install_ppa(self):
         """
@@ -289,13 +286,13 @@ class VscodeKeyword(EditorBaseKeyword):
             fp.write(content)
 
         self.executor.run(
-            f'sudo apt-key add {gpg_dest.resolve()}',
-            self.executor.whoami)
+            f"sudo apt-key add {gpg_dest.resolve()}", self.executor.whoami
+        )
 
         self.write_to_sources(self.repo_payload, True)
 
     def add(self, can_install_ppa: bool = True):
-        if(can_install_ppa):
+        if can_install_ppa:
             self.install_ppa()
 
         self.edit_deb_packages(self.packages, is_installing=True)
@@ -309,9 +306,9 @@ class VscodeKeyword(EditorBaseKeyword):
         self.rewrite_state(self.packages, False)
 
 
-class EditorKeywordContainer():
+class EditorKeywordContainer:
     def __init__(self, build_config=DEFAULT_BUILD_CONFIG):
-        if not(isinstance(build_config, BuildConfig)):
+        if not (isinstance(build_config, BuildConfig)):
             raise ValueError
 
         self.container: list[EditorBaseKeyword] = [
@@ -321,14 +318,14 @@ class EditorKeywordContainer():
             GeanyKeyword(build_config),
             NetbeansKeyword(build_config),
             VimKeyword(build_config),
-            VscodeKeyword(build_config)
+            VscodeKeyword(build_config),
         ]
 
     def obtain(self, value: str) -> tuple:
-        if(not isinstance(value, str)):
-            raise ValueError(f'incorrect type: {type(value)}')
+        if not isinstance(value, str):
+            raise ValueError(f"incorrect type: {type(value)}")
 
         for keyword in self.container:
-            if(keyword.name == value):
+            if keyword.name == value:
                 return (True, keyword)
         return (False, None)

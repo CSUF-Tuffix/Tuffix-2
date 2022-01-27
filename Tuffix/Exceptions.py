@@ -3,6 +3,7 @@
 # AUTHORS: Kevin Wortman , Jared Dyreson
 ##########################################################################
 
+
 class MessageException(Exception):
     """
     Base types for exceptions that include a string message

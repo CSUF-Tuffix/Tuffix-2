@@ -30,12 +30,15 @@ class InitCommandTest(unittest.TestCase):
         Test if the state directory can be created
         """
 
-        state_path, json_path = self.init.build_config.state_path, self.init.build_config.json_state_path
+        state_path, json_path = (
+            self.init.build_config.state_path,
+            self.init.build_config.json_state_path,
+        )
 
         self.init.create_state_directory()
 
         # check if Tuffix was successfully been configured
-        if not(state_path.is_file() and json_path.is_dir()):
+        if not (state_path.is_file() and json_path.is_dir()):
             self.assertTrue(False)
 
     def test_git_configuration(self):
@@ -45,18 +48,17 @@ class InitCommandTest(unittest.TestCase):
         """
 
         username, email = "tuffytitan", "tuffy@csu.fullerton.edu"
-        git_configuration_file = pathlib.Path(
-            f'/home/{SudoRun().whoami}/.gitconfig')
+        git_configuration_file = pathlib.Path(f"/home/{SudoRun().whoami}/.gitconfig")
 
         with Capturing() as output:
             self.init.configure_git(username=username, mail=email)
 
         self.assertTrue(
-            termcolor.colored("Successfully configured git", 'green') ==
-            output[0])
+            termcolor.colored("Successfully configured git", "green") == output[0]
+        )
 
         with open(git_configuration_file, "r") as fp:
-            content = ''.join(fp.readlines())
+            content = "".join(fp.readlines())
 
         _user_re = re.compile("name = (?P<username>.*)")
         _email_re = re.compile("email = (?P<email>.*)")
@@ -64,29 +66,26 @@ class InitCommandTest(unittest.TestCase):
         user_match = _user_re.search(content)
         email_match = _email_re.search(content)
 
-        if not(user_match and email_match):
+        if not (user_match and email_match):
             print(user_match)
             print(email_match)
             self.assertTrue(False)
 
         # if not((user_match := _user_re.search(content)) and
-            # (email_match := _email_re.search(content))):
-            # print(user_match)
-            # print(email_match)
-            # self.assertTrue(False)
+        # (email_match := _email_re.search(content))):
+        # print(user_match)
+        # print(email_match)
+        # self.assertTrue(False)
 
         user, mail = user_match.group("username"), email_match.group("email")
 
-        self.assertTrue(
-            (user == username) and
-            (email == mail)
-        )
+        self.assertTrue((user == username) and (email == mail))
 
     def test_configure_ppa(self):
         tuffix_list = pathlib.Path("/etc/apt/sources.list.d/tuffix.list")
         self.init.configure_ppa()
 
-        if not(tuffix_list.is_file()):
+        if not (tuffix_list.is_file()):
             self.assertTrue(False)
 
         expression = """
@@ -98,29 +97,34 @@ class InitCommandTest(unittest.TestCase):
         apt_key = shutil.which("apt-key")
         bash = shutil.which("bash")
 
-        apt_key_output = '\n'.join(subprocess.check_output(
-            f'{apt_key} list',
-            shell=True,
-            executable=bash,
-            encoding="utf-8",
-            universal_newlines="\n").splitlines())
+        apt_key_output = "\n".join(
+            subprocess.check_output(
+                f"{apt_key} list",
+                shell=True,
+                executable=bash,
+                encoding="utf-8",
+                universal_newlines="\n",
+            ).splitlines()
+        )
 
-        if not(match := (apt_key_re.search(apt_key_output))):
+        if not (match := (apt_key_re.search(apt_key_output))):
             self.assertTrue(False)
 
         _id, _, _, author, _, email = match.groups()
 
         self.assertTrue(
-            (author == "Jared Dyreson ") and
-            (email == "jareddyreson@csu.fullerton.edu")
+            (author == "Jared Dyreson ") and (email == "jareddyreson@csu.fullerton.edu")
         )
 
-        removal_output = '\n'.join(subprocess.check_output(
-            f'{apt_key} del "{_id}"',
-            shell=True,
-            executable=bash,
-            encoding="utf-8",
-            universal_newlines="\n").splitlines())
+        removal_output = "\n".join(
+            subprocess.check_output(
+                f'{apt_key} del "{_id}"',
+                shell=True,
+                executable=bash,
+                encoding="utf-8",
+                universal_newlines="\n",
+            ).splitlines()
+        )
 
         self.assertTrue(removal_output == "OK")
 

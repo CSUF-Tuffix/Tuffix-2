@@ -11,7 +11,7 @@ import subprocess
 import re
 
 
-class SudoRun():
+class SudoRun:
     def __init__(self):
         self.whoami = os.getlogin()
 
@@ -20,8 +20,7 @@ class SudoRun():
         GOAL: permanently change the user in the context of the running program
         """
 
-        if not(isinstance(user_id, int) and
-                isinstance(user_gid, int)):
+        if not (isinstance(user_id, int) and isinstance(user_gid, int)):
             raise ValueError
 
         os.setgid(user_gid)
@@ -32,7 +31,7 @@ class SudoRun():
         Check the passwd file to see if a given user a valid user
         """
 
-        if not(isinstance(user, str)):
+        if not (isinstance(user, str)):
             raise ValueError
 
         passwd_path = "/etc/passwd"
@@ -40,9 +39,8 @@ class SudoRun():
         with open(passwd_path, "r") as fp:
             contents = fp.readlines()
         return user in [
-            re.search(
-                '^(?P<name>.+?)\\:',
-                line).group("name") for line in contents]
+            re.search("^(?P<name>.+?)\\:", line).group("name") for line in contents
+        ]
 
     def run(self, command: str, desired_user: str) -> list:
         """
@@ -51,23 +49,25 @@ class SudoRun():
         If permission is denied, throw a descriptive error why
         """
 
-        if not(isinstance(command, str) and
-               isinstance(desired_user, str)):
+        if not (isinstance(command, str) and isinstance(desired_user, str)):
             raise ValueError
 
-        if not(self.check_user(desired_user)):
-            raise UnknownUserException(f'Unknown user: {desired_user}')
+        if not (self.check_user(desired_user)):
+            raise UnknownUserException(f"Unknown user: {desired_user}")
 
         current_user = os.getlogin()
 
-        if((current_user == "root") and (os.getuid() != 0)):
+        if (current_user == "root") and (os.getuid() != 0):
             raise PrivilageExecutionException(
-                f'{current_user} does not have permission to run the command {command} as the user {desired_user}')
+                f"{current_user} does not have permission to run the command {command} as the user {desired_user}"
+            )
 
-        command = f'sudo -H -u {desired_user} bash -c \'{command}\''
+        command = f"sudo -H -u {desired_user} bash -c '{command}'"
 
         return [
-            line for line in subprocess.check_output(
-                command,
-                shell=True,
-                encoding="utf-8").split('\n') if line]
+            line
+            for line in subprocess.check_output(
+                command, shell=True, encoding="utf-8"
+            ).split("\n")
+            if line
+        ]

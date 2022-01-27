@@ -25,17 +25,19 @@ class TuffixTestRunner:
             "SequentialTest.py",
             "__init__.py",
             "BaseTester.py",
-            "README.md"],
-        excluded_dirs: list = [
-            "__pycache__",
-            "TEST"]):
-        if not(isinstance(parent_dir, pathlib.Path) and
-               parent_dir.is_dir() and
-               isinstance(pedantic, bool) and
-               isinstance(excluded_files, list) and
-               all([isinstance(_, str) for _ in excluded_files]) and
-               isinstance(excluded_dirs, list) and
-               all([isinstance(_, str) for _ in excluded_dirs])):
+            "README.md",
+        ],
+        excluded_dirs: list = ["__pycache__", "TEST"],
+    ):
+        if not (
+            isinstance(parent_dir, pathlib.Path)
+            and parent_dir.is_dir()
+            and isinstance(pedantic, bool)
+            and isinstance(excluded_files, list)
+            and all([isinstance(_, str) for _ in excluded_files])
+            and isinstance(excluded_dirs, list)
+            and all([isinstance(_, str) for _ in excluded_dirs])
+        ):
             raise ValueError
 
         self.excluded_dirs = excluded_dirs
@@ -66,29 +68,34 @@ class TuffixTestRunner:
             dirs[:] = [d for d in dirs if d not in self.excluded_dirs]
             filepath[:] = [f for f in filepath if f not in self.excluded_files]
             test_name = os.path.basename(dirpath)
-            if not(test_name == str(self.parent_dir)):
+            if not (test_name == str(self.parent_dir)):
                 self.file_system["UnitTests"].update(
                     {
-                        test_name: [(pathlib.Path(self.parent_dir / test_name / path),
-                                     self.pedantic) for path in filepath]
-
+                        test_name: [
+                            (
+                                pathlib.Path(self.parent_dir / test_name / path),
+                                self.pedantic,
+                            )
+                            for path in filepath
+                        ]
                     }
                 )
 
     def print_resultant_message(self, container: list):
-        if not(isinstance(container, list) and
-               all([isinstance(_, int) for _ in container])):
+        if not (
+            isinstance(container, list) and all([isinstance(_, int) for _ in container])
+        ):
             raise ValueError
 
         total, failures = container
-        if(failures == 0):
-            print(termcolor.colored(
-                f'All {total} test(s) have all passed', 'green'
-            ))
+        if failures == 0:
+            print(termcolor.colored(f"All {total} test(s) have all passed", "green"))
         else:
-            print(termcolor.colored(
-                f'{total - failures}/{total} test(s) have passed', 'red'
-            ))
+            print(
+                termcolor.colored(
+                    f"{total - failures}/{total} test(s) have passed", "red"
+                )
+            )
 
     def test_certain_class(self, name: str):
         """
@@ -96,7 +103,7 @@ class TuffixTestRunner:
         Example: Tuffix.Editors
         """
 
-        if not(isinstance(name, str)):
+        if not (isinstance(name, str)):
             raise ValueError
 
         total_counter = [0, 0]
@@ -104,7 +111,7 @@ class TuffixTestRunner:
         try:
             test_suite = self.file_system[str(self.parent_dir)][name]
         except KeyError:
-            print(f'[ERROR] Could not find test {name}')
+            print(f"[ERROR] Could not find test {name}")
             quit()
 
         print(f"[INFO] Testing all of {name}")
@@ -112,7 +119,9 @@ class TuffixTestRunner:
             test, _ = __test
             result = self.conduct_test(test)
             total_counter[self.indexer.TOTAL.value] += result[self.indexer.TOTAL.value]
-            total_counter[self.indexer.FAILURE.value] += result[self.indexer.FAILURE.value]
+            total_counter[self.indexer.FAILURE.value] += result[
+                self.indexer.FAILURE.value
+            ]
 
         self.print_resultant_message(total_counter)
 
@@ -121,8 +130,8 @@ class TuffixTestRunner:
         Run the test given a path to the module and if it will be pendantic
         """
 
-        if not(isinstance(path, pathlib.Path)):
-            raise ValueError(f'{path=} is not a `pathlib.Path`')
+        if not (isinstance(path, pathlib.Path)):
+            raise ValueError(f"{path=} is not a `pathlib.Path`")
         test_re = re.compile(".*Test")
 
         # get the specifications from the path given
@@ -131,11 +140,11 @@ class TuffixTestRunner:
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
 
-        if(hasattr(module, 'IGNORE_ME')):
+        if hasattr(module, "IGNORE_ME"):
             # to make testing go by quicker
             # please remove `IGNORE_ME = True` from all instances
 
-            print(f'[INFO] Ignoring {path}')
+            print(f"[INFO] Ignoring {path}")
             return [0, 0]
 
         # these tests names must conform to a certain format
@@ -146,7 +155,7 @@ class TuffixTestRunner:
         counter = [0, 0]
 
         for _test in tests:
-            print(f'[INFO] Conducting {_test}')
+            print(f"[INFO] Conducting {_test}")
             # get the current instance of the class we are interested in
             test_instance = getattr(module, _test, None)
             # load the current test into a testloader for unittest
@@ -158,12 +167,12 @@ class TuffixTestRunner:
 
             # send all output from functions to /dev/null if specified
 
-            if(self.pedantic):
+            if self.pedantic:
                 result = self.runner.run(test_suite)
             else:
                 with quiet():
                     result = self.runner.run(test_suite)
-            counter[self.indexer.FAILURE.value] += (len(result.failures))
+            counter[self.indexer.FAILURE.value] += len(result.failures)
 
         return counter
 

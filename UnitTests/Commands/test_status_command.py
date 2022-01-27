@@ -13,11 +13,13 @@ class StatusCommandTest(unittest.TestCase):
     """
     NOTE: is incomplete
     """
+
     @classmethod
     def setUpClass(cls):
         cls.status_command = StatusCommand(DEBUG_BUILD_CONFIG)
         cls.init = InitCommand(DEBUG_BUILD_CONFIG)
         cls.init.create_state_directory()
+
     @classmethod
     def tearDownClass(cls):
         cls.init.remove_state_directory()
@@ -27,6 +29,4 @@ class StatusCommandTest(unittest.TestCase):
 
         with Capturing() as output:
             self.status_command.execute([])
-        self.assertTrue(
-            termcolor.colored(message, "green") == output[-1]
-        )
+        self.assertTrue(termcolor.colored(message, "green") == output[-1])

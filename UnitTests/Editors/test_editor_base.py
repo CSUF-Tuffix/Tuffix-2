@@ -11,9 +11,7 @@ import unittest
 class EditorBaseKeywordTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.state = State(DEBUG_BUILD_CONFIG,
-                          DEBUG_BUILD_CONFIG.version,
-                          [], [])
+        cls.state = State(DEBUG_BUILD_CONFIG, DEBUG_BUILD_CONFIG.version, [], [])
         cls.Init = InitCommand(DEBUG_BUILD_CONFIG)
         cls.Init.create_state_directory()
         cls.state.write()
@@ -29,7 +27,8 @@ class EditorBaseKeywordTest(unittest.TestCase):
 
         try:
             ExampleEditor = EditorBaseKeyword(
-                DEBUG_BUILD_CONFIG, 'example', 'this is an example of the base class')
+                DEBUG_BUILD_CONFIG, "example", "this is an example of the base class"
+            )
         except ValueError:
             self.assertTrue(False)
 
@@ -39,9 +38,8 @@ class EditorBaseKeywordTest(unittest.TestCase):
         """
 
         ExampleEditor = EditorBaseKeyword(
-            DEBUG_BUILD_CONFIG,
-            'example',
-            'this is an example of the base class')
+            DEBUG_BUILD_CONFIG, "example", "this is an example of the base class"
+        )
 
         current_state = read_state(DEBUG_BUILD_CONFIG)
 
@@ -49,23 +47,15 @@ class EditorBaseKeywordTest(unittest.TestCase):
 
         # "install" the current keyword
 
-        ExampleEditor.rewrite_state(
-            arguments=[
-                ExampleEditor.name],
-            install=True)
+        ExampleEditor.rewrite_state(arguments=[ExampleEditor.name], install=True)
 
         installed_example_state = read_state(DEBUG_BUILD_CONFIG)
 
-        self.assertTrue(
-            installed_example_state.editors == [
-                ExampleEditor.name])
+        self.assertTrue(installed_example_state.editors == [ExampleEditor.name])
 
         # "remove" the current keword
 
-        ExampleEditor.rewrite_state(
-            arguments=[
-                ExampleEditor.name],
-            install=False)
+        ExampleEditor.rewrite_state(arguments=[ExampleEditor.name], install=False)
 
         removed_example_state = read_state(DEBUG_BUILD_CONFIG)
 

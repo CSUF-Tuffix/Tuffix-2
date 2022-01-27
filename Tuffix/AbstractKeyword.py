@@ -12,10 +12,12 @@ class AbstractKeyword:
     """
 
     def __init__(self, build_config, name, description, packages=None):
-        if not (isinstance(build_config, BuildConfig) and
-                isinstance(name, str) and
-                len(name) <= KEYWORD_MAX_LENGTH and
-                isinstance(description, str)):
+        if not (
+            isinstance(build_config, BuildConfig)
+            and isinstance(name, str)
+            and len(name) <= KEYWORD_MAX_LENGTH
+            and isinstance(description, str)
+        ):
             raise ValueError
         self.name = name
         self.description = description
@@ -37,17 +39,17 @@ class AbstractKeyword:
         Not the most efficient solution
         """
 
-        if not(isinstance(payload, str)):
+        if not (isinstance(payload, str)):
             raise ValueError
         path = pathlib.Path("/etc/apt/sources.list")
 
         with open(path, "r") as fp:
             _ = fp.readlines()
-            if(payload in _):
+            if payload in _:
                 return
-            contents = ''.join(_)
-        if(appending):
-            contents = f'{contents}\n{payload}\n'
+            contents = "".join(_)
+        if appending:
+            contents = f"{contents}\n{payload}\n"
         else:
             contents.replace(payload, "")
 
@@ -65,7 +67,9 @@ class AbstractKeyword:
         current_cache = apt.cache.Cache()
         current_cache.update()
 
-        container = self.packages if not self.checkable_packages else self.checkable_packages
+        container = (
+            self.packages if not self.checkable_packages else self.checkable_packages
+        )
 
         for package in container:
             # will raise KeyError if not found
@@ -73,62 +77,68 @@ class AbstractKeyword:
                 _ = current_cache[package]
             except KeyError:
                 current_cache.close()
-                raise KeyError(f'could not find {package}')
+                raise KeyError(f"could not find {package}")
 
         current_cache.close()
 
     def is_deb_package_installed(self, package_name: str) -> bool:
-        if not(isinstance(package_name, str)):
-            raise ValueError(f'{package_name=} expected to be `str`')
+        if not (isinstance(package_name, str)):
+            raise ValueError(f"{package_name=} expected to be `str`")
         try:
             apt.apt_pkg.init()
             cache = apt.apt_pkg.Cache(None)  # quiet this output for testing
             package = cache[package_name]
-            return (package.current_state == apt.apt_pkg.CURSTATE_INSTALLED)
+            return package.current_state == apt.apt_pkg.CURSTATE_INSTALLED
         except KeyError:
             raise EnvironmentError(
-                f'[ERROR] No such package "{package_name}"; is this Ubuntu?')
+                f'[ERROR] No such package "{package_name}"; is this Ubuntu?'
+            )
 
     @classmethod
     def edit_deb_packages(self, package_names: list, is_installing: bool):
-        if not (isinstance(package_names, list) and
-                all(isinstance(name, str) for name in package_names) and
-                isinstance(is_installing, bool)):
+        if not (
+            isinstance(package_names, list)
+            and all(isinstance(name, str) for name in package_names)
+            and isinstance(is_installing, bool)
+        ):
             raise ValueError
-        print(
-            f'[INFO] Adding all packages to the APT queue ({len(package_names)})')
+        print(f"[INFO] Adding all packages to the APT queue ({len(package_names)})")
         cache = apt.cache.Cache()
         cache.update()
         cache.open()
 
         for name in package_names:
             print(
-                f'[INFO] {"Installing" if is_installing else "Removing"} package: {name}')
+                f'[INFO] {"Installing" if is_installing else "Removing"} package: {name}'
+            )
             try:
-                cache[name].mark_install() if(
-                    is_installing) else cache[name].mark_delete()
+                cache[name].mark_install() if (is_installing) else cache[
+                    name
+                ].mark_delete()
             except KeyError:
                 raise EnvironmentError(
-                    f'[ERROR] Debian package "{name}" not found, is this Ubuntu?')
+                    f'[ERROR] Debian package "{name}" not found, is this Ubuntu?'
+                )
         try:
             cache.commit()
         except OSError:
             DEFAULT_PROCESS_HANDLER.remove_process("apt")
             raise EnvironmentError(
-                '[FATAL] Could not continue, apt was holding resources. Processes were killed, please try again.')
+                "[FATAL] Could not continue, apt was holding resources. Processes were killed, please try again."
+            )
         except Exception as e:
             cache.close()
-            raise EnvironmentError(f'[ERROR] Could not install {name}: {e}.')
+            raise EnvironmentError(f"[ERROR] Could not install {name}: {e}.")
         finally:
             # unittest complains there is an open file but I have tried closing it in every avenue
             # NOTE : possible memory leak
             cache.close()
 
     def install_pip_packages(self, packages: list):
-        if not(isinstance(packages, list)):
+        if not (isinstance(packages, list)):
             raise ValueError
         for package in packages:
-            pip.main(['install', package])
+            pip.main(["install", package])
 
     def rewrite_state(self, arguments: list, install=True):
         """
@@ -137,8 +147,7 @@ class AbstractKeyword:
         THIS IS AN ISSUE, PLEASE FIX ME WHEN BETA IS ROLLED OUT!
         """
 
-        if not(isinstance(arguments, list) and
-               isinstance(install, bool)):
+        if not (isinstance(arguments, list) and isinstance(install, bool)):
             raise ValueError
 
         current_state = read_state(self.build_config)
@@ -146,13 +155,15 @@ class AbstractKeyword:
         new_action = current_state.installed
 
         for argument in arguments:
-            if(not install):
+            if not install:
                 new_action.remove(argument)
             else:
                 new_action.append(argument)
 
-        new_state = State(self.build_config,
-                          self.build_config.version,
-                          new_action,
-                          current_state.editors)
+        new_state = State(
+            self.build_config,
+            self.build_config.version,
+            new_action,
+            current_state.editors,
+        )
         new_state.write()
